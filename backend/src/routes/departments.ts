@@ -77,9 +77,14 @@ router.use(async (_req, _res, next) => {
 
 router.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (!(await ensureAdmin(req, res))) return
+    const includeInactiveRequested = String(req.query.include_inactive || '').toLowerCase() === 'true'
+    const includeInactive = includeInactiveRequested && req.user?.role === 'admin'
 
-    const includeInactive = String(req.query.include_inactive || '').toLowerCase() === 'true'
+    if (includeInactiveRequested && req.user?.role !== 'admin') {
+      res.status(403).json({ error: 'Forbidden. Admin access required.' })
+      return
+    }
+
     const activeClause = includeInactive ? Prisma.empty : Prisma.sql`WHERE department."IsActive" = TRUE`
 
     const rows = await prisma.$queryRaw<DepartmentRow[]>(Prisma.sql`
