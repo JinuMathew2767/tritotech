@@ -467,13 +467,13 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
       return
     }
 
-    const companyRecord = company ? await prisma.companies.findFirst({ where: { Name: company } }) : null
-    const departmentRecord = department ? await prisma.departments.findFirst({ where: { Name: department } }) : null
+    const companyRecord = company ? await prisma.companies.findFirst({ where: { Name: company, IsActive: true } }) : null
+    const departmentRecord = department ? await prisma.departments.findFirst({ where: { Name: department, IsActive: true } }) : null
     const isEmployee = req.user?.role === 'employee'
 
     if (isEmployee) {
-      if (!creator.CompanyId || !creator.DepartmentId) {
-        res.status(403).json({ error: 'Your account must be assigned to a company and department before creating tickets' })
+      if (!creator.CompanyId) {
+        res.status(403).json({ error: 'Your account must be assigned to a company before creating tickets' })
         return
       }
 
@@ -482,8 +482,13 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
         return
       }
 
-      if (departmentRecord && departmentRecord.Id !== creator.DepartmentId) {
+      if (creator.DepartmentId && departmentRecord && departmentRecord.Id !== creator.DepartmentId) {
         res.status(403).json({ error: 'You can only create tickets for your assigned department' })
+        return
+      }
+
+      if (!departmentRecord) {
+        res.status(400).json({ error: 'Please choose a valid active department' })
         return
       }
     }

@@ -4,6 +4,7 @@ import { ArrowLeft, Save } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import ticketService, { type TicketPriority } from '@/services/ticketService'
 import categoryService, { type Category } from '@/services/categoryService'
+import departmentService, { type DepartmentMaster } from '@/services/departmentService'
 import subcategoryService from '@/services/subcategoryService'
 import FileUploadZone from '@/components/ui/FileUploadZone'
 import toast from 'react-hot-toast'
@@ -21,9 +22,11 @@ export default function RaiseTicket() {
   const navigate = useNavigate()
   const allowedCompany = user?.company?.trim() || ''
   const allowedDepartment = user?.department?.trim() || ''
+  const hasGlobalDepartmentAccess = !allowedDepartment
   const [subject, setSubject] = useState('')
   const [company, setCompany] = useState(allowedCompany)
   const [department, setDepartment] = useState(allowedDepartment)
+  const [departments, setDepartments] = useState<DepartmentMaster[]>([])
   const [category, setCategory] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [subcategory, setSubcategory] = useState('')
@@ -34,6 +37,7 @@ export default function RaiseTicket() {
   const [files, setFiles] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingCategories, setLoadingCategories] = useState(true)
+  const [loadingDepartments, setLoadingDepartments] = useState(hasGlobalDepartmentAccess)
 
   useEffect(() => {
     setCompany(allowedCompany)
@@ -47,6 +51,21 @@ export default function RaiseTicket() {
       .catch(() => toast.error('Failed to load categories'))
       .finally(() => setLoadingCategories(false))
   }, [])
+
+  useEffect(() => {
+    if (!hasGlobalDepartmentAccess) {
+      setDepartments([])
+      setLoadingDepartments(false)
+      return
+    }
+
+    setLoadingDepartments(true)
+    departmentService
+      .list()
+      .then((items) => setDepartments(items))
+      .catch(() => toast.error('Failed to load departments'))
+      .finally(() => setLoadingDepartments(false))
+  }, [hasGlobalDepartmentAccess])
 
   useEffect(() => {
     const selectedCategory = categories.find((item) => item.name === category)
@@ -65,8 +84,12 @@ export default function RaiseTicket() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!allowedCompany || !allowedDepartment) {
-      toast.error('Your account is missing a company or department assignment. Please contact admin.')
+    if (!allowedCompany) {
+      toast.error('Your account is missing a company assignment. Please contact admin.')
+      return
+    }
+    if (!department) {
+      toast.error('Please choose a department before submitting the ticket.')
       return
     }
     setLoading(true)
@@ -124,18 +147,36 @@ export default function RaiseTicket() {
             </div>
             <div>
               <label className="label">Department</label>
-              <input
-                className="input bg-slate-50 text-slate-600"
-                value={department}
-                readOnly
-                disabled
-                placeholder="No department assigned"
-              />
+              {hasGlobalDepartmentAccess ? (
+                <select
+                  className="input"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  required
+                  disabled={loadingDepartments}
+                >
+                  <option value="">{loadingDepartments ? 'Loading…' : 'Select…'}</option>
+                  {departments.map((item) => <option key={item.id}>{item.name}</option>)}
+                </select>
+              ) : (
+                <input
+                  className="input bg-slate-50 text-slate-600"
+                  value={department}
+                  readOnly
+                  disabled
+                  placeholder="No department assigned"
+                />
+              )}
             </div>
           </div>
-          {(!allowedCompany || !allowedDepartment) && (
+          {!allowedCompany && (
             <p className="text-xs text-amber-700">
-              Your account must be assigned to a company and department before you can raise tickets.
+              Your account must be assigned to a company before you can raise tickets.
+            </p>
+          )}
+          {hasGlobalDepartmentAccess && (
+            <p className="text-xs text-slate-500">
+              Your company is fixed to your allowed company. You can choose any active department for this ticket.
             </p>
           )}
         </div>
@@ -224,7 +265,7 @@ export default function RaiseTicket() {
         {/* Footer */}
         <div className="flex items-center gap-3 justify-end">
           <Link to="/dashboard" className="btn-secondary">Cancel</Link>
-          <button type="submit" disabled={loading || !allowedCompany || !allowedDepartment} className="btn-primary min-w-[140px]">
+          <button type="submit" disabled={loading || !allowedCompany || !department} className="btn-primary min-w-[140px]">
             {loading ? (
               <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Submitting…</span>
             ) : 'Submit Ticket'}
