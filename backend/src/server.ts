@@ -19,10 +19,36 @@ dotenv.config()
 dotenv.config({ path: path.resolve(process.cwd(), 'sendgrid.env'), override: true })
 
 const app = express()
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
-  credentials: true
-}))
+const defaultAllowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173']
+const configuredOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+const allowedOrigins = new Set([...defaultAllowedOrigins, ...configuredOrigins])
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true)
+        return
+      }
+
+      const isAllowed =
+        allowedOrigins.has(origin) ||
+        /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)
+
+      if (isAllowed) {
+        callback(null, true)
+        return
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by CORS`))
+    },
+    credentials: true,
+  })
+)
 app.use(express.json())
 
 // Healthcheck
