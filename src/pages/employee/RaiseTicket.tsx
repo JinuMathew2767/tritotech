@@ -16,45 +16,14 @@ const priorities: { value: TicketPriority; label: string; desc: string; color: s
   { value: 'urgent', label: 'Urgent', desc: 'Business critical', color: 'border-red-400 bg-red-50 text-red-700' },
 ]
 
-const companies = [
-  'Triton Middle East LLC',
-  'Skymat Building Materials Trading LLC',
-  'Smart Insulation Finishing Systems LLC',
-  'Innotech Polimers Manufacturing LLC',
-  'Triton-UVC Division'
-]
-const departments = [
-  'Accounts',
-  'Admin',
-  'Cleaning',
-  'Dispatch',
-  'Driver',
-  'Finance',
-  'HR & Admin',
-  'Lab',
-  'Maintenance',
-  'Molding',
-  'Packing',
-  'Printing',
-  'Production',
-  'Purchase',
-  'Q.C.',
-  'R&D',
-  'Sales',
-  'Stores',
-  'Tape',
-  'Design',
-  'Process and Compliance',
-  'Logistics',
-  'Order Management'
-]
-
 export default function RaiseTicket() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const allowedCompany = user?.company?.trim() || ''
+  const allowedDepartment = user?.department?.trim() || ''
   const [subject, setSubject] = useState('')
-  const [company, setCompany] = useState(user?.company ?? '')
-  const [department, setDepartment] = useState(user?.department ?? '')
+  const [company, setCompany] = useState(allowedCompany)
+  const [department, setDepartment] = useState(allowedDepartment)
   const [category, setCategory] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [subcategory, setSubcategory] = useState('')
@@ -65,6 +34,11 @@ export default function RaiseTicket() {
   const [files, setFiles] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingCategories, setLoadingCategories] = useState(true)
+
+  useEffect(() => {
+    setCompany(allowedCompany)
+    setDepartment(allowedDepartment)
+  }, [allowedCompany, allowedDepartment])
 
   useEffect(() => {
     categoryService
@@ -91,6 +65,10 @@ export default function RaiseTicket() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (!allowedCompany || !allowedDepartment) {
+      toast.error('Your account is missing a company or department assignment. Please contact admin.')
+      return
+    }
     setLoading(true)
     try {
       const ticket = await ticketService.create({
@@ -136,19 +114,30 @@ export default function RaiseTicket() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="label">Company</label>
-              <select className="input" value={company} onChange={(e) => setCompany(e.target.value)} required>
-                <option value="">Select…</option>
-                {companies.map((c) => <option key={c}>{c}</option>)}
-              </select>
+              <input
+                className="input bg-slate-50 text-slate-600"
+                value={company}
+                readOnly
+                disabled
+                placeholder="No company assigned"
+              />
             </div>
             <div>
               <label className="label">Department</label>
-              <select className="input" value={department} onChange={(e) => setDepartment(e.target.value)} required>
-                <option value="">Select…</option>
-                {departments.map((d) => <option key={d}>{d}</option>)}
-              </select>
+              <input
+                className="input bg-slate-50 text-slate-600"
+                value={department}
+                readOnly
+                disabled
+                placeholder="No department assigned"
+              />
             </div>
           </div>
+          {(!allowedCompany || !allowedDepartment) && (
+            <p className="text-xs text-amber-700">
+              Your account must be assigned to a company and department before you can raise tickets.
+            </p>
+          )}
         </div>
 
         {/* Section 2 */}
@@ -235,7 +224,7 @@ export default function RaiseTicket() {
         {/* Footer */}
         <div className="flex items-center gap-3 justify-end">
           <Link to="/dashboard" className="btn-secondary">Cancel</Link>
-          <button type="submit" disabled={loading} className="btn-primary min-w-[140px]">
+          <button type="submit" disabled={loading || !allowedCompany || !allowedDepartment} className="btn-primary min-w-[140px]">
             {loading ? (
               <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Submitting…</span>
             ) : 'Submit Ticket'}

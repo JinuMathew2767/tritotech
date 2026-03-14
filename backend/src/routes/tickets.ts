@@ -458,13 +458,42 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
       res.status(400).json({ error: 'Please select a valid active subcategory' })
       return
     }
-    const creator = await prisma.users.findUnique({ where: { Id: req.user.id } })
+    const creator = await prisma.users.findUnique({
+      where: { Id: req.user.id },
+      include: { Companies: true, Departments: true },
+    })
+    if (!creator) {
+      res.status(404).json({ error: 'Creator account not found' })
+      return
+    }
+
     const companyRecord = company ? await prisma.companies.findFirst({ where: { Name: company } }) : null
     const departmentRecord = department ? await prisma.departments.findFirst({ where: { Name: department } }) : null
+    const isEmployee = req.user?.role === 'employee'
+
+    if (isEmployee) {
+      if (!creator.CompanyId || !creator.DepartmentId) {
+        res.status(403).json({ error: 'Your account must be assigned to a company and department before creating tickets' })
+        return
+      }
+
+      if (companyRecord && companyRecord.Id !== creator.CompanyId) {
+        res.status(403).json({ error: 'You can only create tickets for your assigned company' })
+        return
+      }
+
+      if (departmentRecord && departmentRecord.Id !== creator.DepartmentId) {
+        res.status(403).json({ error: 'You can only create tickets for your assigned department' })
+        return
+      }
+    }
+
+    const effectiveCompanyId = isEmployee ? creator.CompanyId : companyRecord?.Id || creator.CompanyId || null
+    const effectiveDepartmentId = isEmployee ? creator.DepartmentId : departmentRecord?.Id || creator.DepartmentId || null
     const createdAt = new Date()
     const matchedRoutingRule = await findMatchingRoutingRule({
-      companyId: companyRecord?.Id || creator?.CompanyId || null,
-      departmentId: departmentRecord?.Id || creator?.DepartmentId || null,
+      companyId: effectiveCompanyId,
+      departmentId: effectiveDepartmentId,
       categoryId: categoryRecord?.Id || null,
     })
     const assignedToId = matchedRoutingRule?.assignee_user_id || categoryRecord?.DefaultAssigneeId || null
@@ -486,8 +515,8 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
         Priority: priority.charAt(0).toUpperCase() + priority.slice(1),
         CategoryId: categoryRecord.Id,
         SubcategoryId: subcategoryRecord?.Id ?? null,
-        CompanyId: companyRecord?.Id || creator?.CompanyId || 1,
-        DepartmentId: departmentRecord?.Id || creator?.DepartmentId || 1,
+        CompanyId: effectiveCompanyId || 1,
+        DepartmentId: effectiveDepartmentId || 1,
         AssignedToId: assignedToId,
         Status: initialStatus,
         CreatedById: req.user.id,
