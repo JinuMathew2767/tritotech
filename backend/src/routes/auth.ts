@@ -4,6 +4,11 @@ import jwt from 'jsonwebtoken'
 import { prisma } from '../db'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { emailService } from '../services/emailService'
+import {
+  getDepartmentAccessMode,
+  getDepartmentAccessNames,
+  getUserDepartmentAccess,
+} from '../services/userDepartmentAccessService'
 
 const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret'
@@ -30,17 +35,29 @@ const buildAccessToken = (user: { id: number; role: string }) =>
 const buildRefreshToken = (user: { id: number; role: string }) =>
   jwt.sign({ userId: user.id, role: user.role, type: 'refresh' }, REFRESH_SECRET, { expiresIn: '30d' })
 
-const formatReactUser = (user: any) => ({
-  id: user.Id,
-  first_name: user.FullName.split(' ')[0],
-  last_name: user.FullName.split(' ').slice(1).join(' ') || '',
-  email: user.Email,
-  role: user.Roles?.Name?.toLowerCase().replace(' ', '_') || 'employee',
-  company: user.Companies?.Name || '',
-  department: user.Departments?.Name || '',
-  avatar: null, // Avatar support can be added later
-  employee_id: null
-})
+const formatReactUser = async (user: any) => {
+  const departmentAccess = await getUserDepartmentAccess(user.Id)
+
+  return {
+    id: user.Id,
+    first_name: user.FullName.split(' ')[0],
+    last_name: user.FullName.split(' ').slice(1).join(' ') || '',
+    email: user.Email,
+    role: user.Roles?.Name?.toLowerCase().replace(' ', '_') || 'employee',
+    company: user.Companies?.Name || '',
+    department: user.Departments?.Name || '',
+    department_access: getDepartmentAccessNames({
+      primaryDepartmentName: user.Departments?.Name,
+      departmentAccessNames: departmentAccess.names,
+    }),
+    department_access_mode: getDepartmentAccessMode({
+      primaryDepartmentName: user.Departments?.Name,
+      departmentAccessNames: departmentAccess.names,
+    }),
+    avatar: null, // Avatar support can be added later
+    employee_id: null,
+  }
+}
 
 // POST /api/auth/register
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
@@ -109,7 +126,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const reactUser = formatReactUser(user)
+    const reactUser = await formatReactUser(user)
     res.json({
       access: buildAccessToken({ id: reactUser.id, role: reactUser.role }),
       refresh: buildRefreshToken({ id: reactUser.id, role: reactUser.role }),
@@ -145,7 +162,7 @@ router.post('/refresh', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const reactUser = formatReactUser(user)
+    const reactUser = await formatReactUser(user)
     res.json({ access: buildAccessToken({ id: reactUser.id, role: reactUser.role }) })
   } catch (err) {
     res.status(401).json({ error: 'Invalid or expired refresh token' })

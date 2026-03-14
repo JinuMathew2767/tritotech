@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../db'
+import {
+  getDepartmentAccessMode,
+  getDepartmentAccessNames,
+  getUserDepartmentAccess,
+} from '../services/userDepartmentAccessService'
 
 export interface AuthRequest extends Request {
   user?: any
@@ -25,6 +30,8 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       res.status(401).json({ error: 'User no longer exists' })
       return
     }
+
+    const departmentAccess = await getUserDepartmentAccess(user.Id)
     
     req.user = {
       id: user.Id,
@@ -34,6 +41,14 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       role: user.Roles?.Name?.toLowerCase().replace(' ', '_') || 'employee',
       company: user.Companies?.Name || '',
       department: user.Departments?.Name || '',
+      department_access: getDepartmentAccessNames({
+        primaryDepartmentName: user.Departments?.Name,
+        departmentAccessNames: departmentAccess.names,
+      }),
+      department_access_mode: getDepartmentAccessMode({
+        primaryDepartmentName: user.Departments?.Name,
+        departmentAccessNames: departmentAccess.names,
+      }),
       avatar: null,
       employee_id: null
     }

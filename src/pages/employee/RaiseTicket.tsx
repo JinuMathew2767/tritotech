@@ -22,10 +22,13 @@ export default function RaiseTicket() {
   const navigate = useNavigate()
   const allowedCompany = user?.company?.trim() || ''
   const allowedDepartment = user?.department?.trim() || ''
-  const hasGlobalDepartmentAccess = !allowedDepartment
+  const departmentAccessMode = user?.department_access_mode || (allowedDepartment ? 'single' : 'global')
+  const permittedDepartments = user?.department_access || []
+  const hasGlobalDepartmentAccess = departmentAccessMode === 'global'
+  const hasMultipleDepartmentAccess = departmentAccessMode === 'multiple'
   const [subject, setSubject] = useState('')
   const [company, setCompany] = useState(allowedCompany)
-  const [department, setDepartment] = useState(allowedDepartment)
+  const [department, setDepartment] = useState(departmentAccessMode === 'single' ? allowedDepartment : '')
   const [departments, setDepartments] = useState<DepartmentMaster[]>([])
   const [category, setCategory] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
@@ -41,8 +44,8 @@ export default function RaiseTicket() {
 
   useEffect(() => {
     setCompany(allowedCompany)
-    setDepartment(allowedDepartment)
-  }, [allowedCompany, allowedDepartment])
+    setDepartment(departmentAccessMode === 'single' ? allowedDepartment : '')
+  }, [allowedCompany, allowedDepartment, departmentAccessMode])
 
   useEffect(() => {
     categoryService
@@ -147,16 +150,20 @@ export default function RaiseTicket() {
             </div>
             <div>
               <label className="label">Department</label>
-              {hasGlobalDepartmentAccess ? (
+              {hasGlobalDepartmentAccess || hasMultipleDepartmentAccess ? (
                 <select
                   className="input"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
                   required
-                  disabled={loadingDepartments}
+                  disabled={hasGlobalDepartmentAccess ? loadingDepartments : false}
                 >
-                  <option value="">{loadingDepartments ? 'Loading…' : 'Select…'}</option>
-                  {departments.map((item) => <option key={item.id}>{item.name}</option>)}
+                  <option value="">
+                    {hasGlobalDepartmentAccess && loadingDepartments ? 'Loading…' : 'Select…'}
+                  </option>
+                  {hasMultipleDepartmentAccess
+                    ? permittedDepartments.map((item) => <option key={item}>{item}</option>)
+                    : departments.map((item) => <option key={item.id}>{item.name}</option>)}
                 </select>
               ) : (
                 <input
@@ -177,6 +184,11 @@ export default function RaiseTicket() {
           {hasGlobalDepartmentAccess && (
             <p className="text-xs text-slate-500">
               Your company is fixed to your allowed company. You can choose any active department for this ticket.
+            </p>
+          )}
+          {hasMultipleDepartmentAccess && (
+            <p className="text-xs text-slate-500">
+              Your company is fixed to your allowed company. You can choose one permitted department for this ticket.
             </p>
           )}
         </div>

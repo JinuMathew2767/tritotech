@@ -2,6 +2,7 @@ import { Router, Response } from 'express'
 import { prisma } from '../db'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { findMatchingRoutingRule } from '../services/routingRulesService'
+import { getUserDepartmentAccess } from '../services/userDepartmentAccessService'
 
 const router = Router()
 const ACTIVE_STATUSES = ['Open', 'Assigned Pending', 'In Progress'] as const
@@ -470,6 +471,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
     const companyRecord = company ? await prisma.companies.findFirst({ where: { Name: company, IsActive: true } }) : null
     const departmentRecord = department ? await prisma.departments.findFirst({ where: { Name: department, IsActive: true } }) : null
     const isEmployee = req.user?.role === 'employee'
+    const departmentAccess = await getUserDepartmentAccess(req.user.id)
 
     if (isEmployee) {
       if (!creator.CompanyId) {
@@ -482,13 +484,18 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
         return
       }
 
-      if (creator.DepartmentId && departmentRecord && departmentRecord.Id !== creator.DepartmentId) {
+      if (!departmentRecord) {
+        res.status(400).json({ error: 'Please choose a valid active department' })
+        return
+      }
+
+      if (creator.DepartmentId && departmentRecord.Id !== creator.DepartmentId) {
         res.status(403).json({ error: 'You can only create tickets for your assigned department' })
         return
       }
 
-      if (!departmentRecord) {
-        res.status(400).json({ error: 'Please choose a valid active department' })
+      if (!creator.DepartmentId && departmentAccess.ids.length > 0 && !departmentAccess.ids.includes(departmentRecord.Id)) {
+        res.status(403).json({ error: 'You can only create tickets for your permitted departments' })
         return
       }
     }

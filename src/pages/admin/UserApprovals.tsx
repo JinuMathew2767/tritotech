@@ -15,7 +15,17 @@ export default function UserApprovals() {
   const [meta, setMeta] = useState<UserMeta | null>(null)
   const [assignments, setAssignments] = useState<{ [key: number]: { company: string, department: string } }>({})
   const [editingUser, setEditingUser] = useState<PendingUser | null>(null)
-  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', role: '', company: '', department: '', status: '' })
+  const [form, setForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    role: '',
+    company: '',
+    department: '',
+    departments: [] as string[],
+    department_access_mode: 'global' as 'global' | 'single' | 'multiple',
+    status: '',
+  })
   const [savingEdit, setSavingEdit] = useState(false)
 
   const loadUsersForTab = async (tabIndex: number) => {
@@ -80,6 +90,12 @@ export default function UserApprovals() {
       role: user.role,
       company: user.company === 'Unknown' ? '' : user.company,
       department: user.department === 'Unknown' ? '' : user.department,
+      departments: user.department_access_mode === 'multiple'
+        ? user.department_access
+        : user.department && user.department !== 'Unknown'
+          ? [user.department]
+          : [],
+      department_access_mode: user.department_access_mode,
       status: user.status || (activeTab === 1 || activeTab === 2 ? 'active' : tabs[activeTab].toLowerCase()),
     })
   }
@@ -88,7 +104,23 @@ export default function UserApprovals() {
     if (!editingUser) return
     try {
       setSavingEdit(true)
-      const updated = await userService.updateUser(editingUser.id, form)
+      const payload = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        role: form.role,
+        company: form.company,
+        department:
+          form.department_access_mode === 'single'
+            ? form.departments[0] || form.department
+            : '',
+        departments:
+          form.department_access_mode === 'multiple'
+            ? form.departments
+            : [],
+        status: form.status,
+      }
+      const updated = await userService.updateUser(editingUser.id, payload)
       setUsers((prev) => {
         const next = prev.map((user) => (user.id === updated.id ? updated : user))
         const currentTabStatus =
@@ -272,10 +304,66 @@ export default function UserApprovals() {
             </div>
             <div>
               <label className="label">Department Access</label>
-              <select className="input" value={form.department} onChange={(e) => setForm((prev) => ({ ...prev, department: e.target.value }))}>
-                <option value="">Global Access (All Departments)</option>
-                {meta?.departments.map((department) => <option key={department} value={department}>{department}</option>)}
+              <select
+                className="input"
+                value={form.department_access_mode}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    department_access_mode: e.target.value as 'global' | 'single' | 'multiple',
+                    department: '',
+                    departments: [],
+                  }))
+                }
+              >
+                <option value="global">Global Access (All Departments)</option>
+                <option value="single">Single Department</option>
+                <option value="multiple">Multiple Departments</option>
               </select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="label">
+                {form.department_access_mode === 'multiple' ? 'Permitted Departments' : 'Department'}
+              </label>
+              {form.department_access_mode === 'global' ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+                  This user can work with all departments in the permitted company.
+                </div>
+              ) : form.department_access_mode === 'single' ? (
+                <select
+                  className="input"
+                  value={form.departments[0] || ''}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      department: e.target.value,
+                      departments: e.target.value ? [e.target.value] : [],
+                    }))
+                  }
+                >
+                  <option value="">Select department...</option>
+                  {meta?.departments.map((department) => <option key={department} value={department}>{department}</option>)}
+                </select>
+              ) : (
+                <select
+                  multiple
+                  className="input min-h-40"
+                  value={form.departments}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      departments: Array.from(e.target.selectedOptions, (option) => option.value),
+                    }))
+                  }
+                >
+                  {meta?.departments.map((department) => <option key={department} value={department}>{department}</option>)}
+                </select>
+              )}
+              {form.department_access_mode === 'multiple' && (
+                <p className="mt-1 text-xs text-slate-400">
+                  Hold `Ctrl` while clicking to select multiple departments.
+                </p>
+              )}
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">

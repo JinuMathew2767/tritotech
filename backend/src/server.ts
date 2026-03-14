@@ -16,6 +16,7 @@ import assetRoutes from './routes/assets'
 import { ensureBrandingSettingsTable } from './services/brandingService'
 import { ensureRoutingRulesTable } from './services/routingRulesService'
 import { ensureAssetTables } from './services/assetService'
+import { ensureUserDepartmentAccessTable } from './services/userDepartmentAccessService'
 
 dotenv.config()
 dotenv.config({ path: path.resolve(process.cwd(), 'sendgrid.env'), override: true })
@@ -72,7 +73,7 @@ app.use('/api/tickets', ticketRoutes)
 app.use('/api/tickets/:ticketId/comments', commentRoutes)
 
 const PORT = process.env.PORT || 8000
-Promise.all([ensureRoutingRulesTable(), ensureAssetTables(), ensureBrandingSettingsTable()])
+Promise.all([ensureRoutingRulesTable(), ensureAssetTables(), ensureBrandingSettingsTable(), ensureUserDepartmentAccessTable()])
   .catch((error) => {
     console.error('Failed to ensure startup tables exist', error)
   })

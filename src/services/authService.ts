@@ -23,6 +23,8 @@ export interface AuthUser {
   role: 'employee' | 'it_staff' | 'admin'
   company: string
   department: string
+  department_access: string[]
+  department_access_mode: 'global' | 'single' | 'multiple'
   avatar?: string
   employee_id?: string
 }

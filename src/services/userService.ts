@@ -8,6 +8,8 @@ export interface PendingUser {
   role: string
   company: string
   department: string
+  department_access: string[]
+  department_access_mode: 'global' | 'single' | 'multiple'
   status?: string
   requested_at: string
 }
@@ -26,6 +28,7 @@ export interface UserUpdatePayload {
   role?: string
   company?: string
   department?: string
+  departments?: string[]
   status?: string
 }
 
@@ -55,8 +58,8 @@ const userService = {
     return data
   },
 
-  async approveUser(userId: number, company?: string, department?: string): Promise<{ message: string }> {
-    const { data } = await api.put<{ message: string }>(`/users/${userId}/approve`, { company, department })
+  async approveUser(userId: number, company?: string, department?: string, departments?: string[]): Promise<{ message: string }> {
+    const { data } = await api.put<{ message: string }>(`/users/${userId}/approve`, { company, department, departments })
     return data
   },
 

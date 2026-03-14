@@ -2,17 +2,34 @@ import { Router, Response } from 'express'
 import { prisma } from '../db'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { emailService } from '../services/emailService'
+import {
+  getDepartmentAccessMode,
+  getDepartmentAccessNames,
+  getUserDepartmentAccessMap,
+  syncUserDepartmentAccess,
+} from '../services/userDepartmentAccessService'
 
 const router = Router()
 
-const formatUser = (u: any) => ({
+const formatUser = (u: any, departmentAccessNames: string[]) => ({
   id: u.Id,
   first_name: u.FullName.split(' ')[0],
   last_name: u.FullName.split(' ').slice(1).join(' ') || '',
   email: u.Email,
   role: u.Roles?.Name?.toLowerCase().replace(' ', '_') || 'employee',
   company: u.Companies?.Name || '',
-  department: u.Departments?.Name || '',
+  department:
+    departmentAccessNames.length > 1
+      ? `${departmentAccessNames.length} departments`
+      : u.Departments?.Name || departmentAccessNames[0] || '',
+  department_access: getDepartmentAccessNames({
+    primaryDepartmentName: u.Departments?.Name,
+    departmentAccessNames,
+  }),
+  department_access_mode: getDepartmentAccessMode({
+    primaryDepartmentName: u.Departments?.Name,
+    departmentAccessNames,
+  }),
   status: u.Status?.toLowerCase() || 'pending',
   requested_at: (u.UpdatedAt || u.CreatedAt).toISOString(),
 })
@@ -27,12 +44,15 @@ const resolveLookupIds = async ({
   role,
   company,
   department,
+  departments,
 }: {
   role?: string
   company?: string
   department?: string
+  departments?: string[]
 }) => {
   const data: Record<string, number | null> = {}
+  let departmentIds: number[] | undefined
 
   if (role !== undefined) {
     const roleRecord = await prisma.roles.findFirst({ where: { Name: toRoleLabel(role) } })
@@ -58,7 +78,37 @@ const resolveLookupIds = async ({
     }
   }
 
-  return data
+  if (departments !== undefined) {
+    const normalizedDepartments = Array.from(new Set((departments || []).map((item) => String(item || '').trim()).filter(Boolean)))
+
+    if (normalizedDepartments.length === 0) {
+      departmentIds = []
+      if (department === undefined) {
+        data.DepartmentId = null
+      }
+    } else if (normalizedDepartments.length === 1) {
+      const departmentRecord = await prisma.departments.findFirst({ where: { Name: normalizedDepartments[0] } })
+      if (!departmentRecord) throw new Error('Invalid department')
+      data.DepartmentId = departmentRecord.Id
+      departmentIds = []
+    } else {
+      const departmentRecords = await prisma.departments.findMany({
+        where: { Name: { in: normalizedDepartments } },
+        select: { Id: true, Name: true },
+      })
+
+      if (departmentRecords.length !== normalizedDepartments.length) {
+        throw new Error('Invalid department')
+      }
+
+      data.DepartmentId = null
+      departmentIds = departmentRecords
+        .sort((left, right) => normalizedDepartments.indexOf(left.Name) - normalizedDepartments.indexOf(right.Name))
+        .map((record) => record.Id)
+    }
+  }
+
+  return { lookupIds: data, departmentIds }
 }
 
 const ensureAdmin = async (req: AuthRequest, res: Response): Promise<boolean> => {
@@ -143,7 +193,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       orderBy: { UpdatedAt: 'desc' },
     })
 
-    res.json(users.map(formatUser))
+    const accessMap = await getUserDepartmentAccessMap(users.map((user) => user.Id))
+    res.json(users.map((user) => formatUser(user, accessMap.get(user.Id)?.names || [])))
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to fetch users', details: err.message })
   }
@@ -181,7 +232,8 @@ router.patch('/me', authenticate, async (req: AuthRequest, res: Response): Promi
       include: { Companies: true, Departments: true, Roles: true },
     })
 
-    res.json(formatUser(user))
+    const accessMap = await getUserDepartmentAccessMap([user.Id])
+    res.json(formatUser(user, accessMap.get(user.Id)?.names || []))
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to update profile', details: err.message })
   }
@@ -198,11 +250,15 @@ router.get('/pending', authenticate, async (req: AuthRequest, res: Response): Pr
       orderBy: { CreatedAt: 'desc' }
     })
 
+    const accessMap = await getUserDepartmentAccessMap(pendingUsers.map((user) => user.Id))
     res.json(
       pendingUsers.map((u: any) => ({
-        ...formatUser(u),
+        ...formatUser(u, accessMap.get(u.Id)?.names || []),
         company: u.Companies?.Name || 'Unknown',
-        department: u.Departments?.Name || 'Unknown',
+        department:
+          (accessMap.get(u.Id)?.names || []).length > 1
+            ? `${(accessMap.get(u.Id)?.names || []).length} departments`
+            : u.Departments?.Name || 'Unknown',
         requested_at: u.CreatedAt.toISOString(),
       }))
     )
@@ -223,11 +279,15 @@ router.get('/active', authenticate, async (req: AuthRequest, res: Response): Pro
       orderBy: { UpdatedAt: 'desc' }
     })
 
+    const accessMap = await getUserDepartmentAccessMap(activeUsers.map((user) => user.Id))
     res.json(
       activeUsers.map((u: any) => ({
-        ...formatUser(u),
+        ...formatUser(u, accessMap.get(u.Id)?.names || []),
         company: u.Companies?.Name || 'Unknown',
-        department: u.Departments?.Name || 'Unknown',
+        department:
+          (accessMap.get(u.Id)?.names || []).length > 1
+            ? `${(accessMap.get(u.Id)?.names || []).length} departments`
+            : u.Departments?.Name || 'Unknown',
       }))
     )
   } catch (err: any) {
@@ -247,11 +307,15 @@ router.get('/denied', authenticate, async (req: AuthRequest, res: Response): Pro
       orderBy: { UpdatedAt: 'desc' }
     })
 
+    const accessMap = await getUserDepartmentAccessMap(deniedUsers.map((user) => user.Id))
     res.json(
       deniedUsers.map((u: any) => ({
-        ...formatUser(u),
+        ...formatUser(u, accessMap.get(u.Id)?.names || []),
         company: u.Companies?.Name || 'Unknown',
-        department: u.Departments?.Name || 'Unknown',
+        department:
+          (accessMap.get(u.Id)?.names || []).length > 1
+            ? `${(accessMap.get(u.Id)?.names || []).length} departments`
+            : u.Departments?.Name || 'Unknown',
       }))
     )
   } catch (err: any) {
@@ -265,7 +329,7 @@ router.put('/:id/approve', authenticate, async (req: AuthRequest, res: Response)
   try {
     if (!(await ensureAdmin(req, res))) return
 
-    const { company, department } = req.body
+    const { company, department, departments } = req.body
     const userId = parseInt(req.params.id as string)
 
     const updateData: any = { Status: 'Active' }
@@ -279,10 +343,33 @@ router.put('/:id/approve', authenticate, async (req: AuthRequest, res: Response)
       if (deptRecord) updateData.DepartmentId = deptRecord.Id
     }
 
+    let departmentIds: number[] = []
+    if (Array.isArray(departments)) {
+      const normalizedDepartments = Array.from(new Set(departments.map((item) => String(item || '').trim()).filter(Boolean)))
+      if (normalizedDepartments.length > 1) {
+        const departmentRecords = await prisma.departments.findMany({
+          where: { Name: { in: normalizedDepartments } },
+          select: { Id: true, Name: true },
+        })
+
+        if (departmentRecords.length !== normalizedDepartments.length) {
+          res.status(400).json({ error: 'Invalid department' })
+          return
+        }
+
+        updateData.DepartmentId = null
+        departmentIds = departmentRecords
+          .sort((left, right) => normalizedDepartments.indexOf(left.Name) - normalizedDepartments.indexOf(right.Name))
+          .map((record) => record.Id)
+      }
+    }
+
     const user = await prisma.users.update({
       where: { Id: userId },
       data: updateData
     })
+
+    await syncUserDepartmentAccess(userId, departmentIds)
 
     await emailService.sendAccountApprovedEmail({
       to: user.Email,
@@ -331,6 +418,7 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
       company,
       department,
       status,
+      departments,
     } = req.body
 
     const fullName = `${String(first_name || '').trim()} ${String(last_name || '').trim()}`.trim()
@@ -360,7 +448,7 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
     }
 
     await ensureNotLastAdmin({ targetUserId: userId, nextRole: role, nextStatus: normalizedStatus })
-    const lookupIds = await resolveLookupIds({ role, company, department })
+    const { lookupIds, departmentIds } = await resolveLookupIds({ role, company, department, departments })
 
     const user = await prisma.users.update({
       where: { Id: userId },
@@ -373,7 +461,12 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
       include: { Companies: true, Departments: true, Roles: true },
     })
 
-    res.json(formatUser(user))
+    if (departmentIds !== undefined) {
+      await syncUserDepartmentAccess(userId, departmentIds)
+    }
+
+    const accessMap = await getUserDepartmentAccessMap([user.Id])
+    res.json(formatUser(user, accessMap.get(user.Id)?.names || []))
   } catch (err: any) {
     const statusCode = ['User not found', 'Invalid role', 'Invalid company', 'Invalid department', 'You cannot remove or disable the last active admin'].includes(err.message) ? 400 : 500
     res.status(statusCode).json({ error: err.message || 'Failed to update user' })
