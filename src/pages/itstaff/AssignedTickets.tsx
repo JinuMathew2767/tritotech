@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClipboardList, Search } from 'lucide-react'
-import { PriorityBadge } from '@/components/ui/Badge'
+import { PriorityBadge, StatusBadge } from '@/components/ui/Badge'
 import Avatar from '@/components/ui/Avatar'
 import AssignTicketModal from '@/components/tickets/AssignTicketModal'
 import Pagination from '@/components/ui/Pagination'
@@ -209,6 +209,7 @@ export default function AssignedTickets() {
                   <th className="text-left px-4 py-3">Ticket Info</th>
                   <th className="text-left px-4 py-3">Requester</th>
                   <th className="text-left px-4 py-3">Priority</th>
+                  <th className="text-left px-4 py-3">Status</th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">SLA Due</th>
                   <th className="text-left px-4 py-3">Actions</th>
                 </tr>
@@ -240,6 +241,9 @@ export default function AssignedTickets() {
                         </div>
                       </td>
                       <td className="px-4 py-3"><PriorityBadge priority={ticket.priority} /></td>
+                      <td className="px-4 py-3">
+                        <StatusBadge status={ticket.status} />
+                      </td>
                       <td className="px-4 py-3 hidden md:table-cell">
                         <div className="space-y-1">
                           <span className={clsx('text-xs', sla.dateTone)}>
