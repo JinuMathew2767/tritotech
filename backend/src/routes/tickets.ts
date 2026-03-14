@@ -340,7 +340,10 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       where.Status = toDbStatus(String(status))
     }
 
-    if (exclude_status && !status) {
+    const shouldIgnoreAssignedPendingExclusion =
+      assigned_only === 'true' && String(exclude_status || '') === 'assigned_pending'
+
+    if (exclude_status && !status && !shouldIgnoreAssignedPendingExclusion) {
       where.Status = { not: toDbStatus(String(exclude_status)) }
     }
 
