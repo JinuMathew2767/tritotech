@@ -19,8 +19,7 @@ async function main() {
   const companies = [
     'Smart Insulation Finishing Systems LLC',
     'Innotech Polimers Manufacturing LLC',
-    'Triton-UVC Division',
-    'Panagia'
+    'Triton-UVC Division'
   ]
 
   for (const company of companies) {

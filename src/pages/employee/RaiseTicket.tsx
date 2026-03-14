@@ -21,8 +21,7 @@ const companies = [
   'Skymat Building Materials Trading LLC',
   'Smart Insulation Finishing Systems LLC',
   'Innotech Polimers Manufacturing LLC',
-  'Triton-UVC Division',
-  'Panagia'
+  'Triton-UVC Division'
 ]
 const departments = [
   'Accounts',
