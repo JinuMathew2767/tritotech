@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model AssetAssignmentHistory {
+  Id             Int      @id @default(autoincrement())
+  AssetId        Int
+  Type           String
+  AssignedTo     String
+  Department     String
+  Location       String
+  AssignedAt     DateTime @default(now())
+  ReturnedAt     DateTime?
+  Note           String?
+  AssignedById   Int?
+  AssignedByName String
+  FromAssignedTo String?
+  FromDepartment String?
+  FromLocation   String?
+  Assets         Assets   @relation(fields: [AssetId], references: [Id], onDelete: Cascade, onUpdate: NoAction)
+  RecordedBy     Users?   @relation("AssetHistory_RecordedBy", fields: [AssignedById], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([AssetId, AssignedAt], map: "IX_AssetAssignmentHistory_AssetId_AssignedAt")
+}
+
+model Assets {
+  Id                Int                      @id @default(autoincrement())
+  AssetCode         String                   @unique
+  Name              String
+  Category          String
+  Subcategory       String
+  BrandModel        String
+  Vendor            String
+  PurchaseDate      DateTime                 @db.Date
+  PurchaseCost      Decimal                  @db.Decimal(18, 2)
+  ExpiryDate        DateTime                 @db.Date
+  WarrantyExpiry    DateTime                 @db.Date
+  AssignedTo        String?
+  Department        String
+  Location          String
+  Status            String
+  Notes             String?
+  CreatedById       Int?
+  UpdatedById       Int?
+  CreatedAt         DateTime                 @default(now())
+  UpdatedAt         DateTime                 @default(now()) @updatedAt
+  AssignmentHistory AssetAssignmentHistory[]
+  CreatedBy         Users?                   @relation("Assets_CreatedBy", fields: [CreatedById], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+  UpdatedBy         Users?                   @relation("Assets_UpdatedBy", fields: [UpdatedById], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([Status], map: "IX_Assets_Status")
+  @@index([Category], map: "IX_Assets_Category")
+  @@index([ExpiryDate], map: "IX_Assets_ExpiryDate")
+  @@index([WarrantyExpiry], map: "IX_Assets_WarrantyExpiry")
+}
+
+model Categories {
+  Id                Int             @id @default(autoincrement())
+  Name              String          @unique
+  Description       String?
+  DefaultAssigneeId Int?
+  IsActive          Boolean         @default(true)
+  Users             Users?          @relation(fields: [DefaultAssigneeId], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+  Subcategories     Subcategories[]
+  Tickets           Tickets[]
+}
+
+model Companies {
+  Id        Int       @id @default(autoincrement())
+  Name      String    @unique
+  IsActive  Boolean   @default(true)
+  CreatedAt DateTime  @default(now())
+  Tickets   Tickets[]
+  Users     Users[]
+}
+
+model Departments {
+  Id        Int       @id @default(autoincrement())
+  Name      String    @unique
+  IsActive  Boolean   @default(true)
+  CreatedAt DateTime  @default(now())
+  Tickets   Tickets[]
+  Users     Users[]
+}
+
+model Notifications {
+  Id        Int      @id @default(autoincrement())
+  UserId    Int
+  TicketId  Int?
+  Title     String
+  Message   String
+  IsRead    Boolean  @default(false)
+  CreatedAt DateTime @default(now())
+  Tickets   Tickets? @relation(fields: [TicketId], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+  Users     Users    @relation(fields: [UserId], references: [Id], onUpdate: NoAction)
+
+  @@index([UserId, IsRead], map: "IX_Notifications_UserId_IsRead")
+}
+
+model Roles {
+  Id          Int     @id @default(autoincrement())
+  Name        String  @unique
+  Description String?
+  Users       Users[]
+}
+
+model Subcategories {
+  Id         Int        @id @default(autoincrement())
+  CategoryId Int
+  Name       String
+  IsActive   Boolean    @default(true)
+  Categories Categories @relation(fields: [CategoryId], references: [Id], onUpdate: NoAction)
+  Tickets    Tickets[]
+}
+
+model TicketActivityLogs {
+  Id        Int      @id @default(autoincrement())
+  TicketId  Int
+  UserId    Int
+  Action    String
+  OldValue  String?
+  NewValue  String?
+  CreatedAt DateTime @default(now())
+  Tickets   Tickets  @relation(fields: [TicketId], references: [Id], onUpdate: NoAction)
+  Users     Users    @relation(fields: [UserId], references: [Id], onUpdate: NoAction)
+
+  @@index([TicketId], map: "IX_TicketActivityLogs_TicketId")
+}
+
+model TicketAttachments {
+  Id             Int             @id @default(autoincrement())
+  TicketId       Int
+  CommentId      Int?
+  UploaderId     Int
+  FileName       String
+  FilePath       String
+  FileSize       Int
+  ContentType    String
+  CreatedAt      DateTime        @default(now())
+  TicketComments TicketComments? @relation(fields: [CommentId], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+  Tickets        Tickets         @relation(fields: [TicketId], references: [Id], onUpdate: NoAction)
+  Users          Users           @relation(fields: [UploaderId], references: [Id], onUpdate: NoAction)
+}
+
+model TicketComments {
+  Id                Int                 @id @default(autoincrement())
+  TicketId          Int
+  UserId            Int
+  CommentText       String
+  IsInternal        Boolean             @default(false)
+  CreatedAt         DateTime            @default(now())
+  TicketAttachments TicketAttachments[]
+  Tickets           Tickets             @relation(fields: [TicketId], references: [Id], onUpdate: NoAction)
+  Users             Users               @relation(fields: [UserId], references: [Id], onUpdate: NoAction)
+
+  @@index([TicketId], map: "IX_TicketComments_TicketId")
+}
+
+model Tickets {
+  Id                                Int                  @id @default(autoincrement())
+  TicketNumber                      String               @unique
+  Title                             String
+  Description                       String
+  CompanyId                         Int
+  DepartmentId                      Int
+  CategoryId                        Int
+  SubcategoryId                     Int?
+  Priority                          String
+  Status                            String               @default("Open")
+  CreatedById                       Int
+  AssignedToId                      Int?
+  CreatedAt                         DateTime             @default(now())
+  UpdatedAt                         DateTime             @default(now()) @updatedAt
+  CustomerExpectedResolutionAt      DateTime?
+  SupportExpectedResolutionAt       DateTime?
+  ResolvedAt                        DateTime?
+  ClosedAt                          DateTime?
+  Notifications                     Notifications[]
+  TicketActivityLogs                TicketActivityLogs[]
+  TicketAttachments                 TicketAttachments[]
+  TicketComments                    TicketComments[]
+  Users_Tickets_AssignedToIdToUsers Users?               @relation("Tickets_AssignedToIdToUsers", fields: [AssignedToId], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+  Categories                        Categories           @relation(fields: [CategoryId], references: [Id], onUpdate: NoAction)
+  Companies                         Companies            @relation(fields: [CompanyId], references: [Id], onUpdate: NoAction)
+  Users_Tickets_CreatedByIdToUsers  Users                @relation("Tickets_CreatedByIdToUsers", fields: [CreatedById], references: [Id], onUpdate: NoAction)
+  Departments                       Departments          @relation(fields: [DepartmentId], references: [Id], onUpdate: NoAction)
+  Subcategories                     Subcategories?       @relation(fields: [SubcategoryId], references: [Id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([AssignedToId, Status], map: "IX_Tickets_AssignedTo_Status")
+  @@index([CompanyId], map: "IX_Tickets_CompanyId")
+  @@index([CreatedById, CompanyId], map: "IX_Tickets_CreatedBy_Company")
+  @@index([Status, Priority, CreatedAt], map: "IX_Tickets_Status_Priority_CreatedAt")
+}
+
+model Users {
+  Id                                  Int                      @id @default(autoincrement())
+  FullName                            String
+  Email                               String                   @unique
+  PasswordHash                        String?
+  MobileNumber                        String?
+  CompanyId                           Int?
+  DepartmentId                        Int?
+  RoleId                              Int
+  Status                              String                   @default("Pending")
+  AuthProvider                        String                   @default("Local")
+  ProviderId                          String?
+  CreatedAt                           DateTime                 @default(now())
+  UpdatedAt                           DateTime                 @default(now()) @updatedAt
+  AssetAssignmentHistory              AssetAssignmentHistory[] @relation("AssetHistory_RecordedBy")
+  Assets_Assets_CreatedBy             Assets[]                 @relation("Assets_CreatedBy")
+  Assets_Assets_UpdatedBy             Assets[]                 @relation("Assets_UpdatedBy")
+  Categories                          Categories[]
+  Notifications                       Notifications[]
+  TicketActivityLogs                  TicketActivityLogs[]
+  TicketAttachments                   TicketAttachments[]
+  TicketComments                      TicketComments[]
+  Tickets_Tickets_AssignedToIdToUsers Tickets[]               @relation("Tickets_AssignedToIdToUsers")
+  Tickets_Tickets_CreatedByIdToUsers  Tickets[]               @relation("Tickets_CreatedByIdToUsers")
+  Companies                           Companies?               @relation(fields: [CompanyId], references: [Id], onUpdate: NoAction)
+  Departments                         Departments?             @relation(fields: [DepartmentId], references: [Id], onUpdate: NoAction)
+  Roles                               Roles                    @relation(fields: [RoleId], references: [Id], onUpdate: NoAction)
+
+  @@index([CompanyId], map: "IX_Users_CompanyId")
+  @@index([Status], map: "IX_Users_Status")
+}

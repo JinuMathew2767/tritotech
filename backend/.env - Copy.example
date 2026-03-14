@@ -1,0 +1,16 @@
+# Postgres application connection string
+# Use the pooled Neon connection here.
+DATABASE_URL="postgresql://USER:PASSWORD@HOST-pooler.REGION.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# Postgres direct connection string
+# Use the direct Neon connection here for Prisma migrations.
+DIRECT_URL="postgresql://USER:PASSWORD@HOST.REGION.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# JSON Web Token Secret (Used for authenticating users securely)
+JWT_SECRET="super_secret_jwt_key_for_triton"
+
+# Port for the Node.js server
+PORT=8000
+
+# URL of the React frontend
+FRONTEND_URL="http://localhost:3000"
