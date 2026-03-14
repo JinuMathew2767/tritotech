@@ -17,7 +17,12 @@ import toast from 'react-hot-toast'
 import categoryService, { type Category } from '@/services/categoryService'
 import departmentService, { type DepartmentMaster } from '@/services/departmentService'
 import subcategoryService, { type Subcategory } from '@/services/subcategoryService'
-import { DEFAULT_BRANDING_SETTINGS, getBrandingSettings, saveBrandingSettings } from '@/services/brandingService'
+import {
+  DEFAULT_BRANDING_SETTINGS,
+  fetchBrandingSettings,
+  getBrandingSettings,
+  updateBrandingSettings,
+} from '@/services/brandingService'
 import assetService, {
   type AssetCategoryMaster,
   type AssetDepartmentMaster,
@@ -60,6 +65,7 @@ export default function AdminSettings() {
   const [timezone, setTimezone] = useState(branding.timezone)
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(branding.logoDataUrl)
   const [logoFileName, setLogoFileName] = useState(branding.logoDataUrl ? 'Current saved logo' : '')
+  const [brandingSaving, setBrandingSaving] = useState(false)
   const [maintenanceMode, setMaintenanceMode] = useState(false)
   const [googleSignIn, setGoogleSignIn] = useState(true)
   const [emailAlerts, setEmailAlerts] = useState(true)
@@ -203,6 +209,17 @@ export default function AdminSettings() {
   }
 
   useEffect(() => {
+    void fetchBrandingSettings()
+      .then((settings) => {
+        setAppName(settings.appName)
+        setTimezone(settings.timezone)
+        setLogoDataUrl(settings.logoDataUrl)
+        setLogoFileName(settings.logoDataUrl ? 'Current saved logo' : '')
+      })
+      .catch(() => {
+        toast.error('Failed to load branding settings')
+      })
+
     void loadCategories()
     void loadSubcategories()
     void loadAssetCategories()
@@ -261,16 +278,23 @@ export default function AdminSettings() {
     setAssetEmployeeDepartmentId('')
   }
 
-  const saveBranding = () => {
+  const saveBranding = async () => {
     try {
-      saveBrandingSettings({
+      setBrandingSaving(true)
+      const saved = await updateBrandingSettings({
         appName: appName.trim() || DEFAULT_BRANDING_SETTINGS.appName,
         timezone,
         logoDataUrl,
       })
+      setAppName(saved.appName)
+      setTimezone(saved.timezone)
+      setLogoDataUrl(saved.logoDataUrl)
+      setLogoFileName(saved.logoDataUrl ? (logoFileName || 'Current saved logo') : '')
       toast.success('Settings saved successfully')
     } catch {
       toast.error('Failed to save branding settings')
+    } finally {
+      setBrandingSaving(false)
     }
   }
 
@@ -691,9 +715,9 @@ export default function AdminSettings() {
               {activeSection}
             </span>
             {activeSection === 'General' ? (
-              <button onClick={saveBranding} className="btn-primary gap-2 text-sm">
+              <button onClick={() => void saveBranding()} disabled={brandingSaving} className="btn-primary gap-2 text-sm">
                 <Save className="h-4 w-4" />
-                Save Changes
+                {brandingSaving ? 'Saving...' : 'Save Changes'}
               </button>
             ) : null}
           </div>

@@ -1,10 +1,12 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Shield } from 'lucide-react'
 import authService from '@/services/authService'
+import companyService from '@/services/companyService'
+import { fetchBrandingSettings, getBrandingSettings } from '@/services/brandingService'
 import toast from 'react-hot-toast'
 
-const companies = [
+const defaultCompanies = [
   'Triton Middle East LLC',
   'Skymat Building Materials Trading LLC',
   'Smart Insulation Finishing Systems LLC',
@@ -43,6 +45,23 @@ export default function SignupPage() {
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', password: '', company: '', department: '', role: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [branding, setBranding] = useState(() => getBrandingSettings())
+  const [companies, setCompanies] = useState<string[]>(defaultCompanies)
+
+  useEffect(() => {
+    void fetchBrandingSettings()
+      .then((settings) => setBranding(settings))
+      .catch(() => undefined)
+
+    void companyService
+      .listPublic()
+      .then((items) => {
+        if (items.length > 0) {
+          setCompanies(items.map((item) => item.name))
+        }
+      })
+      .catch(() => undefined)
+  }, [])
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -66,10 +85,14 @@ export default function SignupPage() {
       {/* Left decorative panel */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 bg-gradient-to-br from-[#0a1628] to-[#1a2e3a] p-12">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#4E5A7A] rounded-xl flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-[#4E5A7A]">
+            {branding.logoDataUrl ? (
+              <img src={branding.logoDataUrl} alt={`${branding.appName} logo`} className="h-full w-full object-contain bg-white p-1.5" />
+            ) : (
+              <Shield className="w-5 h-5 text-white" />
+            )}
           </div>
-          <span className="text-white font-bold text-xl">Triton IT Support</span>
+          <span className="text-white font-bold text-xl">{branding.appName}</span>
         </div>
         <div>
           <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">
@@ -93,10 +116,14 @@ export default function SignupPage() {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="flex items-center gap-2 lg:hidden mb-8">
-            <div className="w-8 h-8 bg-[#4E5A7A] rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-[#4E5A7A]">
+              {branding.logoDataUrl ? (
+                <img src={branding.logoDataUrl} alt={`${branding.appName} logo`} className="h-full w-full object-contain bg-white p-1" />
+              ) : (
+                <Shield className="w-4 h-4 text-white" />
+              )}
             </div>
-            <span className="font-bold text-slate-900">Triton IT Support</span>
+            <span className="font-bold text-slate-900">{branding.appName}</span>
           </div>
 
           <div className="mb-8">

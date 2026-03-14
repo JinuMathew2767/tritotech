@@ -1,3 +1,5 @@
+import api from '@/services/api'
+
 export interface BrandingSettings {
   appName: string
   timezone: string
@@ -13,6 +15,25 @@ export const DEFAULT_BRANDING_SETTINGS: BrandingSettings = {
   logoDataUrl: null,
 }
 
+const normalizeBrandingSettings = (value?: Partial<BrandingSettings> | null): BrandingSettings => ({
+  appName: typeof value?.appName === 'string' && value.appName.trim()
+    ? value.appName.trim()
+    : DEFAULT_BRANDING_SETTINGS.appName,
+  timezone: typeof value?.timezone === 'string' && value.timezone.trim()
+    ? value.timezone.trim()
+    : DEFAULT_BRANDING_SETTINGS.timezone,
+  logoDataUrl: typeof value?.logoDataUrl === 'string' && value.logoDataUrl
+    ? value.logoDataUrl
+    : null,
+})
+
+const cacheBrandingSettings = (settings: BrandingSettings) => {
+  if (typeof window === 'undefined') return
+
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+  window.dispatchEvent(new CustomEvent(BRANDING_EVENT, { detail: settings }))
+}
+
 export function getBrandingSettings(): BrandingSettings {
   if (typeof window === 'undefined') return DEFAULT_BRANDING_SETTINGS
 
@@ -20,34 +41,29 @@ export function getBrandingSettings(): BrandingSettings {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_BRANDING_SETTINGS
 
-    const parsed = JSON.parse(raw) as Partial<BrandingSettings>
-    return {
-      appName: typeof parsed.appName === 'string' && parsed.appName.trim()
-        ? parsed.appName
-        : DEFAULT_BRANDING_SETTINGS.appName,
-      timezone: typeof parsed.timezone === 'string' && parsed.timezone.trim()
-        ? parsed.timezone
-        : DEFAULT_BRANDING_SETTINGS.timezone,
-      logoDataUrl: typeof parsed.logoDataUrl === 'string' && parsed.logoDataUrl
-        ? parsed.logoDataUrl
-        : null,
-    }
+    return normalizeBrandingSettings(JSON.parse(raw) as Partial<BrandingSettings>)
   } catch {
     return DEFAULT_BRANDING_SETTINGS
   }
 }
 
 export function saveBrandingSettings(settings: BrandingSettings) {
-  if (typeof window === 'undefined') return
+  cacheBrandingSettings(normalizeBrandingSettings(settings))
+}
 
-  const next = {
-    appName: settings.appName.trim() || DEFAULT_BRANDING_SETTINGS.appName,
-    timezone: settings.timezone.trim() || DEFAULT_BRANDING_SETTINGS.timezone,
-    logoDataUrl: settings.logoDataUrl || null,
-  }
+export async function fetchBrandingSettings(): Promise<BrandingSettings> {
+  const { data } = await api.get('/branding')
+  const normalized = normalizeBrandingSettings(data)
+  cacheBrandingSettings(normalized)
+  return normalized
+}
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-  window.dispatchEvent(new CustomEvent(BRANDING_EVENT, { detail: next }))
+export async function updateBrandingSettings(settings: BrandingSettings): Promise<BrandingSettings> {
+  const payload = normalizeBrandingSettings(settings)
+  const { data } = await api.patch('/branding', payload)
+  const normalized = normalizeBrandingSettings(data)
+  cacheBrandingSettings(normalized)
+  return normalized
 }
 
 export function subscribeToBrandingSettings(callback: () => void) {

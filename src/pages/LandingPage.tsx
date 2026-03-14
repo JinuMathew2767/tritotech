@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Shield, Ticket, BookOpen, ArrowRight, CheckCircle, Zap, Clock, Users } from 'lucide-react'
-
-const companies = ['Triton ME', 'Skymat', 'Oceanic', 'Vertex', 'TechCore', 'NexGen']
+import companyService from '@/services/companyService'
+import { fetchBrandingSettings, getBrandingSettings } from '@/services/brandingService'
 
 const features = [
   { icon: Ticket, title: 'Report an Issue', desc: 'Quickly submit IT support tickets and track their status in real time.' },
@@ -17,14 +18,32 @@ const highlights = [
 ]
 
 export default function LandingPage() {
+  const [branding, setBranding] = useState(() => getBrandingSettings())
+  const [companies, setCompanies] = useState<string[]>([])
+
+  useEffect(() => {
+    void fetchBrandingSettings()
+      .then((settings) => setBranding(settings))
+      .catch(() => undefined)
+
+    void companyService
+      .listPublic()
+      .then((items) => setCompanies(items.map((item) => item.name)))
+      .catch(() => undefined)
+  }, [])
+
   return (
     <div className="min-h-screen bg-white">
       <header className="glassmorphism sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#4E5A7A] rounded-lg flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
+          <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-[#4E5A7A]">
+            {branding.logoDataUrl ? (
+              <img src={branding.logoDataUrl} alt={`${branding.appName} logo`} className="h-full w-full object-contain bg-white p-1" />
+            ) : (
+              <Shield className="w-4 h-4 text-white" />
+            )}
           </div>
-          <span className="font-bold text-slate-900 text-lg">Triton IT Support</span>
+          <span className="font-bold text-slate-900 text-lg">{branding.appName}</span>
         </div>
         <div className="flex items-center gap-3">
           <Link to="/login" className="btn-secondary text-sm px-4 py-2">Sign In</Link>
@@ -115,7 +134,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-2 text-white">
             <Shield className="w-4 h-4 text-[#4E5A7A]" />
-            <span className="font-semibold">Triton IT Support</span>
+            <span className="font-semibold">{branding.appName}</span>
           </div>
           <div className="flex gap-6">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>

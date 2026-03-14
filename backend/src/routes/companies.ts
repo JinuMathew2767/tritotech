@@ -53,6 +53,29 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
   }
 })
 
+router.get('/public-list', async (_req, res: Response): Promise<void> => {
+  try {
+    const companies = await prisma.companies.findMany({
+      where: { IsActive: true },
+      orderBy: { Name: 'asc' },
+      select: {
+        Id: true,
+        Name: true,
+      },
+    })
+
+    res.json(
+      companies.map((company) => ({
+        id: company.Id,
+        name: company.Name,
+      }))
+    )
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Failed to load companies' })
+  }
+})
+
 router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!ensureAdmin(req, res)) return

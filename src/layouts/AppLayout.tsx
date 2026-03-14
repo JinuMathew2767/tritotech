@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import { initials } from '@/utils/formatters'
 import clsx from 'clsx'
-import { getBrandingSettings, subscribeToBrandingSettings } from '@/services/brandingService'
+import { fetchBrandingSettings, getBrandingSettings, subscribeToBrandingSettings } from '@/services/brandingService'
 
 const navByRole = {
   employee: [
@@ -59,7 +59,15 @@ export default function AppLayout() {
   const role = user?.role ?? 'employee'
   const navItems = navByRole[role] ?? navByRole.employee
 
-  useEffect(() => subscribeToBrandingSettings(() => setBranding(getBrandingSettings())), [])
+  useEffect(() => {
+    const unsubscribe = subscribeToBrandingSettings(() => setBranding(getBrandingSettings()))
+
+    void fetchBrandingSettings()
+      .then((settings) => setBranding(settings))
+      .catch(() => undefined)
+
+    return unsubscribe
+  }, [])
 
   const handleLogout = async () => {
     await logout()

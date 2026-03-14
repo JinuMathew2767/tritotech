@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Shield } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { fetchBrandingSettings, getBrandingSettings } from '@/services/brandingService'
 import toast from 'react-hot-toast'
 
 const highlights = [
@@ -18,6 +19,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [branding, setBranding] = useState(() => getBrandingSettings())
+
+  useEffect(() => {
+    void fetchBrandingSettings()
+      .then((settings) => setBranding(settings))
+      .catch(() => undefined)
+  }, [])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -37,10 +45,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       <div className="hidden lg:flex flex-col justify-between w-1/2 bg-gradient-to-br from-[#0a1628] to-[#1a2e3a] p-12">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#4E5A7A] rounded-xl flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-[#4E5A7A]">
+            {branding.logoDataUrl ? (
+              <img src={branding.logoDataUrl} alt={`${branding.appName} logo`} className="h-full w-full object-contain bg-white p-1.5" />
+            ) : (
+              <Shield className="w-5 h-5 text-white" />
+            )}
           </div>
-          <span className="text-white font-bold text-xl">Triton IT Support</span>
+          <span className="text-white font-bold text-xl">{branding.appName}</span>
         </div>
         <div>
           <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">
@@ -61,10 +73,14 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[#f6f7f8]">
         <div className="w-full max-w-sm">
           <div className="flex items-center gap-2 lg:hidden mb-8">
-            <div className="w-8 h-8 bg-[#4E5A7A] rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-[#4E5A7A]">
+              {branding.logoDataUrl ? (
+                <img src={branding.logoDataUrl} alt={`${branding.appName} logo`} className="h-full w-full object-contain bg-white p-1" />
+              ) : (
+                <Shield className="w-4 h-4 text-white" />
+              )}
             </div>
-            <span className="font-bold text-slate-900">Triton IT Support</span>
+            <span className="font-bold text-slate-900">{branding.appName}</span>
           </div>
 
           <div className="mb-8">
