@@ -13,8 +13,11 @@ import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import { useAuth } from '@/contexts/AuthContext'
 
-const tabs: { label: string; value: TicketStatus | 'all'; count?: number }[] = [
+type AssignedTicketsTab = TicketStatus | 'all' | 'assigned_pending_mine'
+
+const tabs: { label: string; value: AssignedTicketsTab; count?: number }[] = [
   { label: 'All Assigned', value: 'all' },
+  { label: 'Pending To Me', value: 'assigned_pending_mine' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Resolved', value: 'resolved' },
 ]
@@ -76,15 +79,20 @@ export default function AssignedTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [assignees, setAssignees] = useState<PendingUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<TicketStatus | 'all'>('all')
+  const [tab, setTab] = useState<AssignedTicketsTab>('all')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [assignmentTarget, setAssignmentTarget] = useState<Ticket | null>(null)
   const [savingAssignment, setSavingAssignment] = useState(false)
 
-  const ticketMatchesTab = (ticket: Ticket, activeTab: TicketStatus | 'all') =>
-    activeTab === 'all' || ticket.status === activeTab
+  const ticketMatchesTab = (ticket: Ticket, activeTab: AssignedTicketsTab) => {
+    if (activeTab === 'all') return true
+    if (activeTab === 'assigned_pending_mine') {
+      return ticket.status === 'assigned_pending' && ticket.assigned_to?.id === user?.id
+    }
+    return ticket.status === activeTab
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,8 +103,8 @@ export default function AssignedTickets() {
           page,
           page_size: 10,
           assigned_only: true,
-          ...(user?.role === 'it_staff' ? { assigned_to_me: true } : {}),
-          ...(tab !== 'all' ? { status: tab as TicketStatus } : {}),
+          ...(tab === 'assigned_pending_mine' ? { assigned_to_me: true, status: 'assigned_pending' as TicketStatus } : {}),
+          ...(tab !== 'all' && tab !== 'assigned_pending_mine' ? { status: tab as TicketStatus } : {}),
         }
         const [data, activeUsers] = await Promise.all([
           ticketService.list(params),
@@ -173,7 +181,7 @@ export default function AssignedTickets() {
               {tickets.length} visible
             </span>
             <span className="rounded-full bg-white/82 px-3 py-2 text-sm font-semibold capitalize text-slate-700 shadow-sm">
-              {(tab === 'all' ? 'all assigned' : tab).replace('_', ' ')}
+              {(tab === 'all' ? 'all assigned' : tab === 'assigned_pending_mine' ? 'pending to me' : tab).replace(/_/g, ' ')}
             </span>
           </div>
         </div>
