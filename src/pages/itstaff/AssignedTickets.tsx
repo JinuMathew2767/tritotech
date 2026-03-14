@@ -95,7 +95,6 @@ export default function AssignedTickets() {
           page,
           page_size: 10,
           assigned_only: true,
-          exclude_status: 'assigned_pending' as const,
           ...(user?.role === 'it_staff' ? { assigned_to_me: true } : {}),
           ...(tab !== 'all' ? { status: tab as TicketStatus } : {}),
         }
@@ -166,7 +165,7 @@ export default function AssignedTickets() {
               {user?.role === 'admin' ? 'Assigned Tickets' : 'My Assigned Tickets'}
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-              Stay focused on tickets that are already underway or completed, while the ticket desk handles items still waiting to be started.
+              Track everything already assigned to the support team, including tickets waiting to be started, work in progress, and completed items.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
