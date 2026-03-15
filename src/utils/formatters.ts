@@ -1,7 +1,7 @@
 import { format, formatDistanceToNow, parseISO } from 'date-fns'
 
 export const formatDate = (iso: string) => format(parseISO(iso), 'MMM d, yyyy')
-export const formatDateTime = (iso: string) => format(parseISO(iso), 'MMM d, yyyy · h:mm a')
+export const formatDateTime = (iso: string) => format(parseISO(iso), 'MMM d, yyyy - h:mm a')
 export const timeAgo = (iso: string) => formatDistanceToNow(parseISO(iso), { addSuffix: true })
 export const formatForDateTimeLocal = (iso?: string | null) => {
   if (!iso) return ''
@@ -18,10 +18,10 @@ export const localDateTimeToIso = (value?: string | null) => {
 export const formatTicketNumber = (num: string) => num.startsWith('IT-') ? num : `IT-${num}`
 
 export const truncate = (str: string, max = 60) =>
-  str.length > max ? str.slice(0, max) + '…' : str
+  str.length > max ? str.slice(0, max) + '...' : str
 
 export const initials = (name: string) =>
-  name.split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2)
+  name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2)
 
 export const statusColor: Record<string, string> = {
   open: 'bg-blue-100 text-blue-700',

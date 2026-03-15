@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Paperclip, Send } from 'lucide-react'
+import clsx from 'clsx'
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badge'
 import Avatar from '@/components/ui/Avatar'
 import AssignTicketModal from '@/components/tickets/AssignTicketModal'
@@ -122,6 +123,34 @@ export default function TicketDetail() {
     { label: 'Status', value: <StatusBadge status={ticket.status} /> },
     { label: 'Assignee', value: ticket.assigned_to?.name || 'Unassigned' },
     { label: 'Created', value: formatDate(ticket.created_at) },
+  ]
+  const conversationItems = [
+    {
+      id: `request-${ticket.id}`,
+      body: ticket.description,
+      created_at: ticket.created_at,
+      author: {
+        id: ticket.created_by.id,
+        name: ticket.created_by.name,
+        avatar: ticket.created_by.avatar,
+        role: 'employee',
+      },
+      roleLabel: 'Requester',
+      isRequest: true,
+    },
+    ...comments.map((comment) => ({
+      id: `comment-${comment.id}`,
+      body: comment.body,
+      created_at: comment.created_at,
+      author: comment.author,
+      roleLabel:
+        comment.author.role === 'admin'
+          ? 'Admin'
+          : comment.author.role === 'it_staff'
+            ? 'IT Staff'
+            : 'Requester',
+      isRequest: false,
+    })),
   ]
 
   const handleAssignToMe = async () => {
@@ -246,95 +275,118 @@ export default function TicketDetail() {
 
       <div className="flex-1 min-h-0 p-4">
         <div className="grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1.45fr)_360px] xl:grid-cols-[minmax(0,1.6fr)_380px]">
-          <section className="order-2 flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:order-1 lg:min-h-0">
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+          <section className="order-1 flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-[28px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,252,0.9)_100%)] shadow-[0_24px_60px_-34px_rgba(15,23,42,0.35)] lg:min-h-0">
+            <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">Conversation</h2>
                 <p className="text-xs text-slate-400">
-                  {comments.length + 1} message{comments.length === 0 ? '' : 's'}
+                  {conversationItems.length} message{conversationItems.length === 1 ? '' : 's'}
                 </p>
               </div>
               {ticket.assigned_to && (
-                <div className="rounded-full bg-[#4E5A7A]/10 px-3 py-1 text-xs font-semibold text-[#4E5A7A]">
+                <div className="inline-flex max-w-full items-center gap-2 self-start rounded-full border border-white/70 bg-[#4E5A7A]/8 px-3 py-1.5 text-xs font-semibold text-[#4E5A7A] sm:self-auto">
+                  <span className="h-2 w-2 rounded-full bg-[#4E5A7A]" />
                   Assigned to {ticket.assigned_to.name}
                 </div>
               )}
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto bg-[#f6f7f8] px-4 py-4 space-y-4">
-              <div className="flex gap-3">
-                <Avatar name={ticket.created_by.name} src={ticket.created_by.avatar} />
-                <div className="max-w-[88%] rounded-2xl rounded-tl-none bg-white p-4 shadow-sm">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <p className="text-sm font-semibold text-slate-900">{ticket.created_by.name}</p>
-                    <span className="text-xs text-slate-400">Requester</span>
-                  </div>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{ticket.description}</p>
-                  <p className="mt-3 text-right text-xs text-slate-400">{formatDateTime(ticket.created_at)}</p>
-                </div>
-              </div>
+            <div className="flex-1 min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(78,90,122,0.06),transparent_30%),linear-gradient(180deg,#f8fafd_0%,#eef3f8_100%)] px-3 py-4 sm:px-4 sm:py-5">
+              <div className="space-y-3.5">
+                {conversationItems.map((item) => {
+                  const isMe = item.author.id === user?.id
+                  const isSupportReply = !isMe && item.author.role !== 'employee'
+                  const bubbleClassName = isMe
+                    ? 'rounded-br-[8px] border-transparent bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-white shadow-[0_18px_36px_-22px_rgba(78,90,122,0.52)]'
+                    : isSupportReply
+                      ? 'rounded-bl-[8px] border border-[#d9e2f2] bg-[linear-gradient(180deg,#f7faff_0%,#eef4ff_100%)] text-slate-800 shadow-[0_16px_30px_-24px_rgba(78,90,122,0.3)]'
+                      : 'rounded-bl-[8px] border border-white/85 bg-white text-slate-800 shadow-[0_16px_28px_-24px_rgba(15,23,42,0.2)]'
+                  const rolePillClassName = isMe
+                    ? 'bg-white/15 text-white/80'
+                    : isSupportReply
+                      ? 'bg-[#4E5A7A]/10 text-[#4E5A7A]'
+                      : 'bg-slate-100 text-slate-500'
 
-              {comments.map((comment) => {
-                const isAgent = comment.author.role !== 'employee'
-                const isMe = comment.author.id === user?.id
-                return (
-                  <div key={comment.id} className={`flex gap-3 ${isAgent || isMe ? 'flex-row-reverse' : ''}`}>
-                    <Avatar name={comment.author.name} src={comment.author.avatar} />
-                    <div
-                      className={`max-w-[88%] rounded-2xl p-4 shadow-sm ${
-                        isAgent || isMe
-                          ? 'rounded-tr-none bg-[#4E5A7A] text-white'
-                          : 'rounded-tl-none bg-white'
-                      }`}
-                    >
-                      <p className={`text-xs font-semibold mb-1 ${isAgent || isMe ? 'text-white/80' : 'text-slate-900'}`}>
-                        {comment.author.name}
-                      </p>
-                      <p className={`whitespace-pre-wrap text-sm leading-6 ${isAgent || isMe ? 'text-white' : 'text-slate-700'}`}>
-                        {comment.body}
-                      </p>
-                      <p className={`mt-2 text-xs ${isAgent || isMe ? 'text-white/60 text-left' : 'text-slate-400 text-right'}`}>
-                        {timeAgo(comment.created_at)}
-                      </p>
+                  return (
+                    <div key={item.id} className={clsx('flex items-end gap-2.5', isMe ? 'justify-end' : 'justify-start')}>
+                      {!isMe && (
+                        <Avatar
+                          name={item.author.name}
+                          src={item.author.avatar}
+                          size="sm"
+                          className="mb-1 shrink-0 ring-2 ring-white/80"
+                        />
+                      )}
+
+                      <div className={clsx('max-w-[min(84%,28rem)] min-w-[11.5rem] px-4 py-3.5', bubbleClassName)}>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className={clsx('inline-flex rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]', rolePillClassName)}>
+                            {item.roleLabel}
+                          </span>
+                          <p className={clsx('text-sm font-semibold', isMe ? 'text-white' : 'text-slate-900')}>
+                            {item.author.name}
+                          </p>
+                        </div>
+
+                        <p className={clsx('mt-2 whitespace-pre-wrap text-[15px] leading-7', isMe ? 'text-white' : 'text-slate-700')}>
+                          {item.body}
+                        </p>
+
+                        <div className={clsx('mt-3 flex items-center justify-between gap-3 text-[11px]', isMe ? 'text-white/65' : 'text-slate-400')}>
+                          <span>{item.isRequest ? 'Ticket opened' : 'Reply'}</span>
+                          <span>{timeAgo(item.created_at)}</span>
+                        </div>
+                      </div>
+
+                      {isMe && (
+                        <Avatar
+                          name={item.author.name}
+                          src={item.author.avatar}
+                          size="sm"
+                          className="mb-1 shrink-0 ring-2 ring-white/80"
+                        />
+                      )}
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
 
-            <form onSubmit={sendReply} className="border-t border-slate-100 bg-white px-4 py-3 flex items-end gap-2 flex-shrink-0">
-              <button
-                type="button"
-                disabled={isResolved}
-                className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 hover:text-[#4E5A7A] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
-              >
-                <Paperclip className="w-5 h-5" />
-              </button>
-              <textarea
-                className="max-h-32 min-h-[52px] flex-1 resize-none rounded-xl border border-slate-200 px-3.5 py-3 text-sm focus:border-[#4E5A7A] focus:outline-none focus:ring-2 focus:ring-[#4E5A7A]/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
-                rows={2}
-                placeholder={isResolved ? 'Ticket is resolved. Reopen it to continue the conversation.' : 'Write a reply...'}
-                value={reply}
-                onChange={(e) => setReply(e.target.value)}
-                disabled={isResolved}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    sendReply(e as unknown as FormEvent)
-                  }
-                }}
-              />
-              <button
-                type="submit"
-                disabled={isResolved || !reply.trim() || sending}
-                className="rounded-xl bg-[#4E5A7A] p-3 text-white transition-all hover:bg-[#1a95d0] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+            <form onSubmit={sendReply} className="border-t border-slate-100 bg-white px-3 py-3 sm:px-4">
+              <div className="flex items-end gap-2 rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-2 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.18)]">
+                <button
+                  type="button"
+                  disabled={isResolved}
+                  className="rounded-2xl p-3 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[#4E5A7A] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
+                >
+                  <Paperclip className="h-5 w-5" />
+                </button>
+                <textarea
+                  className="min-h-[54px] max-h-32 flex-1 resize-none bg-transparent px-1 py-2 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-400"
+                  rows={2}
+                  placeholder={isResolved ? 'Ticket is resolved. Reopen it to continue the conversation.' : 'Write a thoughtful reply...'}
+                  value={reply}
+                  onChange={(e) => setReply(e.target.value)}
+                  disabled={isResolved}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      sendReply(e as unknown as FormEvent)
+                    }
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={isResolved || !reply.trim() || sending}
+                  className="rounded-[20px] bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] p-3 text-white shadow-[0_16px_28px_-18px_rgba(78,90,122,0.48)] transition-all hover:-translate-y-0.5 hover:bg-[#1a95d0] active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  <Send className="h-5 w-5" />
+                </button>
+              </div>
             </form>
           </section>
 
-          <aside className="order-1 min-h-0 space-y-4 lg:order-2 lg:overflow-y-auto lg:pr-1">
+          <aside className="order-2 min-h-0 space-y-4 lg:overflow-y-auto lg:pr-1">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900">Overview</h2>
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
