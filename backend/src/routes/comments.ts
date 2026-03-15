@@ -1,6 +1,7 @@
 import { Router, Response } from 'express'
 import { prisma } from '../db'
 import { authenticate, AuthRequest } from '../middleware/auth'
+import { createNotifications } from '../services/notificationsService'
 
 const router = Router({ mergeParams: true }) // inherit :ticketId from parent
 
@@ -17,6 +18,8 @@ const formatReactComment = (c: any) => ({
     role: c.Users.Roles?.Name?.toLowerCase().replace(' ', '_') || 'employee'
   }
 })
+
+const getActorName = (req: AuthRequest) => `${req.user?.first_name ?? ''} ${req.user?.last_name ?? ''}`.trim() || 'Someone'
 
 // GET /api/tickets/:ticketId/comments
 router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
@@ -43,7 +46,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
 
     const ticket = await prisma.tickets.findUnique({
       where: { Id: ticket_id },
-      select: { Status: true }
+      select: { Status: true, CreatedById: true, AssignedToId: true, TicketNumber: true }
     })
 
     if (!ticket) {
@@ -74,6 +77,30 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
         NewValue: body,
       }
     })
+
+    const recipients = new Set<number>()
+    const internalComment = is_internal === true || is_internal === 'true'
+
+    if (!internalComment && ticket.CreatedById !== req.user.id) {
+      recipients.add(ticket.CreatedById)
+    }
+
+    if (ticket.AssignedToId && ticket.AssignedToId !== req.user.id) {
+      recipients.add(ticket.AssignedToId)
+    }
+
+    if (recipients.size > 0) {
+      try {
+        await createNotifications({
+          userIds: Array.from(recipients),
+          title: internalComment ? 'Internal update on a ticket' : 'New comment on a ticket',
+          message: `${getActorName(req)} commented on ${ticket.TicketNumber}.`,
+          ticketId: ticket_id,
+        })
+      } catch (error) {
+        console.error('Failed to create comment notifications', error)
+      }
+    }
 
     res.status(201).json(formatReactComment(comment))
   } catch (err) {

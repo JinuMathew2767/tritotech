@@ -2,6 +2,7 @@ import { Router, Response } from 'express'
 import { prisma } from '../db'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { findMatchingRoutingRule } from '../services/routingRulesService'
+import { createNotifications, getActiveAdminIds } from '../services/notificationsService'
 import { getUserDepartmentAccess } from '../services/userDepartmentAccessService'
 
 const router = Router()
@@ -9,6 +10,7 @@ const ACTIVE_STATUSES = ['Open', 'Assigned Pending', 'In Progress'] as const
 const STARTABLE_STATUSES = ['Open', 'Assigned Pending', 'In Progress'] as const
 
 const isSupportUser = (role?: string) => role === 'admin' || role === 'it_staff'
+const getActorName = (req: AuthRequest) => `${req.user?.first_name ?? ''} ${req.user?.last_name ?? ''}`.trim() || 'System'
 
 const ensureAssignableSupportUser = async (userId: number) => {
   const user = await prisma.users.findUnique({
@@ -49,6 +51,24 @@ const createActivityLog = async ({
     })
   } catch (error) {
     console.error('Failed to write ticket activity log', error)
+  }
+}
+
+const safeCreateNotifications = async ({
+  userIds,
+  title,
+  message,
+  ticketId,
+}: {
+  userIds: number[]
+  title: string
+  message: string
+  ticketId?: number | null
+}) => {
+  try {
+    await createNotifications({ userIds, title, message, ticketId })
+  } catch (error) {
+    console.error('Failed to create notifications', error)
   }
 }
 
@@ -560,6 +580,24 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
       })
     }
 
+    const actorName = getActorName(req)
+    const adminIds = await getActiveAdminIds(assignedToId || req.user.id)
+    await safeCreateNotifications({
+      userIds: adminIds,
+      title: 'New ticket submitted',
+      message: `${actorName} created ${ticket.TicketNumber}: ${ticket.Title}`,
+      ticketId: ticket.Id,
+    })
+
+    if (assignedToId && assignedToId !== req.user.id) {
+      await safeCreateNotifications({
+        userIds: [assignedToId],
+        title: 'Ticket assigned to you',
+        message: `${ticket.TicketNumber} was assigned to you${matchedRoutingRule ? ' automatically' : ''}.`,
+        ticketId: ticket.Id,
+      })
+    }
+
     res.status(201).json(formatReactTicket(ticket))
   } catch (err) {
     console.error(err)
@@ -636,6 +674,8 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
 
     const data: any = {}
     const changes: string[] = []
+    let assignmentChanged = false
+    let statusChanged = false
 
     if (status) {
       if (!isSupportUser(req.user?.role)) {
@@ -656,6 +696,7 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
       data.Status = nextStatus
       if (existingTicket.Status !== nextStatus) {
         changes.push(`status:${existingTicket.Status}->${nextStatus}`)
+        statusChanged = true
       }
 
       if (nextStatus === 'Resolved' && existingTicket.Status !== 'Resolved') {
@@ -683,11 +724,13 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
 
       data.AssignedToId = normalizedAssignedTo
       if (existingTicket.AssignedToId !== normalizedAssignedTo) {
+        assignmentChanged = true
         changes.push(`assigned_to:${existingTicket.AssignedToId ?? 'none'}->${normalizedAssignedTo ?? 'none'}`)
         const reassignmentStatus = normalizedAssignedTo ? 'Assigned Pending' : 'Open'
         if (data.Status !== reassignmentStatus && existingTicket.Status !== reassignmentStatus) {
           data.Status = reassignmentStatus
           changes.push(`status:${existingTicket.Status}->${reassignmentStatus}`)
+          statusChanged = true
         }
       }
     }
@@ -722,6 +765,25 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
         action: 'ticket_updated',
         oldValue: JSON.stringify({ status: existingTicket.Status, assignedToId: existingTicket.AssignedToId }),
         newValue: JSON.stringify(changes),
+      })
+    }
+
+    const actorName = getActorName(req)
+    if (assignmentChanged && ticket.AssignedToId && ticket.AssignedToId !== req.user.id) {
+      await safeCreateNotifications({
+        userIds: [ticket.AssignedToId],
+        title: 'Ticket assigned to you',
+        message: `${actorName} assigned ${ticket.TicketNumber} to you.`,
+        ticketId: ticket.Id,
+      })
+    }
+
+    if (statusChanged && ticket.CreatedById !== req.user.id) {
+      await safeCreateNotifications({
+        userIds: [ticket.CreatedById],
+        title: 'Ticket status updated',
+        message: `${ticket.TicketNumber} is now ${ticket.Status}.`,
+        ticketId: ticket.Id,
       })
     }
 
@@ -771,6 +833,15 @@ router.post('/:id/assign_self', authenticate, async (req: AuthRequest, res: Resp
       action: 'ticket_assigned_self',
       newValue: JSON.stringify({ assignedToId: req.user.id }),
     })
+
+    if (ticket.CreatedById !== req.user.id) {
+      await safeCreateNotifications({
+        userIds: [ticket.CreatedById],
+        title: 'Ticket claimed by support',
+        message: `${ticket.TicketNumber} has been assigned to ${getActorName(req)}.`,
+        ticketId: ticket.Id,
+      })
+    }
 
     res.json(formatReactTicket(ticket))
   } catch (err) {
@@ -823,6 +894,24 @@ router.post('/:id/assign', authenticate, async (req: AuthRequest, res: Response)
       action: 'ticket_assigned',
       newValue: JSON.stringify({ assignedToId: normalizedUserId }),
     })
+
+    if (ticket.AssignedToId && ticket.AssignedToId !== req.user.id) {
+      await safeCreateNotifications({
+        userIds: [ticket.AssignedToId],
+        title: 'Ticket assigned to you',
+        message: `${getActorName(req)} assigned ${ticket.TicketNumber} to you.`,
+        ticketId: ticket.Id,
+      })
+    }
+
+    if (ticket.CreatedById !== req.user.id) {
+      await safeCreateNotifications({
+        userIds: [ticket.CreatedById],
+        title: 'Ticket assignment updated',
+        message: `${ticket.TicketNumber} is now assigned to ${ticket.Users_Tickets_AssignedToIdToUsers?.FullName || 'support'}.`,
+        ticketId: ticket.Id,
+      })
+    }
 
     res.json(formatReactTicket(ticket))
   } catch (err: any) {
@@ -888,6 +977,15 @@ router.post('/:id/start_task', authenticate, async (req: AuthRequest, res: Respo
       oldValue: existingTicket.Status,
       newValue: 'In Progress',
     })
+
+    if (ticket.CreatedById !== req.user.id) {
+      await safeCreateNotifications({
+        userIds: [ticket.CreatedById],
+        title: 'Work started on your ticket',
+        message: `${ticket.TicketNumber} is now In Progress.`,
+        ticketId: ticket.Id,
+      })
+    }
 
     res.json(formatReactTicket(ticket))
   } catch (err) {

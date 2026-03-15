@@ -9,18 +9,23 @@ export interface Notification {
   ticket_id?: number
 }
 
+export interface NotificationListResponse {
+  items: Notification[]
+  unread_count: number
+}
+
 const notificationService = {
-  async list(): Promise<Notification[]> {
-    const { data } = await api.get<Notification[]>('/notifications/')
+  async list(): Promise<NotificationListResponse> {
+    const { data } = await api.get<NotificationListResponse>('/notifications')
     return data
   },
 
   async markRead(id: number): Promise<void> {
-    await api.patch(`/notifications/${id}/`, { read: true })
+    await api.patch(`/notifications/${id}`)
   },
 
   async markAllRead(): Promise<void> {
-    await api.post('/notifications/mark_all_read/')
+    await api.post('/notifications/mark-all-read')
   },
 }
 

@@ -23,6 +23,8 @@ import {
 import { initials } from '@/utils/formatters'
 import clsx from 'clsx'
 import { fetchBrandingSettings, getBrandingSettings, subscribeToBrandingSettings } from '@/services/brandingService'
+import notificationService, { type Notification } from '@/services/notificationService'
+import { timeAgo } from '@/utils/formatters'
 
 const navByRole = {
   employee: [
@@ -55,6 +57,10 @@ export default function AppLayout() {
   const [branding, setBranding] = useState(() => getBrandingSettings())
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   const role = user?.role ?? 'employee'
   const navItems = navByRole[role] ?? navByRole.employee
@@ -69,9 +75,89 @@ export default function AppLayout() {
     return unsubscribe
   }, [])
 
+  useEffect(() => {
+    setNotificationsOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!user) return
+
+    let active = true
+    const loadNotifications = async (showLoader = false) => {
+      if (showLoader) setNotificationsLoading(true)
+      try {
+        const data = await notificationService.list()
+        if (!active) return
+        setNotifications(data.items)
+        setUnreadCount(data.unread_count)
+      } catch {
+        if (!active) return
+      } finally {
+        if (showLoader && active) setNotificationsLoading(false)
+      }
+    }
+
+    void loadNotifications(true)
+    const intervalId = window.setInterval(() => {
+      void loadNotifications(false)
+    }, 60000)
+
+    return () => {
+      active = false
+      window.clearInterval(intervalId)
+    }
+  }, [user])
+
   const handleLogout = async () => {
     await logout()
     navigate('/login')
+  }
+
+  const handleBellToggle = async () => {
+    const nextOpen = !notificationsOpen
+    setNotificationsOpen(nextOpen)
+
+    if (nextOpen) {
+      setNotificationsLoading(true)
+      try {
+        const data = await notificationService.list()
+        setNotifications(data.items)
+        setUnreadCount(data.unread_count)
+      } catch {
+        setNotifications([])
+      } finally {
+        setNotificationsLoading(false)
+      }
+    }
+  }
+
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.read) {
+      try {
+        await notificationService.markRead(notification.id)
+        setNotifications((current) =>
+          current.map((item) => (item.id === notification.id ? { ...item, read: true } : item))
+        )
+        setUnreadCount((current) => Math.max(0, current - 1))
+      } catch {
+        // keep navigation responsive even if read state update fails
+      }
+    }
+
+    setNotificationsOpen(false)
+    if (notification.ticket_id) {
+      navigate(`/tickets/${notification.ticket_id}`)
+    }
+  }
+
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationService.markAllRead()
+      setNotifications((current) => current.map((item) => ({ ...item, read: true })))
+      setUnreadCount(0)
+    } catch {
+      // no-op for now
+    }
   }
 
   const renderSidebarContent = () => (
@@ -202,10 +288,77 @@ export default function AppLayout() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <button className="relative rounded-2xl border border-white/70 bg-white/70 p-2.5 text-slate-500 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-white">
+            <div className="relative">
+              <button
+                onClick={() => void handleBellToggle()}
+                className="relative rounded-2xl border border-white/70 bg-white/70 p-2.5 text-slate-500 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-white"
+              >
               <Bell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-            </button>
+              {unreadCount > 0 ? (
+                <>
+                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
+                  <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-sm">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                </>
+              ) : null}
+              </button>
+
+              {notificationsOpen && (
+                <div className="absolute right-0 top-[calc(100%+0.65rem)] z-30 w-[22rem] overflow-hidden rounded-[24px] border border-white/70 bg-white/92 shadow-[0_24px_70px_-34px_rgba(15,23,42,0.45)] backdrop-blur-xl">
+                  <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Notifications</p>
+                      <p className="text-xs text-slate-400">{unreadCount} unread</p>
+                    </div>
+                    <button
+                      onClick={() => void handleMarkAllRead()}
+                      className="text-xs font-semibold text-[#4E5A7A] disabled:text-slate-300"
+                      disabled={unreadCount === 0}
+                    >
+                      Mark all read
+                    </button>
+                  </div>
+
+                  <div className="max-h-[26rem] overflow-y-auto">
+                    {notificationsLoading ? (
+                      <div className="px-4 py-8 text-center text-sm text-slate-400">Loading notifications...</div>
+                    ) : notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-sm text-slate-400">No notifications yet</div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <button
+                          key={notification.id}
+                          onClick={() => void handleNotificationClick(notification)}
+                          className={clsx(
+                            'w-full border-b border-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-50',
+                            !notification.read && 'bg-rose-50/40'
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span
+                              className={clsx(
+                                'mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full',
+                                notification.read ? 'bg-slate-200' : 'bg-rose-400'
+                              )}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-3">
+                                <p className="text-sm font-semibold text-slate-900">{notification.title}</p>
+                                <span className="whitespace-nowrap text-[11px] text-slate-400">
+                                  {timeAgo(notification.created_at)}
+                                </span>
+                              </div>
+                              <p className="mt-1 text-sm leading-5 text-slate-600">{notification.body}</p>
+                            </div>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <Link
               to="/profile"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-white/75 bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-xs font-bold text-white shadow-[0_14px_24px_-18px_rgba(78,90,122,0.45)]"

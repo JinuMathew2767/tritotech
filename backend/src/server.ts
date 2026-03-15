@@ -13,6 +13,7 @@ import departmentRoutes from './routes/departments'
 import brandingRoutes from './routes/branding'
 import routingRuleRoutes from './routes/routingRules'
 import assetRoutes from './routes/assets'
+import notificationRoutes from './routes/notifications'
 import { ensureBrandingSettingsTable } from './services/brandingService'
 import { ensureRoutingRulesTable } from './services/routingRulesService'
 import { ensureAssetTables } from './services/assetService'
@@ -69,6 +70,7 @@ app.use('/api/subcategories', subcategoryRoutes)
 app.use('/api/departments', departmentRoutes)
 app.use('/api/routing-rules', routingRuleRoutes)
 app.use('/api/assets', assetRoutes)
+app.use('/api/notifications', notificationRoutes)
 app.use('/api/tickets', ticketRoutes)
 app.use('/api/tickets/:ticketId/comments', commentRoutes)
 
