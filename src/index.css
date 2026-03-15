@@ -88,7 +88,7 @@
   }
 
   .auth-input {
-    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-medium text-slate-900 placeholder:text-slate-400 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all focus:border-[#4E5A7A] focus:outline-none focus:ring-4 focus:ring-[#4E5A7A]/10;
+    @apply w-full rounded-2xl border border-rose-200/80 bg-white/95 px-4 py-3 text-[15px] font-medium text-slate-900 placeholder:text-slate-400 shadow-[0_0_0_1px_rgba(251,113,133,0.16),0_16px_34px_-30px_rgba(251,113,133,0.38),inset_0_1px_0_rgba(255,255,255,0.78)] transition-all focus:border-rose-300 focus:outline-none focus:ring-4 focus:ring-rose-200/45;
   }
 
   .auth-label {
@@ -100,7 +100,7 @@
   }
 
   .input {
-    @apply w-full rounded-xl border border-white/75 bg-white/82 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-md focus:border-[#4E5A7A] focus:outline-none focus:ring-2 focus:ring-[#4E5A7A]/20 transition-all;
+    @apply w-full rounded-xl border border-rose-200/75 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-[0_0_0_1px_rgba(251,113,133,0.14),0_16px_32px_-28px_rgba(251,113,133,0.34),inset_0_1px_0_rgba(255,255,255,0.72)] backdrop-blur-md focus:border-rose-300 focus:outline-none focus:ring-4 focus:ring-rose-200/40 transition-all;
   }
 
   .label {

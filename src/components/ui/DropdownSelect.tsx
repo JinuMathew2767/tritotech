@@ -243,7 +243,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
                       className={clsx(
                         'flex w-full items-start gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all',
                         selected
-                          ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
+                          ? 'border-rose-300/65 bg-rose-50/70 shadow-[0_14px_30px_-26px_rgba(251,113,133,0.38)]'
                           : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50',
                         option.disabled && 'cursor-not-allowed opacity-50',
                         optionClassName
@@ -276,7 +276,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
         disabled={disabled}
         className={clsx(
           'input flex w-full items-center justify-between gap-3 text-left transition-colors',
-          open && 'border-[#4E5A7A]/35 ring-2 ring-[#4E5A7A]/10',
+          open && 'border-rose-300 ring-4 ring-rose-200/45',
           disabled && 'cursor-not-allowed bg-slate-50 text-slate-400',
           buttonClassName
         )}
@@ -287,7 +287,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
         <ChevronDown
           className={clsx(
             'h-4 w-4 shrink-0 text-slate-400 transition-transform',
-            open && 'rotate-180 text-[#4E5A7A]'
+            open && 'rotate-180 text-[#ef5c7a]'
           )}
         />
       </button>
