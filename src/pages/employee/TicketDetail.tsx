@@ -395,7 +395,7 @@ export default function TicketDetail() {
                           src={item.author.avatar}
                           size="xs"
                           variant="soft"
-                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] sm:mb-1 sm:ml-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
+                          className="hidden h-6 w-6 shrink-0 text-[9px] sm:ml-0.5 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
                         />
                       )}
 
@@ -431,7 +431,7 @@ export default function TicketDetail() {
                           src={item.author.avatar}
                           size="xs"
                           variant="soft"
-                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] sm:mb-1 sm:mr-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
+                          className="hidden h-6 w-6 shrink-0 text-[9px] sm:mr-0.5 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
                         />
                       )}
                     </div>

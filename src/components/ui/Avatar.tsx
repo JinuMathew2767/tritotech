@@ -36,13 +36,15 @@ export default function Avatar({ name = '', src, size = 'sm', variant = 'default
   ) : (
     <div
       className={clsx(
-        'flex flex-shrink-0 items-center justify-center rounded-full text-center font-semibold leading-none tracking-[0.02em]',
+        'relative flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full',
         fallbackVariantMap[variant],
         sizeMap[size],
         className
       )}
     >
-      {initials(name)}
+      <span className="absolute inset-0 flex items-center justify-center text-center font-semibold leading-none tracking-[0.02em]">
+        {initials(name)}
+      </span>
     </div>
   )
 }
