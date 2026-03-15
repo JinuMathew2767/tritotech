@@ -116,14 +116,14 @@ export default function ProfilePage() {
         : user?.department?.trim() || 'Global Access'
 
   return (
-    <div className="max-w-md mx-auto px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="mx-auto max-w-md px-4 py-6 sm:max-w-xl">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
         <Link to="/dashboard" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-lg font-bold text-slate-900">Profile & Preferences</h1>
+        <h1 className="min-w-0 flex-1 text-base font-bold text-slate-900 sm:text-lg">Profile & Preferences</h1>
         {isEditing ? (
-          <div className="flex items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center gap-2">
             <button
               onClick={() => {
                 resetForm()
@@ -181,7 +181,7 @@ export default function ProfilePage() {
           </span>
         </div>
         <div className="space-y-4 p-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <ProfileField label="First Name" value={firstName} onChange={setFirstName} editable={isEditing} />
             <ProfileField label="Last Name" value={lastName} onChange={setLastName} editable={isEditing} />
           </div>

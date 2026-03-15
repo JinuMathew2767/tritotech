@@ -273,7 +273,7 @@ export default function UserApprovals() {
 
       <Modal open={!!editingUser} onClose={() => setEditingUser(null)} title="Edit User" size="lg">
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label">First Name</label>
               <input className="input" value={form.first_name} onChange={(e) => setForm((prev) => ({ ...prev, first_name: e.target.value }))} />

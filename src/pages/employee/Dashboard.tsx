@@ -44,47 +44,60 @@ export default function EmployeeDashboard() {
   ]
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
-      <div className="rounded-2xl bg-gradient-to-r from-[#4E5A7A] to-[#1a95d0] p-6 text-white flex items-center justify-between">
+    <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
+      <div className="flex flex-col gap-4 rounded-2xl bg-gradient-to-r from-[#4E5A7A] to-[#1a95d0] p-5 text-white sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
-          <p className="text-white/80 text-sm mb-1">Welcome back,</p>
+          <p className="mb-1 text-sm text-white/80">Welcome back,</p>
           <h1 className="text-2xl font-bold">{user?.first_name} {user?.last_name}</h1>
-          <p className="text-white/70 text-sm mt-1">{user?.company} · {user?.department}</p>
+          <p className="mt-1 text-sm text-white/70">{user?.company} - {user?.department}</p>
         </div>
-        <Link to="/tickets/new" className="inline-flex items-center gap-2 bg-white text-[#4E5A7A] text-sm font-bold px-4 py-2.5 rounded-xl hover:shadow-lg transition-all active:scale-95">
-          <Plus className="w-4 h-4" /> Raise Ticket
+
+        <Link
+          to="/tickets/new"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#4E5A7A] transition-all hover:shadow-lg active:scale-95 sm:w-auto"
+        >
+          <Plus className="h-4 w-4" /> Raise Ticket
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {kpis.map(({ icon: Icon, label, value, color, bg }) => (
           <div key={label} className="card p-4 text-center">
-            <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center mx-auto mb-2`}>
-              <Icon className={`w-5 h-5 ${color}`} />
+            <div className={`mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl ${bg}`}>
+              <Icon className={`h-5 w-5 ${color}`} />
             </div>
             <p className="text-2xl font-extrabold text-slate-900">{value}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+            <p className="mt-0.5 text-xs text-slate-500">{label}</p>
           </div>
         ))}
       </div>
 
       <div className="card">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-semibold text-slate-900">Recent Tickets</h2>
-          <Link to="/tickets" className="text-xs text-[#4E5A7A] font-medium hover:underline">View all →</Link>
+          <Link to="/tickets" className="text-xs font-medium text-[#4E5A7A] hover:underline">View all -&gt;</Link>
         </div>
         <div className="divide-y divide-slate-100">
           {tickets.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <TicketIcon className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No tickets yet. <Link to="/tickets/new" className="text-[#4E5A7A] hover:underline">Raise your first ticket</Link>.</p>
+            <div className="py-12 text-center text-slate-400">
+              <TicketIcon className="mx-auto mb-3 h-10 w-10 opacity-30" />
+              <p className="text-sm">
+                No tickets yet.{' '}
+                <Link to="/tickets/new" className="text-[#4E5A7A] hover:underline">
+                  Raise your first ticket
+                </Link>.
+              </p>
             </div>
           ) : tickets.map((ticket) => (
-            <Link key={ticket.id} to={`/tickets/${ticket.id}`} className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#4E5A7A] mb-0.5">{ticket.ticket_number}</p>
-                <p className="text-sm font-medium text-slate-900 truncate">{ticket.subject}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{ticket.category} · {formatDate(ticket.updated_at)}</p>
+            <Link
+              key={ticket.id}
+              to={`/tickets/${ticket.id}`}
+              className="flex flex-col gap-2 px-5 py-3.5 transition-colors hover:bg-slate-50 sm:flex-row sm:items-center sm:gap-4"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="mb-0.5 text-xs font-semibold text-[#4E5A7A]">{ticket.ticket_number}</p>
+                <p className="truncate text-sm font-medium text-slate-900">{ticket.subject}</p>
+                <p className="mt-0.5 text-xs text-slate-400">{ticket.category} - {formatDate(ticket.updated_at)}</p>
               </div>
               <StatusBadge status={ticket.status} />
             </Link>
@@ -94,4 +107,3 @@ export default function EmployeeDashboard() {
     </div>
   )
 }
-

@@ -39,35 +39,39 @@ export default function MyTickets() {
         setLoading(false)
       }
     }
-    fetchData()
+    void fetchData()
   }, [search, statusFilter, page])
 
   return (
-    <div className="p-4 md:p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-5">
+    <div className="mx-auto max-w-3xl p-4 md:p-6">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-xl font-bold text-slate-900">My Tickets</h1>
-        <Link to="/tickets/new" className="btn-primary text-sm py-2">
-          <Plus className="w-4 h-4" /> New Ticket
+        <Link to="/tickets/new" className="btn-primary w-full py-2 text-sm sm:w-auto">
+          <Plus className="h-4 w-4" /> New Ticket
         </Link>
       </div>
 
-      {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           className="input pl-9"
-          placeholder="Search tickets…"
+          placeholder="Search tickets..."
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+          onChange={(event) => {
+            setSearch(event.target.value)
+            setPage(1)
+          }}
         />
       </div>
 
-      {/* Filter chips */}
-      <div className="flex gap-2 flex-wrap mb-5">
+      <div className="mb-5 flex flex-wrap gap-2">
         {filters.map(({ label, value }) => (
           <button
             key={value}
-            onClick={() => { setStatusFilter(value); setPage(1) }}
+            onClick={() => {
+              setStatusFilter(value)
+              setPage(1)
+            }}
             className={clsx('filter-pill', statusFilter === value ? 'filter-pill-active' : 'filter-pill-inactive')}
           >
             {label}
@@ -84,16 +88,22 @@ export default function MyTickets() {
           ) : tickets.map((ticket) => {
             const isResolved = ticket.status === 'resolved'
             return (
-              <Link key={ticket.id} to={`/tickets/${ticket.id}`} className={clsx('card flex items-center gap-4 p-4 hover:shadow-md transition-all', isResolved && 'opacity-60')}>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+              <Link
+                key={ticket.id}
+                to={`/tickets/${ticket.id}`}
+                className={clsx('card flex flex-col gap-3 p-4 transition-all hover:shadow-md sm:flex-row sm:items-center sm:gap-4', isResolved && 'opacity-60')}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
                     <span className="text-xs font-bold text-[#4E5A7A]">{ticket.ticket_number}</span>
                     <StatusBadge status={ticket.status} />
                   </div>
-                  <p className={clsx('text-sm font-medium text-slate-900 truncate', isResolved && 'line-through')}>{ticket.subject}</p>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                  <p className={clsx('truncate text-sm font-medium text-slate-900', isResolved && 'line-through')}>
+                    {ticket.subject}
+                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                     <span>{ticket.category}</span>
-                    <span>·</span>
+                    <span>-</span>
                     <span>Updated {formatDate(ticket.updated_at)}</span>
                   </div>
                 </div>
@@ -110,11 +120,12 @@ export default function MyTickets() {
         </div>
       )}
 
-      {/* FAB */}
-      <Link to="/tickets/new" className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-[#4E5A7A] rounded-full flex items-center justify-center shadow-lg shadow-[#4E5A7A]/40 hover:scale-105 transition-transform">
-        <Plus className="w-6 h-6 text-white" />
+      <Link
+        to="/tickets/new"
+        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#4E5A7A] shadow-lg shadow-[#4E5A7A]/40 transition-transform hover:scale-105 lg:hidden"
+      >
+        <Plus className="h-6 w-6 text-white" />
       </Link>
     </div>
   )
 }
-

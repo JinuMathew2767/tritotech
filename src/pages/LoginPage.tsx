@@ -27,8 +27,8 @@ export default function LoginPage() {
       .catch(() => undefined)
   }, [])
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
     setLoading(true)
     try {
       await login(email.trim(), password.trim())
@@ -42,106 +42,113 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-gradient-to-br from-[#0a1628] to-[#1a2e3a] p-12">
+    <div className="min-h-screen bg-[#f6f7f8] lg:flex">
+      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-[#0a1628] to-[#1a2e3a] p-12 lg:flex">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-[#4E5A7A]">
             {branding.logoDataUrl ? (
               <img src={branding.logoDataUrl} alt={`${branding.appName} logo`} className="h-full w-full object-contain bg-white p-1.5" />
             ) : (
-              <Shield className="w-5 h-5 text-white" />
+              <Shield className="h-5 w-5 text-white" />
             )}
           </div>
-          <span className="text-white font-bold text-xl">{branding.appName}</span>
+          <span className="text-xl font-bold text-white">{branding.appName}</span>
         </div>
+
         <div>
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">
-            Welcome back
-          </h1>
-          <p className="text-slate-400 text-base">Sign in to access tickets, dashboards, analytics, and operational controls across the portal.</p>
+          <h1 className="mb-4 text-4xl font-extrabold leading-tight text-white">Welcome back</h1>
+          <p className="text-base text-slate-400">
+            Sign in to access tickets, dashboards, analytics, and operational controls across the portal.
+          </p>
           <div className="mt-10 space-y-3">
             {highlights.map((item) => (
-              <div key={item} className="bg-white/5 rounded-xl p-4 border border-white/10 text-sm text-slate-300">
+              <div key={item} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
                 {item}
               </div>
             ))}
           </div>
         </div>
-        <p className="text-slate-600 text-sm">© {new Date().getFullYear()} Triton Group. All rights reserved.</p>
+
+        <p className="text-sm text-slate-600">(c) {new Date().getFullYear()} Triton Group. All rights reserved.</p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[#f6f7f8]">
-        <div className="w-full max-w-sm">
-          <div className="flex items-center gap-2 lg:hidden mb-8">
+      <div className="flex flex-1 items-start justify-center px-4 py-6 sm:px-6 sm:py-10 lg:items-center lg:py-12">
+        <div className="w-full max-w-md lg:max-w-sm">
+          <div className="mb-6 flex items-center gap-2 lg:hidden">
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-[#4E5A7A]">
               {branding.logoDataUrl ? (
                 <img src={branding.logoDataUrl} alt={`${branding.appName} logo`} className="h-full w-full object-contain bg-white p-1" />
               ) : (
-                <Shield className="w-4 h-4 text-white" />
+                <Shield className="h-4 w-4 text-white" />
               )}
             </div>
             <span className="font-bold text-slate-900">{branding.appName}</span>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-900">Sign In</h2>
-            <p className="text-slate-500 text-sm mt-1">Enter your credentials to access the portal</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="label">Email address</label>
-              <input
-                type="email"
-                className="input"
-                placeholder="you@tritongroup.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+          <div className="card p-5 sm:p-6 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+            <div className="mb-7">
+              <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">Sign In</h2>
+              <p className="mt-1 text-sm text-slate-500">Enter your credentials to access the portal</p>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="label !mb-0">Password</label>
-                <Link to="/forgot-password" className="text-xs text-[#4E5A7A] hover:underline">Forgot password?</Link>
-              </div>
-              <div className="relative">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="label">Email address</label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
-                  className="input pr-10"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="email"
+                  className="input"
+                  placeholder="you@tritongroup.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
-            </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-              {loading ? (
-                <span className="flex items-center gap-2 justify-center">
-                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  Signing in...
-                </span>
-              ) : 'Sign In'}
-            </button>
-          </form>
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label className="label !mb-0">Password</label>
+                  <Link to="/forgot-password" className="text-xs text-[#4E5A7A] hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className="input pr-10"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    onClick={() => setShowPassword((current) => !current)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
 
-          <p className="text-center text-sm text-slate-500 mt-6">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-[#4E5A7A] font-semibold hover:underline">Sign up</Link>
-          </p>
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3">
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    Signing in...
+                  </span>
+                ) : 'Sign In'}
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-slate-500">
+              Don't have an account?{' '}
+              <Link to="/signup" className="font-semibold text-[#4E5A7A] hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   )
 }
-

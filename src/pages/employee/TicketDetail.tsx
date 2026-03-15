@@ -337,7 +337,7 @@ export default function TicketDetail() {
           <aside className="order-1 min-h-0 space-y-4 lg:order-2 lg:overflow-y-auto lg:pr-1">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900">Overview</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {meta.map(({ label, value }) => (
                   <div key={label} className="rounded-xl bg-slate-50 p-3">
                     <p className="text-xs text-slate-400 mb-1">{label}</p>

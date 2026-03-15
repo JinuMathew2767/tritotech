@@ -188,7 +188,7 @@ export default function RaiseTicket() {
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="label">Company</label>
               <input
@@ -295,7 +295,7 @@ export default function RaiseTicket() {
 
         <div className="card p-5 space-y-4">
           <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Issue Details</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="label">Category *</label>
               <DropdownSelect
