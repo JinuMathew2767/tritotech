@@ -1,10 +1,57 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Camera, ToggleLeft, ToggleRight, ChevronRight, Lock, Pencil, Save, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  Building2,
+  Camera,
+  ChevronRight,
+  Lock,
+  Mail,
+  Pencil,
+  Phone,
+  Save,
+  Tags,
+  ToggleLeft,
+  ToggleRight,
+  X,
+  type LucideIcon,
+} from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { initials } from '@/utils/formatters'
 import toast from 'react-hot-toast'
 import userService from '@/services/userService'
+
+type FieldProps = {
+  label: string
+  value: string
+  onChange?: (value: string) => void
+  type?: 'text' | 'email' | 'tel'
+  icon?: LucideIcon
+  editable?: boolean
+}
+
+function ProfileField({ label, value, onChange, type = 'text', icon: Icon, editable = false }: FieldProps) {
+  const displayValue = value.trim() || '-'
+
+  return (
+    <div>
+      <label className="label">{label}</label>
+      <div className="input flex items-center gap-3">
+        {Icon ? <Icon className="h-4 w-4 shrink-0 text-slate-400" /> : null}
+        {editable && onChange ? (
+          <input
+            className="min-w-0 flex-1 bg-transparent text-slate-800 outline-none"
+            type={type}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        ) : (
+          <span className="truncate text-slate-800">{displayValue}</span>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth()
@@ -19,7 +66,6 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    // Pull the latest profile from the hosted API when this screen opens.
     void refreshUser()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -30,11 +76,6 @@ export default function ProfilePage() {
     setEmail(user?.email || '')
     setMobileNumber(user?.mobile_number || '')
   }, [user])
-
-  const info = [
-    { icon: '🏢', label: 'Company', value: user?.company ?? '—' },
-    { icon: '🏷️', label: 'Department', value: user?.department ?? '—' },
-  ]
 
   const resetForm = () => {
     setFirstName(user?.first_name || '')
@@ -62,32 +103,12 @@ export default function ProfilePage() {
     }
   }
 
-  const renderField = ({
-    label,
-    value,
-    onChange,
-    type = 'text',
-  }: {
-    label: string
-    value: string
-    onChange: (value: string) => void
-    type?: 'text' | 'email' | 'tel'
-  }) => (
-    <div>
-      <label className="label">{label}</label>
-      {isEditing ? (
-        <input className="input" type={type} value={value} onChange={(e) => onChange(e.target.value)} />
-      ) : (
-        <div className="input flex items-center text-slate-800">{value.trim() || '—'}</div>
-      )}
-    </div>
-  )
-
   return (
     <div className="max-w-md mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <Link to="/dashboard" className="p-2 rounded-lg hover:bg-slate-100 text-slate-500"><ArrowLeft className="w-5 h-5" /></Link>
+      <div className="mb-6 flex items-center justify-between">
+        <Link to="/dashboard" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
         <h1 className="text-lg font-bold text-slate-900">Profile & Preferences</h1>
         {isEditing ? (
           <div className="flex items-center gap-2">
@@ -122,57 +143,59 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Avatar */}
-      <div className="flex flex-col items-center mb-8">
+      <div className="mb-8 flex flex-col items-center">
         <div className="relative mb-3">
-          <div className="w-20 h-20 rounded-full bg-[#4E5A7A] flex items-center justify-center text-white text-2xl font-extrabold">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#4E5A7A] text-2xl font-extrabold text-white">
             {initials(`${user?.first_name ?? ''} ${user?.last_name ?? ''}`)}
           </div>
-          <button className="absolute bottom-0 right-0 w-7 h-7 bg-[#4E5A7A] rounded-full flex items-center justify-center border-2 border-white">
-            <Camera className="w-3.5 h-3.5 text-white" />
+          <button className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#4E5A7A]">
+            <Camera className="h-3.5 w-3.5 text-white" />
           </button>
         </div>
         <p className="text-lg font-bold text-slate-900">{user?.first_name} {user?.last_name}</p>
-        <p className="text-sm text-slate-500 capitalize">{user?.role?.replace('_', ' ')}</p>
-        {user?.employee_id && (
-          <span className="mt-2 text-xs font-semibold bg-[#4E5A7A]/10 text-[#4E5A7A] px-3 py-1 rounded-full">
+        <p className="text-sm capitalize text-slate-500">{user?.role?.replace('_', ' ')}</p>
+        {user?.employee_id ? (
+          <span className="mt-2 rounded-full bg-[#4E5A7A]/10 px-3 py-1 text-xs font-semibold text-[#4E5A7A]">
             ID: {user.employee_id}
           </span>
-        )}
+        ) : null}
       </div>
 
-      {/* Personal Information */}
       <div className="card mb-4">
-        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
           <h2 className="font-semibold text-slate-900">Personal Information</h2>
           <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
             {isEditing ? 'Editing' : 'View Only'}
           </span>
         </div>
-        <div className="p-4 space-y-4">
+        <div className="space-y-4 p-4">
           <div className="grid grid-cols-2 gap-3">
-            {renderField({ label: 'First Name', value: firstName, onChange: setFirstName })}
-            {renderField({ label: 'Last Name', value: lastName, onChange: setLastName })}
+            <ProfileField label="First Name" value={firstName} onChange={setFirstName} editable={isEditing} />
+            <ProfileField label="Last Name" value={lastName} onChange={setLastName} editable={isEditing} />
           </div>
-          {renderField({ label: 'Email', value: email, onChange: setEmail, type: 'email' })}
-          {renderField({ label: 'Mobile Number', value: mobileNumber, onChange: setMobileNumber, type: 'tel' })}
-        </div>
-        <div className="divide-y divide-slate-100 border-t border-slate-100">
-          {info.map(({ icon, label, value }) => (
-            <div key={label} className="flex items-center gap-3 px-4 py-3">
-              <div className="w-8 h-8 bg-[#4E5A7A]/10 rounded-lg flex items-center justify-center text-sm">{icon}</div>
-              <div className="flex-1">
-                <p className="text-xs text-slate-400">{label}</p>
-                <p className="text-sm font-medium text-slate-800">{value}</p>
-              </div>
-            </div>
-          ))}
+          <ProfileField
+            label="Email"
+            value={email}
+            onChange={setEmail}
+            type="email"
+            icon={Mail}
+            editable={isEditing}
+          />
+          <ProfileField
+            label="Mobile Number"
+            value={mobileNumber}
+            onChange={setMobileNumber}
+            type="tel"
+            icon={Phone}
+            editable={isEditing}
+          />
+          <ProfileField label="Company" value={user?.company || ''} icon={Building2} />
+          <ProfileField label="Department" value={user?.department || ''} icon={Tags} />
         </div>
       </div>
 
-      {/* Notification Preferences */}
       <div className="card mb-4">
-        <div className="px-4 py-3 border-b border-slate-100">
+        <div className="border-b border-slate-100 px-4 py-3">
           <h2 className="font-semibold text-slate-900">Notification Preferences</h2>
         </div>
         <div className="divide-y divide-slate-100">
@@ -187,39 +210,37 @@ export default function ProfilePage() {
                 <p className="text-xs text-slate-400">{desc}</p>
               </div>
               <button onClick={() => set(!state)}>
-                {state ? <ToggleRight className="w-8 h-8 text-[#4E5A7A]" /> : <ToggleLeft className="w-8 h-8 text-slate-300" />}
+                {state ? <ToggleRight className="h-8 w-8 text-[#4E5A7A]" /> : <ToggleLeft className="h-8 w-8 text-slate-300" />}
               </button>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Security */}
       <div className="card">
-        <div className="px-4 py-3 border-b border-slate-100">
+        <div className="border-b border-slate-100 px-4 py-3">
           <h2 className="font-semibold text-slate-900">Security</h2>
         </div>
         <div className="divide-y divide-slate-100">
-          <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 text-left">
+          <button className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-slate-50">
             <div className="flex items-center gap-3">
-              <Lock className="w-4 h-4 text-slate-400" />
+              <Lock className="h-4 w-4 text-slate-400" />
               <span className="text-sm font-medium text-slate-800">Change Password</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
+            <ChevronRight className="h-4 w-4 text-slate-400" />
           </button>
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
-              <Lock className="w-4 h-4 text-[#4E5A7A]" />
+              <Lock className="h-4 w-4 text-[#4E5A7A]" />
               <div>
                 <p className="text-sm font-medium text-slate-800">Two-Factor Authentication</p>
-                <p className="text-xs text-[#4E5A7A] font-semibold">Enabled · Secure</p>
+                <p className="text-xs font-semibold text-[#4E5A7A]">Enabled - Secure</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
+            <ChevronRight className="h-4 w-4 text-slate-400" />
           </div>
         </div>
       </div>
     </div>
   )
 }
-
