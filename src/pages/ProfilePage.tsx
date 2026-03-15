@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Camera, ToggleLeft, ToggleRight, ChevronRight, Lock } from 'lucide-react'
+import { ArrowLeft, Camera, ToggleLeft, ToggleRight, ChevronRight, Lock, Pencil, Save, X } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { initials } from '@/utils/formatters'
 import toast from 'react-hot-toast'
@@ -15,6 +15,7 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [mobileNumber, setMobileNumber] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -33,9 +34,54 @@ export default function ProfilePage() {
   const info = [
     { icon: '🏢', label: 'Company', value: user?.company ?? '—' },
     { icon: '🏷️', label: 'Department', value: user?.department ?? '—' },
-    { icon: '✉️', label: 'Email', value: user?.email ?? '—' },
-    { icon: '📞', label: 'Phone', value: user?.mobile_number?.trim() || '—' },
   ]
+
+  const resetForm = () => {
+    setFirstName(user?.first_name || '')
+    setLastName(user?.last_name || '')
+    setEmail(user?.email || '')
+    setMobileNumber(user?.mobile_number || '')
+  }
+
+  const saveProfile = async () => {
+    try {
+      setSaving(true)
+      await userService.updateMyProfile({
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: email.trim(),
+        mobile_number: mobileNumber.trim(),
+      })
+      await refreshUser()
+      setIsEditing(false)
+      toast.success('Profile saved')
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to save profile')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const renderField = ({
+    label,
+    value,
+    onChange,
+    type = 'text',
+  }: {
+    label: string
+    value: string
+    onChange: (value: string) => void
+    type?: 'text' | 'email' | 'tel'
+  }) => (
+    <div>
+      <label className="label">{label}</label>
+      {isEditing ? (
+        <input className="input" type={type} value={value} onChange={(e) => onChange(e.target.value)} />
+      ) : (
+        <div className="input flex items-center text-slate-800">{value.trim() || '—'}</div>
+      )}
+    </div>
+  )
 
   return (
     <div className="max-w-md mx-auto px-4 py-6">
@@ -43,29 +89,37 @@ export default function ProfilePage() {
       <div className="flex items-center justify-between mb-6">
         <Link to="/dashboard" className="p-2 rounded-lg hover:bg-slate-100 text-slate-500"><ArrowLeft className="w-5 h-5" /></Link>
         <h1 className="text-lg font-bold text-slate-900">Profile & Preferences</h1>
-        <button
-          onClick={async () => {
-            try {
-              setSaving(true)
-              await userService.updateMyProfile({
-                first_name: firstName.trim(),
-                last_name: lastName.trim(),
-                email: email.trim(),
-                mobile_number: mobileNumber.trim(),
-              })
-              await refreshUser()
-              toast.success('Profile saved')
-            } catch (err: any) {
-              toast.error(err.response?.data?.error || 'Failed to save profile')
-            } finally {
-              setSaving(false)
-            }
-          }}
-          className="text-sm font-semibold text-[#4E5A7A]"
-          disabled={saving}
-        >
-          {saving ? 'Saving...' : 'Save'}
-        </button>
+        {isEditing ? (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                resetForm()
+                setIsEditing(false)
+              }}
+              className="inline-flex items-center gap-1 text-sm font-semibold text-slate-500"
+              disabled={saving}
+            >
+              <X className="h-4 w-4" />
+              Cancel
+            </button>
+            <button
+              onClick={() => void saveProfile()}
+              className="inline-flex items-center gap-1 text-sm font-semibold text-[#4E5A7A]"
+              disabled={saving}
+            >
+              <Save className="h-4 w-4" />
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-[#4E5A7A]"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit
+          </button>
+        )}
       </div>
 
       {/* Avatar */}
@@ -89,28 +143,19 @@ export default function ProfilePage() {
 
       {/* Personal Information */}
       <div className="card mb-4">
-        <div className="px-4 py-3 border-b border-slate-100">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-3">
           <h2 className="font-semibold text-slate-900">Personal Information</h2>
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+            {isEditing ? 'Editing' : 'View Only'}
+          </span>
         </div>
         <div className="p-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="label">First Name</label>
-              <input className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-            </div>
-            <div>
-              <label className="label">Last Name</label>
-              <input className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-            </div>
+            {renderField({ label: 'First Name', value: firstName, onChange: setFirstName })}
+            {renderField({ label: 'Last Name', value: lastName, onChange: setLastName })}
           </div>
-          <div>
-            <label className="label">Email</label>
-            <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div>
-            <label className="label">Mobile Number</label>
-            <input className="input" type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} />
-          </div>
+          {renderField({ label: 'Email', value: email, onChange: setEmail, type: 'email' })}
+          {renderField({ label: 'Mobile Number', value: mobileNumber, onChange: setMobileNumber, type: 'tel' })}
         </div>
         <div className="divide-y divide-slate-100 border-t border-slate-100">
           {info.map(({ icon, label, value }) => (
