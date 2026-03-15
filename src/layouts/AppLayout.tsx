@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import {
   Boxes,
@@ -61,6 +62,9 @@ export default function AppLayout() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [notificationsPanelStyle, setNotificationsPanelStyle] = useState<CSSProperties>({})
+  const bellButtonRef = useRef<HTMLButtonElement | null>(null)
+  const notificationsPanelRef = useRef<HTMLDivElement | null>(null)
 
   const role = user?.role ?? 'employee'
   const navItems = navByRole[role] ?? navByRole.employee
@@ -78,6 +82,57 @@ export default function AppLayout() {
   useEffect(() => {
     setNotificationsOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!notificationsOpen) return
+
+    const updatePanelPosition = () => {
+      if (!bellButtonRef.current) return
+
+      const rect = bellButtonRef.current.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+      const gutter = 12
+      const panelWidth = Math.min(352, viewportWidth - gutter * 2)
+      const left = Math.min(
+        Math.max(rect.right - panelWidth, gutter),
+        viewportWidth - panelWidth - gutter
+      )
+
+      setNotificationsPanelStyle({
+        position: 'fixed',
+        top: rect.bottom + 10,
+        left,
+        width: panelWidth,
+        zIndex: 120,
+      })
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (!bellButtonRef.current?.contains(target) && !notificationsPanelRef.current?.contains(target)) {
+        setNotificationsOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setNotificationsOpen(false)
+      }
+    }
+
+    updatePanelPosition()
+    window.addEventListener('resize', updatePanelPosition)
+    window.addEventListener('scroll', updatePanelPosition, true)
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      window.removeEventListener('resize', updatePanelPosition)
+      window.removeEventListener('scroll', updatePanelPosition, true)
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [notificationsOpen])
 
   useEffect(() => {
     if (!user) return
@@ -246,6 +301,68 @@ export default function AppLayout() {
     </div>
   )
 
+  const notificationsPanel = notificationsOpen
+    ? createPortal(
+        <div
+          ref={notificationsPanelRef}
+          style={notificationsPanelStyle}
+          className="overflow-hidden rounded-[24px] border border-white/70 bg-white/92 shadow-[0_24px_70px_-34px_rgba(15,23,42,0.45)] backdrop-blur-xl"
+        >
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Notifications</p>
+              <p className="text-xs text-slate-400">{unreadCount} unread</p>
+            </div>
+            <button
+              onClick={() => void handleMarkAllRead()}
+              className="text-xs font-semibold text-[#4E5A7A] disabled:text-slate-300"
+              disabled={unreadCount === 0}
+            >
+              Mark all read
+            </button>
+          </div>
+
+          <div className="max-h-[26rem] overflow-y-auto">
+            {notificationsLoading ? (
+              <div className="px-4 py-8 text-center text-sm text-slate-400">Loading notifications...</div>
+            ) : notifications.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-slate-400">No notifications yet</div>
+            ) : (
+              notifications.map((notification) => (
+                <button
+                  key={notification.id}
+                  onClick={() => void handleNotificationClick(notification)}
+                  className={clsx(
+                    'w-full border-b border-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-50',
+                    !notification.read && 'bg-rose-50/40'
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={clsx(
+                        'mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full',
+                        notification.read ? 'bg-slate-200' : 'bg-rose-400'
+                      )}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="text-sm font-semibold text-slate-900">{notification.title}</p>
+                        <span className="whitespace-nowrap text-[11px] text-slate-400">
+                          {timeAgo(notification.created_at)}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">{notification.body}</p>
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>,
+        document.body
+      )
+    : null
+
   return (
     <div className="flex h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(78,90,122,0.14),transparent_24%),linear-gradient(180deg,#f4f8fb_0%,#eef3f7_100%)]">
       <aside className="hidden w-56 flex-shrink-0 flex-col border-r border-white/60 bg-white/72 backdrop-blur-xl lg:flex">
@@ -290,6 +407,7 @@ export default function AppLayout() {
           <div className="ml-auto flex items-center gap-2">
             <div className="relative">
               <button
+                ref={bellButtonRef}
                 onClick={() => void handleBellToggle()}
                 className="relative rounded-2xl border border-white/70 bg-white/70 p-2.5 text-slate-500 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-white"
               >
@@ -303,61 +421,6 @@ export default function AppLayout() {
                 </>
               ) : null}
               </button>
-
-              {notificationsOpen && (
-                <div className="absolute right-0 top-[calc(100%+0.65rem)] z-30 w-[22rem] overflow-hidden rounded-[24px] border border-white/70 bg-white/92 shadow-[0_24px_70px_-34px_rgba(15,23,42,0.45)] backdrop-blur-xl">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">Notifications</p>
-                      <p className="text-xs text-slate-400">{unreadCount} unread</p>
-                    </div>
-                    <button
-                      onClick={() => void handleMarkAllRead()}
-                      className="text-xs font-semibold text-[#4E5A7A] disabled:text-slate-300"
-                      disabled={unreadCount === 0}
-                    >
-                      Mark all read
-                    </button>
-                  </div>
-
-                  <div className="max-h-[26rem] overflow-y-auto">
-                    {notificationsLoading ? (
-                      <div className="px-4 py-8 text-center text-sm text-slate-400">Loading notifications...</div>
-                    ) : notifications.length === 0 ? (
-                      <div className="px-4 py-8 text-center text-sm text-slate-400">No notifications yet</div>
-                    ) : (
-                      notifications.map((notification) => (
-                        <button
-                          key={notification.id}
-                          onClick={() => void handleNotificationClick(notification)}
-                          className={clsx(
-                            'w-full border-b border-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-50',
-                            !notification.read && 'bg-rose-50/40'
-                          )}
-                        >
-                          <div className="flex items-start gap-3">
-                            <span
-                              className={clsx(
-                                'mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full',
-                                notification.read ? 'bg-slate-200' : 'bg-rose-400'
-                              )}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-start justify-between gap-3">
-                                <p className="text-sm font-semibold text-slate-900">{notification.title}</p>
-                                <span className="whitespace-nowrap text-[11px] text-slate-400">
-                                  {timeAgo(notification.created_at)}
-                                </span>
-                              </div>
-                              <p className="mt-1 text-sm leading-5 text-slate-600">{notification.body}</p>
-                            </div>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
             <Link
               to="/profile"
@@ -372,6 +435,7 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </div>
+      {notificationsPanel}
     </div>
   )
 }
