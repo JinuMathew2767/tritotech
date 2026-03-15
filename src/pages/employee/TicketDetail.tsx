@@ -355,7 +355,7 @@ export default function TicketDetail() {
           </button>
           <div className="min-w-0 flex-1">
             <p className="ui-kicker text-[#4E5A7A]">{ticket.ticket_number}</p>
-            <h1 className="mt-1 text-[1.7rem] font-extrabold leading-[1.05] tracking-[-0.04em] text-slate-900">{ticket.subject}</h1>
+            <h1 className="mt-1 text-[1.95rem] font-extrabold leading-[1.01] tracking-[-0.05em] text-slate-900">{ticket.subject}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge status={ticket.status} />
               <PriorityBadge priority={ticket.priority} />
@@ -428,21 +428,21 @@ export default function TicketDetail() {
                         )}
                       >
                         {!isMe && (
-                          <p className={clsx('text-[11px] font-semibold uppercase tracking-[0.08em] sm:text-[12px]', isSupportReply ? 'text-[#4369a7]' : 'text-slate-500')}>
+                          <p className={clsx('text-[10px] font-semibold uppercase tracking-[0.1em] sm:text-[11px]', isSupportReply ? 'text-[#4369a7]' : 'text-slate-500')}>
                             {item.author.name}
                           </p>
                         )}
                         {isMe && (
-                          <p className="hidden text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 sm:block">
+                          <p className="hidden text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500 sm:block">
                             You
                           </p>
                         )}
 
-                        <p className={clsx('whitespace-pre-wrap break-words text-[13px] leading-[1.35rem] sm:mt-1 sm:text-[14px] sm:leading-6', !isMe && 'mt-1')}>
+                        <p className={clsx('whitespace-pre-wrap break-words text-[12.5px] leading-[1.3rem] sm:mt-1 sm:text-[13px] sm:leading-[1.45rem]', !isMe && 'mt-1')}>
                           {item.body}
                         </p>
 
-                        <div className="mt-1 flex items-center justify-end text-[10px] text-slate-400 sm:mt-2 sm:text-[11px]">
+                        <div className="mt-1 flex items-center justify-end text-[10px] text-slate-400 sm:mt-1.5 sm:text-[10.5px]">
                           <span className="font-medium">{timeAgo(item.created_at)}</span>
                         </div>
                       </div>
@@ -505,14 +505,14 @@ export default function TicketDetail() {
                 {meta.map(({ label, value }) => (
                   <div key={label} className="rounded-xl bg-slate-50 p-3">
                     <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">{label}</p>
-                    <div className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">{value}</div>
+                    <div className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{value}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-3 rounded-xl bg-slate-50 p-3">
                 <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">Requester</p>
-                <p className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">{ticket.created_by.name}</p>
-                <p className="text-xs text-slate-500 mt-1">{ticket.company} · {ticket.department}</p>
+                <p className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{ticket.created_by.name}</p>
+                <p className="mt-1 text-[11px] font-medium text-slate-500">{ticket.company} / {ticket.department}</p>
               </div>
             </div>
 
@@ -522,8 +522,8 @@ export default function TicketDetail() {
                 {slaCards.map(({ label, value, sub }) => (
                   <div key={label} className="rounded-xl bg-slate-50 p-3">
                     <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">{label}</p>
-                    <div className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">{value}</div>
-                    {sub && <p className="mt-1 text-[12px] font-medium text-slate-500">{sub}</p>}
+                    <div className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{value}</div>
+                    {sub && <p className="mt-1 text-[11px] font-medium text-slate-500">{sub}</p>}
                   </div>
                 ))}
               </div>
@@ -637,7 +637,7 @@ export default function TicketDetail() {
                   {!isResolved && (
                     <div className="rounded-xl bg-slate-50 p-3">
                       <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">Assignment</p>
-                      <p className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">
+                      <p className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">
                         {ticket.assigned_to ? ticket.assigned_to.name : 'Unassigned'}
                       </p>
                       <div className="mt-3">

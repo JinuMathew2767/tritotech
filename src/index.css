@@ -68,47 +68,47 @@
 
 @layer components {
   .ui-page-title {
-    @apply text-[1.9rem] font-extrabold leading-[1.02] tracking-[-0.045em] text-slate-900 sm:text-[2.15rem];
+    @apply text-[2.15rem] font-extrabold leading-[0.98] tracking-[-0.05em] text-slate-900 sm:text-[2.45rem];
   }
 
   .ui-section-title {
-    @apply text-[15px] font-semibold leading-tight tracking-[-0.02em] text-slate-900 sm:text-base;
+    @apply text-[17px] font-bold leading-[1.08] tracking-[-0.03em] text-slate-900 sm:text-[19px];
   }
 
   .ui-card-title {
-    @apply text-sm font-semibold leading-none tracking-[-0.015em] text-slate-900 sm:text-[15px];
+    @apply text-[15px] font-semibold leading-tight tracking-[-0.02em] text-slate-900 sm:text-[16px];
   }
 
   .ui-kicker {
-    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400;
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400;
   }
 
   .ui-body {
-    @apply text-sm font-medium leading-6 text-slate-600;
+    @apply text-[14px] font-medium leading-6 text-slate-600;
   }
 
   .ui-body-muted {
-    @apply text-[13px] font-medium leading-6 text-slate-500 sm:text-sm;
+    @apply text-[12.5px] font-medium leading-5 text-slate-500 sm:text-[13px];
   }
 
   .ui-nav-text {
-    @apply text-[15px] font-semibold leading-none tracking-[-0.015em];
+    @apply text-[14px] font-semibold leading-none tracking-[-0.015em];
   }
 
   .ui-chip-text {
-    @apply text-[11px] font-semibold tracking-[0.02em];
+    @apply text-[10.5px] font-semibold tracking-[0.02em];
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] px-4 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.015em] text-white shadow-[0_16px_30px_-18px_rgba(78,90,122,0.45)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_38px_-20px_rgba(78,90,122,0.52)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] px-4 py-2.5 text-[13.5px] font-semibold leading-none tracking-[-0.015em] text-white shadow-[0_16px_30px_-18px_rgba(78,90,122,0.45)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_38px_-20px_rgba(78,90,122,0.52)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/70 bg-white/75 px-4 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.015em] text-slate-700 shadow-[0_14px_30px_-22px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-all hover:bg-white active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/70 bg-white/75 px-4 py-2.5 text-[13.5px] font-semibold leading-none tracking-[-0.015em] text-slate-700 shadow-[0_14px_30px_-22px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-all hover:bg-white active:scale-95;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#ef4444_0%,#dc2626_100%)] px-4 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.015em] text-white shadow-[0_16px_28px_-18px_rgba(220,38,38,0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_20px_34px_-18px_rgba(220,38,38,0.6)] active:translate-y-0 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#ef4444_0%,#dc2626_100%)] px-4 py-2.5 text-[13.5px] font-semibold leading-none tracking-[-0.015em] text-white shadow-[0_16px_28px_-18px_rgba(220,38,38,0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_20px_34px_-18px_rgba(220,38,38,0.6)] active:translate-y-0 active:scale-[0.98];
   }
 
   .card {
@@ -124,7 +124,7 @@
   }
 
   .auth-label {
-    @apply mb-2 block text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-500;
+    @apply mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500;
   }
 
   .card-dark {
@@ -136,15 +136,15 @@
   }
 
   .label {
-    @apply mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-slate-500;
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500;
   }
 
   .sidebar-link {
-    @apply flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[15px] font-semibold leading-none tracking-[-0.015em] text-slate-600 transition-all hover:bg-white/75 hover:text-slate-900 hover:shadow-[0_10px_20px_-18px_rgba(15,23,42,0.45)];
+    @apply flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.015em] text-slate-600 transition-all hover:bg-white/75 hover:text-slate-900 hover:shadow-[0_10px_20px_-18px_rgba(15,23,42,0.45)];
   }
 
   .sidebar-link-active {
-    @apply flex items-center gap-3 rounded-2xl border border-[#d5dce7] bg-[linear-gradient(135deg,rgba(78,90,122,0.14)_0%,rgba(78,90,122,0.06)_100%)] px-3 py-2.5 text-[15px] font-semibold leading-none tracking-[-0.015em] text-[#4E5A7A] shadow-[0_14px_28px_-24px_rgba(78,90,122,0.28)];
+    @apply flex items-center gap-3 rounded-2xl border border-[#d5dce7] bg-[linear-gradient(135deg,rgba(78,90,122,0.14)_0%,rgba(78,90,122,0.06)_100%)] px-3 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.015em] text-[#4E5A7A] shadow-[0_14px_28px_-24px_rgba(78,90,122,0.28)];
   }
 
   .glassmorphism {
