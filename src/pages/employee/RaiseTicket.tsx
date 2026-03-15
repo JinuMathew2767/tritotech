@@ -6,6 +6,7 @@ import ticketService, { type TicketPriority } from '@/services/ticketService'
 import categoryService, { type Category } from '@/services/categoryService'
 import departmentService, { type DepartmentMaster } from '@/services/departmentService'
 import subcategoryService from '@/services/subcategoryService'
+import CalendarField from '@/components/ui/CalendarField'
 import DropdownSelect from '@/components/ui/DropdownSelect'
 import FileUploadZone from '@/components/ui/FileUploadZone'
 import toast from 'react-hot-toast'
@@ -356,12 +357,11 @@ export default function RaiseTicket() {
 
           <div>
             <label className="label">Expected Resolution Date</label>
-            <input
-              type="date"
-              className="input"
+            <CalendarField
               value={customerExpectedDate}
+              onChange={setCustomerExpectedDate}
               min={new Date().toISOString().split('T')[0]}
-              onChange={(e) => setCustomerExpectedDate(e.target.value)}
+              placeholder="Select expected date"
             />
             <p className="text-xs text-slate-400 mt-1">Tell the IT team when you expect this issue to be resolved.</p>
           </div>

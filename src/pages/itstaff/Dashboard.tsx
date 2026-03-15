@@ -12,6 +12,7 @@ import {
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badge'
 import Avatar from '@/components/ui/Avatar'
 import AssignTicketModal from '@/components/tickets/AssignTicketModal'
+import CalendarField from '@/components/ui/CalendarField'
 import Pagination from '@/components/ui/Pagination'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import ticketService, { type Ticket, type TicketStats } from '@/services/ticketService'
@@ -475,26 +476,28 @@ export default function ITStaffDashboard() {
               <div className="mt-2.5 grid gap-1.5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] xl:grid-cols-[170px_170px_auto]">
                 <div className="flex items-center gap-2 rounded-xl border border-white/70 bg-white/60 px-2.5 py-1.5 shadow-[0_10px_22px_-22px_rgba(15,23,42,0.28)]">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">From</span>
-                  <input
-                    type="date"
-                    className="h-7 w-full min-w-0 bg-transparent text-xs text-slate-900 outline-none"
+                  <CalendarField
                     value={dateFrom}
-                    onChange={(event) => {
-                      setDateFrom(event.target.value)
+                    onChange={(nextValue) => {
+                      setDateFrom(nextValue)
                       setPage(1)
-                      }}
-                    />
+                    }}
+                    placeholder="From date"
+                    buttonClassName="h-7 min-h-0 border-0 bg-transparent px-0 py-0 text-xs shadow-none ring-0"
+                    panelClassName="w-[20rem]"
+                  />
                 </div>
                 <div className="flex items-center gap-2 rounded-xl border border-white/70 bg-white/60 px-2.5 py-1.5 shadow-[0_10px_22px_-22px_rgba(15,23,42,0.28)]">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">To</span>
-                  <input
-                    type="date"
-                    className="h-7 w-full min-w-0 bg-transparent text-xs text-slate-900 outline-none"
+                  <CalendarField
                     value={dateTo}
-                    onChange={(event) => {
-                      setDateTo(event.target.value)
+                    onChange={(nextValue) => {
+                      setDateTo(nextValue)
                       setPage(1)
                     }}
+                    placeholder="To date"
+                    buttonClassName="h-7 min-h-0 border-0 bg-transparent px-0 py-0 text-xs shadow-none ring-0"
+                    panelClassName="w-[20rem]"
                   />
                 </div>
                 <div className="flex flex-wrap gap-1.5 lg:justify-end">

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 're
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import CalendarField from '@/components/ui/CalendarField'
 import DropdownSelect from '@/components/ui/DropdownSelect'
 import {
   assetStatuses,
@@ -391,11 +392,11 @@ export default function AssetForm({
           </div>
           <div>
             <label className="label">Purchase Date</label>
-            <input
-              type="date"
-              className={fieldClass(!!errors.purchaseDate)}
+            <CalendarField
               value={values.purchaseDate}
-              onChange={(event) => updateField('purchaseDate', event.target.value)}
+              onChange={(nextValue) => updateField('purchaseDate', nextValue)}
+              placeholder="Select purchase date"
+              buttonClassName={clsx(!!errors.purchaseDate && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
             />
             <FieldError error={errors.purchaseDate} />
           </div>
@@ -404,22 +405,22 @@ export default function AssetForm({
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="label">Expiry Date</label>
-            <input
-              type="date"
-              className={fieldClass(!!errors.expiryDate)}
+            <CalendarField
               value={values.expiryDate}
-              onChange={(event) => updateField('expiryDate', event.target.value)}
+              onChange={(nextValue) => updateField('expiryDate', nextValue)}
+              placeholder="Select expiry date"
+              buttonClassName={clsx(!!errors.expiryDate && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
             />
             <FieldError error={errors.expiryDate} />
             <p className="mt-1 text-xs text-slate-400">Optional. Leave blank if this asset does not use an expiry date.</p>
           </div>
           <div>
             <label className="label">Warranty Expiry</label>
-            <input
-              type="date"
-              className={fieldClass(!!errors.warrantyExpiry)}
+            <CalendarField
               value={values.warrantyExpiry}
-              onChange={(event) => updateField('warrantyExpiry', event.target.value)}
+              onChange={(nextValue) => updateField('warrantyExpiry', nextValue)}
+              placeholder="Select warranty date"
+              buttonClassName={clsx(!!errors.warrantyExpiry && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
             />
             <FieldError error={errors.warrantyExpiry} />
             <p className="mt-1 text-xs text-slate-400">Optional. Leave blank if this asset does not use warranty tracking.</p>

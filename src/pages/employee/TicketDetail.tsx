@@ -4,6 +4,7 @@ import { ArrowLeft, Paperclip, Send } from 'lucide-react'
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badge'
 import Avatar from '@/components/ui/Avatar'
 import AssignTicketModal from '@/components/tickets/AssignTicketModal'
+import CalendarField from '@/components/ui/CalendarField'
 import DropdownSelect from '@/components/ui/DropdownSelect'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import ticketService, { type Ticket } from '@/services/ticketService'
@@ -384,12 +385,13 @@ export default function TicketDetail() {
                 <div className="mt-4 space-y-4">
                   <div>
                     <label className="label">Support Proposed Resolution Time</label>
-                    <input
-                      type="datetime-local"
-                      className="input"
+                    <CalendarField
+                      mode="datetime"
                       value={supportExpectedAt}
-                      onChange={(e) => setSupportExpectedAt(e.target.value)}
+                      onChange={setSupportExpectedAt}
                       disabled={isResolved}
+                      min={ticket ? formatForDateTimeLocal(ticket.created_at) : undefined}
+                      placeholder="Select date and time"
                     />
                   </div>
                   <div>
