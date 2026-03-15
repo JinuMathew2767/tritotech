@@ -103,6 +103,14 @@ export default function ProfilePage() {
     }
   }
 
+  const companyDisplay = user?.company?.trim() ? user.company : 'Global Access'
+  const departmentDisplay =
+    user?.department_access_mode === 'global'
+      ? 'Global Access'
+      : user?.department_access?.length
+        ? user.department_access.join(', ')
+        : user?.department?.trim() || 'Global Access'
+
   return (
     <div className="max-w-md mx-auto px-4 py-6">
       <div className="mb-6 flex items-center justify-between">
@@ -189,8 +197,8 @@ export default function ProfilePage() {
             icon={Phone}
             editable={isEditing}
           />
-          <ProfileField label="Company" value={user?.company || ''} icon={Building2} />
-          <ProfileField label="Department" value={user?.department || ''} icon={Tags} />
+          <ProfileField label="Company" value={companyDisplay} icon={Building2} />
+          <ProfileField label="Department" value={departmentDisplay} icon={Tags} />
         </div>
       </div>
 
