@@ -85,18 +85,18 @@ export default function LoginPage() {
             <span className="font-bold text-slate-900">{branding.appName}</span>
           </div>
 
-          <div className="card p-5 sm:p-6 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="auth-card lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none">
             <div className="mb-7">
-              <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">Sign In</h2>
-              <p className="mt-1 text-sm text-slate-500">Enter your credentials to access the portal</p>
+              <h2 className="text-[2rem] font-extrabold tracking-tight text-slate-900">Sign In</h2>
+              <p className="mt-1 text-[15px] text-slate-500">Enter your credentials to access the portal</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="label">Email address</label>
+                <label className="auth-label">Email address</label>
                 <input
                   type="email"
-                  className="input"
+                  className="auth-input"
                   placeholder="you@tritongroup.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -106,15 +106,15 @@ export default function LoginPage() {
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <label className="label !mb-0">Password</label>
-                  <Link to="/forgot-password" className="text-xs text-[#4E5A7A] hover:underline">
+                  <label className="auth-label !mb-0">Password</label>
+                  <Link to="/forgot-password" className="text-[13px] font-medium text-[#4E5A7A] hover:underline">
                     Forgot password?
                   </Link>
                 </div>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="input pr-10"
+                    className="auth-input pr-11"
                     placeholder="Enter your password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
@@ -122,7 +122,7 @@ export default function LoginPage() {
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     onClick={() => setShowPassword((current) => !current)}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

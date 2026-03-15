@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-[#f6f7f8] px-4 py-6 sm:flex sm:items-center sm:justify-center sm:px-6 sm:py-12">
-      <div className="card w-full max-w-md p-5 sm:p-8">
+      <div className="auth-card w-full max-w-md sm:px-8 sm:py-8">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-[#4E5A7A] rounded-xl flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
@@ -42,10 +42,10 @@ export default function ForgotPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="label">Email address</label>
+            <label className="auth-label">Email address</label>
             <input
               type="email"
-              className="input"
+              className="auth-input"
               placeholder="you@tritongroup.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

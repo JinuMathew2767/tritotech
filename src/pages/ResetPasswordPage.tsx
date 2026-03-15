@@ -47,7 +47,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen bg-[#f6f7f8] px-4 py-6 sm:flex sm:items-center sm:justify-center sm:px-6 sm:py-12">
-      <div className="card w-full max-w-md p-5 sm:p-8">
+      <div className="auth-card w-full max-w-md sm:px-8 sm:py-8">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-[#4E5A7A] rounded-xl flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
@@ -65,18 +65,18 @@ export default function ResetPasswordPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="label">New password</label>
+              <label className="auth-label">New password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  className="input pr-10"
+                  className="auth-input pr-11"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   onClick={() => setShowPassword((value) => !value)}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -85,18 +85,18 @@ export default function ResetPasswordPage() {
             </div>
 
             <div>
-              <label className="label">Confirm password</label>
+              <label className="auth-label">Confirm password</label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  className="input pr-10"
+                  className="auth-input pr-11"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   onClick={() => setShowConfirmPassword((value) => !value)}
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

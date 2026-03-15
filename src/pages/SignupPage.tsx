@@ -137,35 +137,35 @@ export default function SignupPage() {
             <span className="font-bold text-slate-900">{branding.appName}</span>
           </div>
 
-          <div className="card p-5 sm:p-6 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="auth-card lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none">
             <div className="mb-7">
-              <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">Create Account</h2>
-              <p className="mt-1 text-sm text-slate-500">Fill in your details so an admin can approve your account.</p>
+              <h2 className="text-[2rem] font-extrabold tracking-tight text-slate-900">Create Account</h2>
+              <p className="mt-1 text-[15px] text-slate-500">Fill in your details so an admin can approve your account.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="label">First name</label>
-                  <input className="input" placeholder="John" value={form.first_name} onChange={setField('first_name')} required />
+                  <label className="auth-label">First name</label>
+                  <input className="auth-input" placeholder="John" value={form.first_name} onChange={setField('first_name')} required />
                 </div>
                 <div>
-                  <label className="label">Last name</label>
-                  <input className="input" placeholder="Doe" value={form.last_name} onChange={setField('last_name')} required />
+                  <label className="auth-label">Last name</label>
+                  <input className="auth-input" placeholder="Doe" value={form.last_name} onChange={setField('last_name')} required />
                 </div>
               </div>
 
               <div>
-                <label className="label">Work email</label>
-                <input type="email" className="input" placeholder="john.doe@tritongroup.com" value={form.email} onChange={setField('email')} required />
+                <label className="auth-label">Work email</label>
+                <input type="email" className="auth-input" placeholder="john.doe@tritongroup.com" value={form.email} onChange={setField('email')} required />
               </div>
 
               <div>
-                <label className="label">Password</label>
+                <label className="auth-label">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="input pr-10"
+                    className="auth-input pr-11"
                     placeholder="min. 8 characters"
                     value={form.password}
                     onChange={setField('password')}
@@ -174,7 +174,7 @@ export default function SignupPage() {
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     onClick={() => setShowPassword((current) => !current)}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -183,7 +183,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="label">Role</label>
+                <label className="auth-label">Role</label>
                 <DropdownSelect
                   value={form.role}
                   onChange={setSelect('role')}
@@ -195,7 +195,7 @@ export default function SignupPage() {
               {form.role !== 'Admin' && form.role !== 'IT Staff' && (
                 <>
                   <div>
-                    <label className="label">Company</label>
+                    <label className="auth-label">Company</label>
                     <DropdownSelect
                       value={form.company}
                       onChange={setSelect('company')}
@@ -205,7 +205,7 @@ export default function SignupPage() {
                   </div>
 
                   <div>
-                    <label className="label">Department</label>
+                    <label className="auth-label">Department</label>
                     <DropdownSelect
                       value={form.department}
                       onChange={setSelect('department')}
