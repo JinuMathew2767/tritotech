@@ -337,9 +337,17 @@ export default function TicketDetail() {
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge status={ticket.status} />
               <PriorityBadge priority={ticket.priority} />
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{ticket.category}</span>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{ticket.company}</span>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{formatDate(ticket.created_at)}</span>
+              <span className="rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+                {ticket.category}
+              </span>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 sm:text-xs">
+              <span className="rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
+                {ticket.company}
+              </span>
+              <span className="rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
+                {formatDate(ticket.created_at)}
+              </span>
             </div>
           </div>
         </div>
@@ -348,26 +356,28 @@ export default function TicketDetail() {
       <div className="flex-1 min-h-0 p-2.5 sm:p-4">
         <div className="grid h-full min-h-0 gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1.45fr)_360px] xl:grid-cols-[minmax(0,1.6fr)_380px]">
           <section className="order-1 flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,252,0.9)_100%)] shadow-[0_20px_44px_-34px_rgba(15,23,42,0.32)] sm:rounded-[28px] sm:shadow-[0_24px_60px_-34px_rgba(15,23,42,0.35)] lg:min-h-0">
-            <div className="flex flex-col gap-2.5 border-b border-slate-100 px-3 py-3 sm:gap-3 sm:px-4 sm:py-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-[15px] font-semibold text-slate-900 sm:text-base">Conversation</h2>
-                <p className="text-[11px] text-slate-400 sm:text-xs">
-                  {conversationItems.length} message{conversationItems.length === 1 ? '' : 's'}
-                </p>
-              </div>
-              {ticket.assigned_to && (
-                <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-white/70 bg-[#4E5A7A]/8 px-2.5 py-1 text-[11px] font-semibold text-[#4E5A7A] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:self-auto">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#4E5A7A] sm:h-2 sm:w-2" />
-                  Assigned to {ticket.assigned_to.name}
+            <div className="border-b border-slate-100 px-3 py-3 sm:px-4 sm:py-4">
+              <div className="mx-auto flex w-full max-w-[54rem] flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-[15px] font-semibold text-slate-900 sm:text-base">Conversation</h2>
+                  <p className="text-[11px] text-slate-400 sm:text-xs">
+                    {conversationItems.length} message{conversationItems.length === 1 ? '' : 's'}
+                  </p>
                 </div>
-              )}
+                {ticket.assigned_to && (
+                  <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-[#4E5A7A] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:self-auto">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#4E5A7A] sm:h-2 sm:w-2" />
+                    Assigned to {ticket.assigned_to.name}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div
               ref={conversationViewportRef}
-              className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(180deg,#eef2f7_0%,#e7edf5_100%)] px-2 py-2.5 sm:px-4 sm:py-5"
+              className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(180deg,#eef2f7_0%,#e7edf5_100%)] px-2 py-2.5 [scrollbar-color:rgba(100,116,139,0.55)_transparent] [scrollbar-width:thin] sm:px-4 sm:py-5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/60 hover:[&::-webkit-scrollbar-thumb]:bg-slate-500/60"
             >
-              <div className="space-y-2 sm:space-y-3.5">
+              <div className="mx-auto w-full max-w-[54rem] space-y-2 sm:space-y-3.5">
                 {conversationItems.map((item) => {
                   const isMe = item.author.id === user?.id
                   const isSupportReply = !isMe && item.author.role !== 'employee'
@@ -384,7 +394,7 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-9 sm:w-9 sm:text-xs"
+                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
                         />
                       )}
 
@@ -419,7 +429,7 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-9 sm:w-9 sm:text-xs"
+                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
                         />
                       )}
                     </div>
@@ -429,40 +439,42 @@ export default function TicketDetail() {
             </div>
 
             <form onSubmit={sendReply} className="border-t border-slate-100 bg-white px-3 py-3 sm:px-4">
-              <div className="flex items-end gap-2 rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-2 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.18)]">
-                <button
-                  type="button"
-                  disabled={isResolved}
-                  className="rounded-2xl p-3 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[#4E5A7A] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
-                >
-                  <Paperclip className="h-5 w-5" />
-                </button>
-                <textarea
-                  className="min-h-[54px] max-h-32 flex-1 resize-none bg-transparent px-1 py-2 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-400"
-                  rows={2}
-                  placeholder={isResolved ? 'Ticket is resolved. Reopen it to continue the conversation.' : 'Write a thoughtful reply...'}
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                  disabled={isResolved}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      sendReply(e as unknown as FormEvent)
-                    }
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={isResolved || !reply.trim() || sending}
-                  className="rounded-[20px] bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] p-3 text-white shadow-[0_16px_28px_-18px_rgba(78,90,122,0.48)] transition-all hover:-translate-y-0.5 hover:bg-[#1a95d0] active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45"
-                >
-                  <Send className="h-5 w-5" />
-                </button>
+              <div className="mx-auto w-full max-w-[54rem]">
+                <div className="flex items-end gap-1.5 rounded-[20px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-1.5 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] sm:gap-2 sm:rounded-[22px] sm:p-2">
+                  <button
+                    type="button"
+                    disabled={isResolved}
+                    className="rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[#4E5A7A] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent sm:rounded-2xl sm:p-3"
+                  >
+                    <Paperclip className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
+                  </button>
+                  <textarea
+                    className="min-h-[44px] max-h-28 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm leading-5 text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-400 sm:min-h-[50px] sm:py-2 sm:leading-6"
+                    rows={1}
+                    placeholder={isResolved ? 'Ticket is resolved. Reopen it to continue the conversation.' : 'Write a thoughtful reply...'}
+                    value={reply}
+                    onChange={(e) => setReply(e.target.value)}
+                    disabled={isResolved}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        sendReply(e as unknown as FormEvent)
+                      }
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={isResolved || !reply.trim() || sending}
+                    className="rounded-[18px] bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] p-2.5 text-white shadow-[0_12px_22px_-18px_rgba(78,90,122,0.48)] transition-all hover:-translate-y-0.5 hover:bg-[#1a95d0] active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45 sm:rounded-[20px] sm:p-3"
+                  >
+                    <Send className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
+                  </button>
+                </div>
               </div>
             </form>
           </section>
 
-          <aside className="order-2 min-h-0 space-y-4 lg:overflow-y-auto lg:pr-1">
+          <aside className="order-2 min-h-0 space-y-4 lg:overflow-y-auto lg:pr-1 lg:[scrollbar-color:rgba(100,116,139,0.5)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-2 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-slate-400/60">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900">Overview</h2>
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
