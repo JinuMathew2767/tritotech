@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, ChevronDown, Save } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import ticketService, { type TicketPriority } from '@/services/ticketService'
 import categoryService, { type Category } from '@/services/categoryService'
@@ -44,10 +44,12 @@ export default function RaiseTicket() {
   const [loading, setLoading] = useState(false)
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [loadingDepartments, setLoadingDepartments] = useState(hasGlobalDepartmentAccess)
+  const [departmentPickerOpen, setDepartmentPickerOpen] = useState(false)
 
   useEffect(() => {
     setCompany(allowedCompany)
     setSelectedDepartments(departmentAccessMode === 'single' && allowedDepartment ? [allowedDepartment] : [])
+    setDepartmentPickerOpen(false)
   }, [allowedCompany, allowedDepartment, departmentAccessMode])
 
   useEffect(() => {
@@ -99,6 +101,13 @@ export default function RaiseTicket() {
         : [...current, departmentName]
     )
   }
+
+  const departmentSummary =
+    selectedDepartments.length === 0
+      ? 'Select department(s)'
+      : selectedDepartments.length <= 2
+        ? selectedDepartments.join(', ')
+        : `${selectedDepartments.length} departments selected`
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -183,35 +192,60 @@ export default function RaiseTicket() {
                   ) : availableDepartmentNames.length === 0 ? (
                     <div className="input bg-slate-50 text-slate-400">No departments available</div>
                   ) : (
-                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                      {availableDepartmentNames.map((item) => {
-                        const checked = selectedDepartments.includes(item)
-                        return (
-                          <label
-                            key={item}
-                            className={clsx(
-                              'flex cursor-pointer items-start gap-3 rounded-2xl border px-3 py-3 transition-all',
-                              checked
-                                ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
-                                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                            )}
-                          >
-                            <input
-                              type="checkbox"
-                              className="mt-1 h-4 w-4 rounded border-slate-300 text-[#4E5A7A] focus:ring-[#4E5A7A]/30"
-                              checked={checked}
-                              onChange={() => toggleDepartment(item)}
-                              disabled={loadingDepartments}
-                            />
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium text-slate-800">{item}</p>
-                              <p className="text-xs text-slate-400">
-                                {checked ? 'Included in this ticket' : 'Select to include this department'}
-                              </p>
-                            </div>
-                          </label>
-                        )
-                      })}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setDepartmentPickerOpen((current) => !current)}
+                        className={clsx(
+                          'input flex w-full items-center justify-between gap-3 text-left transition-colors',
+                          departmentPickerOpen && 'border-[#4E5A7A]/35 ring-2 ring-[#4E5A7A]/10'
+                        )}
+                      >
+                        <span className={clsx('truncate', selectedDepartments.length === 0 ? 'text-slate-400' : 'text-slate-800')}>
+                          {departmentSummary}
+                        </span>
+                        <ChevronDown
+                          className={clsx(
+                            'h-4 w-4 shrink-0 text-slate-400 transition-transform',
+                            departmentPickerOpen && 'rotate-180 text-[#4E5A7A]'
+                          )}
+                        />
+                      </button>
+
+                      {departmentPickerOpen && (
+                        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-10 rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)]">
+                          <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
+                            {availableDepartmentNames.map((item) => {
+                              const checked = selectedDepartments.includes(item)
+                              return (
+                                <label
+                                  key={item}
+                                  className={clsx(
+                                    'flex cursor-pointer items-start gap-3 rounded-2xl border px-3 py-3 transition-all',
+                                    checked
+                                      ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
+                                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                                  )}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    className="mt-1 h-4 w-4 rounded border-slate-300 text-[#4E5A7A] focus:ring-[#4E5A7A]/30"
+                                    checked={checked}
+                                    onChange={() => toggleDepartment(item)}
+                                    disabled={loadingDepartments}
+                                  />
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium text-slate-800">{item}</p>
+                                    <p className="text-xs text-slate-400">
+                                      {checked ? 'Included in this ticket' : 'Select to include this department'}
+                                    </p>
+                                  </div>
+                                </label>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
