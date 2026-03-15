@@ -221,7 +221,7 @@ export default function RaiseTicket() {
                                 <label
                                   key={item}
                                   className={clsx(
-                                    'flex cursor-pointer items-start gap-3 rounded-2xl border px-3 py-3 transition-all',
+                                    'flex cursor-pointer items-start gap-2.5 rounded-xl border px-2.5 py-2 transition-all',
                                     checked
                                       ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
                                       : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
@@ -229,14 +229,14 @@ export default function RaiseTicket() {
                                 >
                                   <input
                                     type="checkbox"
-                                    className="mt-1 h-4 w-4 rounded border-slate-300 text-[#4E5A7A] focus:ring-[#4E5A7A]/30"
+                                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#4E5A7A] focus:ring-[#4E5A7A]/30"
                                     checked={checked}
                                     onChange={() => toggleDepartment(item)}
                                     disabled={loadingDepartments}
                                   />
                                   <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-800">{item}</p>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-sm leading-5 font-medium text-slate-800">{item}</p>
+                                    <p className="text-[11px] leading-4 text-slate-400">
                                       {checked ? 'Included in this ticket' : 'Select to include this department'}
                                     </p>
                                   </div>
