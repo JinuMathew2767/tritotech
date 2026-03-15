@@ -43,6 +43,7 @@ const formatReactUser = async (user: any) => {
     first_name: user.FullName.split(' ')[0],
     last_name: user.FullName.split(' ').slice(1).join(' ') || '',
     email: user.Email,
+    mobile_number: user.MobileNumber || '',
     role: user.Roles?.Name?.toLowerCase().replace(' ', '_') || 'employee',
     company: user.Companies?.Name || '',
     department: user.Departments?.Name || '',

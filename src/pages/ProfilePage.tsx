@@ -14,19 +14,27 @@ export default function ProfilePage() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
+  const [mobileNumber, setMobileNumber] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    // Pull the latest profile from the hosted API when this screen opens.
+    void refreshUser()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setFirstName(user?.first_name || '')
     setLastName(user?.last_name || '')
     setEmail(user?.email || '')
+    setMobileNumber(user?.mobile_number || '')
   }, [user])
 
   const info = [
     { icon: '🏢', label: 'Company', value: user?.company ?? '—' },
     { icon: '🏷️', label: 'Department', value: user?.department ?? '—' },
     { icon: '✉️', label: 'Email', value: user?.email ?? '—' },
-    { icon: '📞', label: 'Phone', value: '+971 50 000 0000' },
+    { icon: '📞', label: 'Phone', value: user?.mobile_number?.trim() || '—' },
   ]
 
   return (
@@ -39,7 +47,12 @@ export default function ProfilePage() {
           onClick={async () => {
             try {
               setSaving(true)
-              await userService.updateMyProfile({ first_name: firstName.trim(), last_name: lastName.trim(), email: email.trim() })
+              await userService.updateMyProfile({
+                first_name: firstName.trim(),
+                last_name: lastName.trim(),
+                email: email.trim(),
+                mobile_number: mobileNumber.trim(),
+              })
               await refreshUser()
               toast.success('Profile saved')
             } catch (err: any) {
@@ -93,6 +106,10 @@ export default function ProfilePage() {
           <div>
             <label className="label">Email</label>
             <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div>
+            <label className="label">Mobile Number</label>
+            <input className="input" type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} />
           </div>
         </div>
         <div className="divide-y divide-slate-100 border-t border-slate-100">

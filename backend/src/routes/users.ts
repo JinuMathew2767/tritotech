@@ -16,6 +16,7 @@ const formatUser = (u: any, departmentAccessNames: string[]) => ({
   first_name: u.FullName.split(' ')[0],
   last_name: u.FullName.split(' ').slice(1).join(' ') || '',
   email: u.Email,
+  mobile_number: u.MobileNumber || '',
   role: u.Roles?.Name?.toLowerCase().replace(' ', '_') || 'employee',
   company: u.Companies?.Name || '',
   department:
@@ -202,9 +203,10 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
 
 router.patch('/me', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { first_name, last_name, email } = req.body
+    const { first_name, last_name, email, mobile_number } = req.body
     const fullName = `${String(first_name || '').trim()} ${String(last_name || '').trim()}`.trim()
     const normalizedEmail = String(email || '').trim()
+    const normalizedMobileNumber = String(mobile_number || '').trim()
 
     if (!fullName || !normalizedEmail) {
       res.status(400).json({ error: 'First name, last name, and email are required' })
@@ -228,6 +230,7 @@ router.patch('/me', authenticate, async (req: AuthRequest, res: Response): Promi
       data: {
         Email: normalizedEmail,
         FullName: fullName,
+        MobileNumber: normalizedMobileNumber || null,
       },
       include: { Companies: true, Departments: true, Roles: true },
     })

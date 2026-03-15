@@ -5,6 +5,7 @@ export interface PendingUser {
   first_name: string
   last_name: string
   email: string
+  mobile_number?: string
   role: string
   company: string
   department: string
@@ -25,6 +26,7 @@ export interface UserUpdatePayload {
   first_name: string
   last_name: string
   email: string
+  mobile_number?: string
   role?: string
   company?: string
   department?: string
@@ -73,7 +75,7 @@ const userService = {
     return data
   },
 
-  async updateMyProfile(payload: Pick<UserUpdatePayload, 'first_name' | 'last_name' | 'email'>): Promise<PendingUser> {
+  async updateMyProfile(payload: Pick<UserUpdatePayload, 'first_name' | 'last_name' | 'email' | 'mobile_number'>): Promise<PendingUser> {
     const { data } = await api.patch<PendingUser>('/users/me', payload)
     return data
   }
