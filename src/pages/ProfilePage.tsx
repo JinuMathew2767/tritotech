@@ -32,13 +32,24 @@ type FieldProps = {
 
 function ProfileField({ label, value, onChange, type = 'text', icon: Icon, editable = false }: FieldProps) {
   const displayValue = value.trim() || '-'
+  const isInteractive = editable && !!onChange
+  const containerClassName = isInteractive
+    ? 'input flex items-center gap-3 border border-[#4E5A7A]/30 bg-[#4E5A7A]/8 ring-2 ring-[#4E5A7A]/10'
+    : 'input flex items-center gap-3'
 
   return (
     <div>
-      <label className="label">{label}</label>
-      <div className="input flex items-center gap-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <label className="label mb-0">{label}</label>
+        {isInteractive ? (
+          <span className="rounded-full bg-[#4E5A7A]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#4E5A7A]">
+            Editable
+          </span>
+        ) : null}
+      </div>
+      <div className={containerClassName}>
         {Icon ? <Icon className="h-4 w-4 shrink-0 text-slate-400" /> : null}
-        {editable && onChange ? (
+        {isInteractive ? (
           <input
             className="min-w-0 flex-1 bg-transparent text-slate-800 outline-none"
             type={type}
