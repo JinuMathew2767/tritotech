@@ -291,8 +291,8 @@ export default function TicketDetail() {
               )}
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(78,90,122,0.06),transparent_30%),linear-gradient(180deg,#f8fafd_0%,#eef3f8_100%)] px-3 py-4 sm:px-4 sm:py-5">
-              <div className="space-y-3.5">
+            <div className="flex-1 min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(78,90,122,0.06),transparent_30%),linear-gradient(180deg,#f8fafd_0%,#eef3f8_100%)] px-2.5 py-3 sm:px-4 sm:py-5">
+              <div className="space-y-2.5 sm:space-y-3.5">
                 {conversationItems.map((item) => {
                   const isMe = item.author.id === user?.id
                   const isSupportReply = !isMe && item.author.role !== 'employee'
@@ -308,31 +308,36 @@ export default function TicketDetail() {
                       : 'bg-slate-100 text-slate-500'
 
                   return (
-                    <div key={item.id} className={clsx('flex items-end gap-2.5', isMe ? 'justify-end' : 'justify-start')}>
+                    <div key={item.id} className={clsx('flex items-end gap-1.5 sm:gap-2.5', isMe ? 'justify-end' : 'justify-start')}>
                       {!isMe && (
                         <Avatar
                           name={item.author.name}
                           src={item.author.avatar}
-                          size="sm"
-                          className="mb-1 shrink-0 ring-2 ring-white/80"
+                          size="xs"
+                          className="mb-0.5 shrink-0 ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
                         />
                       )}
 
-                      <div className={clsx('max-w-[min(84%,28rem)] min-w-[11.5rem] px-4 py-3.5', bubbleClassName)}>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={clsx('inline-flex rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]', rolePillClassName)}>
+                      <div
+                        className={clsx(
+                          'max-w-[min(76%,18rem)] px-3 py-2.5 sm:max-w-[min(84%,28rem)] sm:px-4 sm:py-3.5',
+                          bubbleClassName
+                        )}
+                      >
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className={clsx('inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] sm:px-2 sm:py-1 sm:text-[10px]', rolePillClassName)}>
                             {item.roleLabel}
                           </span>
-                          <p className={clsx('text-sm font-semibold', isMe ? 'text-white' : 'text-slate-900')}>
+                          <p className={clsx('text-[13px] font-semibold sm:text-sm', isMe ? 'text-white' : 'text-slate-900')}>
                             {item.author.name}
                           </p>
                         </div>
 
-                        <p className={clsx('mt-2 whitespace-pre-wrap text-[15px] leading-7', isMe ? 'text-white' : 'text-slate-700')}>
+                        <p className={clsx('mt-1.5 whitespace-pre-wrap text-[14px] leading-6 sm:mt-2 sm:text-[15px] sm:leading-7', isMe ? 'text-white' : 'text-slate-700')}>
                           {item.body}
                         </p>
 
-                        <div className={clsx('mt-3 flex items-center justify-between gap-3 text-[11px]', isMe ? 'text-white/65' : 'text-slate-400')}>
+                        <div className={clsx('mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:mt-3 sm:justify-between sm:gap-3 sm:text-[11px]', isMe ? 'text-white/65' : 'text-slate-400')}>
                           <span>{item.isRequest ? 'Ticket opened' : 'Reply'}</span>
                           <span>{timeAgo(item.created_at)}</span>
                         </div>
@@ -342,8 +347,8 @@ export default function TicketDetail() {
                         <Avatar
                           name={item.author.name}
                           src={item.author.avatar}
-                          size="sm"
-                          className="mb-1 shrink-0 ring-2 ring-white/80"
+                          size="xs"
+                          className="mb-0.5 shrink-0 ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
                         />
                       )}
                     </div>
