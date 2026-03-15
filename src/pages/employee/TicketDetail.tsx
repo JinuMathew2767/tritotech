@@ -71,89 +71,36 @@ export default function TicketDetail() {
     }
   }
 
-  if (loading) return <PageLoader />
-  if (!ticket) return <div className="p-6 text-center text-slate-400">Ticket not found.</div>
-
-  const isSupportUser = user?.role === 'admin' || user?.role === 'it_staff'
-  const isAdmin = user?.role === 'admin'
-  const isResolved = ticket.status === 'resolved'
-  const canStartTask =
-    !!ticket.assigned_to &&
-    ticket.status !== 'resolved' &&
-    ticket.status !== 'in_progress' &&
-    (isAdmin || ticket.assigned_to.id === user?.id)
-  const actualResolutionAt = ticket.actual_resolution_at || null
-  const normalizedSupportExpectedAt =
-    ticket.support_expected_resolution_at && new Date(ticket.support_expected_resolution_at) < new Date(ticket.created_at)
-      ? ticket.created_at
-      : ticket.support_expected_resolution_at
-  const hoursBetween = (from?: string | null, to?: string | null) =>
-    from && to ? ((new Date(to).getTime() - new Date(from).getTime()) / (1000 * 60 * 60)).toFixed(1) : null
-  const getDelta = (expected?: string | null, actual?: string | null) => {
-    if (!expected || !actual) return null
-    const deltaHours = (new Date(actual).getTime() - new Date(expected).getTime()) / (1000 * 60 * 60)
-    const rounded = Math.abs(deltaHours).toFixed(1)
-    return {
-      text: deltaHours >= 0 ? `+${rounded}h later than expectation` : `-${rounded}h ahead of expectation`,
-      tone: deltaHours >= 0 ? 'text-red-600 bg-red-50' : 'text-green-700 bg-green-50',
-    }
-  }
-
-  const customerDelta = getDelta(ticket.customer_expected_resolution_at, actualResolutionAt)
-  const supportDelta = getDelta(normalizedSupportExpectedAt, actualResolutionAt)
-  const slaCards = [
-    {
-      label: 'Customer Expected',
-      value: ticket.customer_expected_resolution_at ? formatDateTime(ticket.customer_expected_resolution_at) : 'Not set',
-      sub: hoursBetween(ticket.created_at, ticket.customer_expected_resolution_at) ? `${hoursBetween(ticket.created_at, ticket.customer_expected_resolution_at)} hrs from creation` : null,
-    },
-    {
-      label: 'Support Proposed',
-      value: normalizedSupportExpectedAt ? formatDateTime(normalizedSupportExpectedAt) : 'Not set',
-      sub: normalizedSupportExpectedAt ? `${hoursBetween(ticket.created_at, normalizedSupportExpectedAt)} hrs from creation` : null,
-    },
-    {
-      label: 'Actual Resolution',
-      value: actualResolutionAt ? formatDateTime(actualResolutionAt) : 'Open',
-      sub: actualResolutionAt ? `${hoursBetween(ticket.created_at, actualResolutionAt)} hrs actual` : null,
-    },
-  ]
-
-  const meta = [
-    { label: 'Category', value: ticket.category },
-    { label: 'Priority', value: <PriorityBadge priority={ticket.priority} /> },
-    { label: 'Status', value: <StatusBadge status={ticket.status} /> },
-    { label: 'Assignee', value: ticket.assigned_to?.name || 'Unassigned' },
-    { label: 'Created', value: formatDate(ticket.created_at) },
-  ]
-  const conversationItems = [
-    {
-      id: `request-${ticket.id}`,
-      body: ticket.description,
-      created_at: ticket.created_at,
-      author: {
-        id: ticket.created_by.id,
-        name: ticket.created_by.name,
-        avatar: ticket.created_by.avatar,
-        role: 'employee',
-      },
-      roleLabel: 'Requester',
-      isRequest: true,
-    },
-    ...comments.map((comment) => ({
-      id: `comment-${comment.id}`,
-      body: comment.body,
-      created_at: comment.created_at,
-      author: comment.author,
-      roleLabel:
-        comment.author.role === 'admin'
-          ? 'Admin'
-          : comment.author.role === 'it_staff'
-            ? 'IT Staff'
-            : 'Requester',
-      isRequest: false,
-    })),
-  ]
+  const conversationItems = ticket
+    ? [
+        {
+          id: `request-${ticket.id}`,
+          body: ticket.description,
+          created_at: ticket.created_at,
+          author: {
+            id: ticket.created_by.id,
+            name: ticket.created_by.name,
+            avatar: ticket.created_by.avatar,
+            role: 'employee',
+          },
+          roleLabel: 'Requester',
+          isRequest: true,
+        },
+        ...comments.map((comment) => ({
+          id: `comment-${comment.id}`,
+          body: comment.body,
+          created_at: comment.created_at,
+          author: comment.author,
+          roleLabel:
+            comment.author.role === 'admin'
+              ? 'Admin'
+              : comment.author.role === 'it_staff'
+                ? 'IT Staff'
+                : 'Requester',
+          isRequest: false,
+        })),
+      ]
+    : []
 
   useEffect(() => {
     if (!ticket?.id) return
@@ -221,6 +168,62 @@ export default function TicketDetail() {
       })
     })
   }, [conversationItems])
+
+  if (loading) return <PageLoader />
+  if (!ticket) return <div className="p-6 text-center text-slate-400">Ticket not found.</div>
+
+  const isSupportUser = user?.role === 'admin' || user?.role === 'it_staff'
+  const isAdmin = user?.role === 'admin'
+  const isResolved = ticket.status === 'resolved'
+  const canStartTask =
+    !!ticket.assigned_to &&
+    ticket.status !== 'resolved' &&
+    ticket.status !== 'in_progress' &&
+    (isAdmin || ticket.assigned_to.id === user?.id)
+  const actualResolutionAt = ticket.actual_resolution_at || null
+  const normalizedSupportExpectedAt =
+    ticket.support_expected_resolution_at && new Date(ticket.support_expected_resolution_at) < new Date(ticket.created_at)
+      ? ticket.created_at
+      : ticket.support_expected_resolution_at
+  const hoursBetween = (from?: string | null, to?: string | null) =>
+    from && to ? ((new Date(to).getTime() - new Date(from).getTime()) / (1000 * 60 * 60)).toFixed(1) : null
+  const getDelta = (expected?: string | null, actual?: string | null) => {
+    if (!expected || !actual) return null
+    const deltaHours = (new Date(actual).getTime() - new Date(expected).getTime()) / (1000 * 60 * 60)
+    const rounded = Math.abs(deltaHours).toFixed(1)
+    return {
+      text: deltaHours >= 0 ? `+${rounded}h later than expectation` : `-${rounded}h ahead of expectation`,
+      tone: deltaHours >= 0 ? 'text-red-600 bg-red-50' : 'text-green-700 bg-green-50',
+    }
+  }
+
+  const customerDelta = getDelta(ticket.customer_expected_resolution_at, actualResolutionAt)
+  const supportDelta = getDelta(normalizedSupportExpectedAt, actualResolutionAt)
+  const slaCards = [
+    {
+      label: 'Customer Expected',
+      value: ticket.customer_expected_resolution_at ? formatDateTime(ticket.customer_expected_resolution_at) : 'Not set',
+      sub: hoursBetween(ticket.created_at, ticket.customer_expected_resolution_at) ? `${hoursBetween(ticket.created_at, ticket.customer_expected_resolution_at)} hrs from creation` : null,
+    },
+    {
+      label: 'Support Proposed',
+      value: normalizedSupportExpectedAt ? formatDateTime(normalizedSupportExpectedAt) : 'Not set',
+      sub: normalizedSupportExpectedAt ? `${hoursBetween(ticket.created_at, normalizedSupportExpectedAt)} hrs from creation` : null,
+    },
+    {
+      label: 'Actual Resolution',
+      value: actualResolutionAt ? formatDateTime(actualResolutionAt) : 'Open',
+      sub: actualResolutionAt ? `${hoursBetween(ticket.created_at, actualResolutionAt)} hrs actual` : null,
+    },
+  ]
+
+  const meta = [
+    { label: 'Category', value: ticket.category },
+    { label: 'Priority', value: <PriorityBadge priority={ticket.priority} /> },
+    { label: 'Status', value: <StatusBadge status={ticket.status} /> },
+    { label: 'Assignee', value: ticket.assigned_to?.name || 'Unassigned' },
+    { label: 'Created', value: formatDate(ticket.created_at) },
+  ]
 
   const handleAssignToMe = async () => {
     try {
