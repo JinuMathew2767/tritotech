@@ -23,7 +23,7 @@ const imageVariantMap = {
 
 const fallbackVariantMap = {
   default: 'border border-white/70 bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-white shadow-[0_12px_24px_-16px_rgba(78,90,122,0.42)]',
-  soft: 'border border-white/90 bg-[linear-gradient(180deg,#f8fbff_0%,#d9e4f2_100%)] text-[#56627f] shadow-[0_8px_18px_-18px_rgba(15,23,42,0.16)]',
+  soft: 'border border-white/90 bg-[#dde6f3] text-[#56627f] shadow-[0_8px_18px_-18px_rgba(15,23,42,0.16)]',
 }
 
 export default function Avatar({ name = '', src, size = 'sm', variant = 'default', className }: AvatarProps) {
@@ -36,7 +36,7 @@ export default function Avatar({ name = '', src, size = 'sm', variant = 'default
   ) : (
     <div
       className={clsx(
-        'flex flex-shrink-0 items-center justify-center rounded-full font-bold',
+        'flex flex-shrink-0 items-center justify-center rounded-full text-center font-semibold leading-none tracking-[0.02em]',
         fallbackVariantMap[variant],
         sizeMap[size],
         className
