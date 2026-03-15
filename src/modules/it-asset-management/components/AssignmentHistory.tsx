@@ -22,7 +22,7 @@ export default function AssignmentHistory({ history }: AssignmentHistoryProps) {
         </div>
         <div>
           <h2 className="ui-section-title">Assignment History</h2>
-          <p className="text-xs text-slate-500">Track ownership changes and handovers over the asset lifecycle.</p>
+          <p className="ui-data-note">Track ownership changes and handovers over the asset lifecycle.</p>
         </div>
       </div>
 
@@ -37,27 +37,27 @@ export default function AssignmentHistory({ history }: AssignmentHistoryProps) {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-slate-900">{entry.assignedTo}</p>
+                    <p className="ui-data-value text-[14px]">{entry.assignedTo}</p>
                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${typeTone[entry.type]}`}>
                       {entry.type}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="ui-data-note mt-1">
                     {entry.department} - {entry.location}
                   </p>
                   {entry.fromAssignedTo && (
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-[11px] font-medium text-slate-400">
                       From {entry.fromAssignedTo} - {entry.fromDepartment || 'No department'} - {entry.fromLocation || 'No location'}
                     </p>
                   )}
                 </div>
-                <div className="text-xs text-slate-400 sm:text-right">
+                <div className="text-[11px] font-medium text-slate-400 sm:text-right">
                   <p>Assigned {formatAssetDate(entry.assignedAt)}</p>
                   {entry.returnedAt && <p className="mt-1">Returned {formatAssetDate(entry.returnedAt)}</p>}
                 </div>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{entry.note}</p>
-              <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">
+              <p className="ui-page-intro mt-3 text-[13px]">{entry.note}</p>
+              <p className="ui-data-label mt-2">
                 Recorded by {entry.assignedBy}
               </p>
             </div>

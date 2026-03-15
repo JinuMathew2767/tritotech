@@ -110,19 +110,19 @@ export default function AssetDetails() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="card p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Owner</p>
-          <p className="mt-2 text-lg font-semibold text-slate-900">{asset.assignedTo || 'Unassigned'}</p>
-          <p className="mt-1 text-sm text-slate-500">{asset.department || 'No department'}</p>
+          <p className="ui-data-label">Owner</p>
+          <p className="mt-2 text-[1.2rem] font-bold leading-[1.05] tracking-[-0.03em] text-slate-900">{asset.assignedTo || 'Unassigned'}</p>
+          <p className="ui-data-note mt-2">{asset.department || 'No department'}</p>
         </div>
         <div className="card p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Location</p>
-          <p className="mt-2 text-lg font-semibold text-slate-900">{asset.location || 'Not set'}</p>
-          <p className="mt-1 text-sm text-slate-500">{asset.status}</p>
+          <p className="ui-data-label">Location</p>
+          <p className="mt-2 text-[1.2rem] font-bold leading-[1.05] tracking-[-0.03em] text-slate-900">{asset.location || 'Not set'}</p>
+          <p className="ui-data-note mt-2">{asset.status}</p>
         </div>
         <div className="card p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Expiry Window</p>
-          <p className="mt-2 text-lg font-semibold text-slate-900">{formatAssetDate(asset.expiryDate)}</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="ui-data-label">Expiry Window</p>
+          <p className="mt-2 text-[1.2rem] font-bold leading-[1.05] tracking-[-0.03em] text-slate-900">{formatAssetDate(asset.expiryDate)}</p>
+          <p className="ui-data-note mt-2">
             {expiry.status === 'Expired'
               ? `${Math.abs(expiryDelta)} days overdue`
               : expiry.status === 'Expiring Soon'
@@ -133,9 +133,9 @@ export default function AssetDetails() {
           </p>
         </div>
         <div className="card p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Warranty</p>
-          <p className="mt-2 text-lg font-semibold text-slate-900">{formatAssetDate(asset.warrantyExpiry)}</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="ui-data-label">Warranty</p>
+          <p className="mt-2 text-[1.2rem] font-bold leading-[1.05] tracking-[-0.03em] text-slate-900">{formatAssetDate(asset.warrantyExpiry)}</p>
+          <p className="ui-data-note mt-2">
             {warranty.status === 'Expired'
               ? `${Math.abs(warrantyDelta)} days overdue`
               : warranty.status === 'Expiring Soon'
@@ -152,8 +152,8 @@ export default function AssetDetails() {
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {detailRows(asset).map((row) => (
                 <div key={row.label} className="rounded-2xl bg-slate-50 p-3">
-                  <p className="text-xs text-slate-400">{row.label}</p>
-                  <p className="mt-1 text-sm font-medium text-slate-800">{row.value}</p>
+                  <p className="ui-data-label">{row.label}</p>
+                  <p className="ui-data-value mt-1">{row.value}</p>
                 </div>
               ))}
             </div>
@@ -163,23 +163,23 @@ export default function AssetDetails() {
             <h2 className="ui-section-title">Placement And Ownership</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <div className="rounded-2xl bg-slate-50 p-3">
-                <p className="text-xs text-slate-400">Assigned To</p>
-                <p className="mt-1 text-sm font-medium text-slate-800">{asset.assignedTo || 'Unassigned'}</p>
+                <p className="ui-data-label">Assigned To</p>
+                <p className="ui-data-value mt-1">{asset.assignedTo || 'Unassigned'}</p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-3">
-                <p className="text-xs text-slate-400">Department</p>
-                <p className="mt-1 text-sm font-medium text-slate-800">{asset.department || 'Not set'}</p>
+                <p className="ui-data-label">Department</p>
+                <p className="ui-data-value mt-1">{asset.department || 'Not set'}</p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-3">
-                <p className="text-xs text-slate-400">Location</p>
-                <p className="mt-1 text-sm font-medium text-slate-800">{asset.location || 'Not set'}</p>
+                <p className="ui-data-label">Location</p>
+                <p className="ui-data-value mt-1">{asset.location || 'Not set'}</p>
               </div>
             </div>
           </div>
 
           <div className="card p-5">
             <h2 className="ui-section-title">Notes</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600">{asset.notes || 'No additional asset notes recorded yet.'}</p>
+            <p className="ui-page-intro mt-3">{asset.notes || 'No additional asset notes recorded yet.'}</p>
           </div>
 
           <AssignmentHistory history={asset.assignmentHistory} />
@@ -201,8 +201,8 @@ export default function AssetDetails() {
               <div className="rounded-2xl bg-slate-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs text-slate-400">Asset Expiry</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{formatAssetDate(asset.expiryDate)}</p>
+                    <p className="ui-data-label">Asset Expiry</p>
+                    <p className="ui-data-value mt-1">{formatAssetDate(asset.expiryDate)}</p>
                   </div>
                   <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${expiry.badgeTone}`}>{expiry.status}</span>
                 </div>
@@ -211,15 +211,15 @@ export default function AssetDetails() {
               <div className="rounded-2xl bg-slate-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs text-slate-400">Warranty Expiry</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{formatAssetDate(asset.warrantyExpiry)}</p>
+                    <p className="ui-data-label">Warranty Expiry</p>
+                    <p className="ui-data-value mt-1">{formatAssetDate(asset.warrantyExpiry)}</p>
                   </div>
                   <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${warranty.badgeTone}`}>{warranty.status}</span>
                 </div>
               </div>
 
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs text-slate-400">Current Record Status</p>
+                <p className="ui-data-label">Current Record Status</p>
                 <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${assetStatusTone[asset.status]}`}>
                   {asset.status}
                 </span>
@@ -250,9 +250,9 @@ export default function AssetDetails() {
                   ? [{ label: 'Review expiry and warranty analytics', to: '/it-assets/analytics' }]
                   : []),
               ].map((item) => (
-                <Link key={item.label} to={item.to} className="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-100">
+                <Link key={item.label} to={item.to} className="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-slate-600 transition-colors hover:bg-slate-100">
                   <ClipboardCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#4E5A7A]" />
-                  {item.label}
+                  <span className="ui-tile-body text-[13px]">{item.label}</span>
                 </Link>
               ))}
             </div>

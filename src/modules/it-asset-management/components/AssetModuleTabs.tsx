@@ -37,7 +37,7 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
       <div className={clsx('grid xl:items-center', compact ? 'gap-2.5 xl:grid-cols-[210px_minmax(0,1fr)]' : 'gap-3 xl:grid-cols-[240px_minmax(0,1fr)]')}>
         <div>
           <p className="ui-kicker">IT Asset Management</p>
-          <p className={clsx('ui-body-muted mt-1', compact ? 'text-xs leading-5' : 'text-sm')}>
+          <p className={clsx('ui-data-note mt-1 max-w-[20ch]', compact ? 'text-[12px] leading-6' : 'text-[13px] leading-6')}>
             Manage inventory, transactions, and renewal visibility from one workspace.
           </p>
         </div>
@@ -64,8 +64,8 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
                 <Icon className="h-4 w-4" />
               </div>
               <div className="min-w-0 self-center">
-                <p className={clsx('ui-nav-text', compact ? 'text-[13px]' : 'text-sm')}>{label}</p>
-                <p className={clsx('mt-0.5 text-slate-500', compact ? 'hidden text-[11px] leading-4 2xl:block' : 'text-xs leading-5')}>
+                <p className={clsx('ui-card-title', compact ? 'text-[14px]' : 'text-[15px]')}>{label}</p>
+                <p className={clsx('ui-data-note mt-1', compact ? 'hidden 2xl:block' : 'block')}>
                   {hint}
                 </p>
               </div>

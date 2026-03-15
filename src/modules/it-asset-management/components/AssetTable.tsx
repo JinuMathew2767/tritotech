@@ -15,7 +15,7 @@ export default function AssetTable({ assets, deletingId, onDelete }: AssetTableP
     <div className="glass-table">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-slate-50 text-[10px] uppercase tracking-[0.16em] text-slate-500">
             <tr>
               <th className="px-4 py-3 text-left">Asset ID</th>
               <th className="px-4 py-3 text-left">Asset Name</th>
@@ -43,12 +43,12 @@ export default function AssetTable({ assets, deletingId, onDelete }: AssetTableP
                 return (
                   <tr key={asset.id} className={clsx('transition-colors', expiry.rowTone)}>
                     <td className="px-4 py-3.5">
-                      <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#4E5A7A]">{asset.id}</span>
+                      <span className="ui-list-id">{asset.id}</span>
                     </td>
                     <td className="px-4 py-3.5">
                       <div>
-                        <p className="font-semibold text-slate-900">{asset.name}</p>
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="ui-data-value text-[14px]">{asset.name}</p>
+                        <p className="ui-data-note mt-1">
                           {asset.brandModel}
                           {asset.serialNumber ? ` - S/N ${asset.serialNumber}` : ''}
                         </p>
@@ -56,15 +56,15 @@ export default function AssetTable({ assets, deletingId, onDelete }: AssetTableP
                     </td>
                     <td className="px-4 py-3.5">
                       <div>
-                        <p className="font-medium text-slate-700">{asset.category}</p>
-                        <p className="mt-1 text-xs text-slate-500">{asset.subcategory}</p>
+                        <p className="ui-data-value font-medium text-slate-700">{asset.category}</p>
+                        <p className="ui-data-note mt-1">{asset.subcategory}</p>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 text-slate-700">{asset.vendor}</td>
                     <td className="px-4 py-3.5">
                       <div>
-                        <p className="font-medium text-slate-700">{asset.assignedTo || 'Unassigned'}</p>
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="ui-data-value font-medium text-slate-700">{asset.assignedTo || 'Unassigned'}</p>
+                        <p className="ui-data-note mt-1">
                           {asset.department || 'No department'} - {asset.location || 'No location'}
                         </p>
                       </div>
@@ -72,7 +72,7 @@ export default function AssetTable({ assets, deletingId, onDelete }: AssetTableP
                     <td className="px-4 py-3.5 text-slate-700">{formatAssetDate(asset.purchaseDate)}</td>
                     <td className="px-4 py-3.5">
                       <div>
-                        <p className="font-medium text-slate-700">{formatAssetDate(asset.expiryDate)}</p>
+                        <p className="ui-data-value font-medium text-slate-700">{formatAssetDate(asset.expiryDate)}</p>
                         <span className={clsx('mt-1 inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold', expiry.badgeTone)}>
                           {expiry.status}
                         </span>

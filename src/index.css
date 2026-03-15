@@ -99,6 +99,54 @@
     @apply text-[10.5px] font-semibold tracking-[0.02em];
   }
 
+  .ui-page-intro {
+    @apply text-[14px] font-medium leading-7 text-slate-500 sm:text-[15px];
+  }
+
+  .ui-tile-title {
+    @apply text-[17px] font-semibold leading-[1.15] tracking-[-0.025em] text-slate-900;
+  }
+
+  .ui-tile-body {
+    @apply text-[12px] font-medium leading-6 text-slate-500 sm:text-[13px];
+  }
+
+  .ui-metric-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400;
+  }
+
+  .ui-metric-value {
+    @apply text-[2.05rem] font-extrabold leading-none tracking-[-0.05em] text-slate-900;
+  }
+
+  .ui-metric-helper {
+    @apply text-[12px] font-medium leading-6 text-slate-500;
+  }
+
+  .ui-data-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400;
+  }
+
+  .ui-data-value {
+    @apply text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-900;
+  }
+
+  .ui-data-note {
+    @apply text-[11px] font-medium leading-5 text-slate-500;
+  }
+
+  .ui-list-id {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-[#4E5A7A];
+  }
+
+  .ui-list-title {
+    @apply text-[16px] font-semibold leading-[1.15] tracking-[-0.02em] text-slate-900;
+  }
+
+  .ui-list-meta {
+    @apply text-[12px] font-medium leading-6 text-slate-500 sm:text-[13px];
+  }
+
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] px-4 py-2.5 text-[13.5px] font-semibold leading-none tracking-[-0.015em] text-white shadow-[0_16px_30px_-18px_rgba(78,90,122,0.45)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_38px_-20px_rgba(78,90,122,0.52)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
   }

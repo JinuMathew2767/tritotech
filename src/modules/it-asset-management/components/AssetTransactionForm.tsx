@@ -170,7 +170,7 @@ export default function AssetTransactionForm({
         <div className="border-b border-slate-200 pb-3">
           <p className="ui-kicker">Step 1</p>
           <h2 className="ui-section-title">Choose Transaction Type</h2>
-          <p className="text-sm text-slate-500">Select the workflow that best matches what is happening to this asset now.</p>
+          <p className="ui-page-intro mt-2">Select the workflow that best matches what is happening to this asset now.</p>
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
           {transactionOptions.map((option) => {
@@ -187,9 +187,9 @@ export default function AssetTransactionForm({
                 )}
                 onClick={() => setTransactionType(option.id)}
               >
-                <p className="text-sm font-semibold text-slate-900">{option.label}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">{option.helper}</p>
-                <p className="mt-2 text-[11px] font-medium text-slate-400">{option.context}</p>
+                <p className="ui-data-value text-[14px]">{option.label}</p>
+                <p className="ui-data-note mt-1">{option.helper}</p>
+                <p className="ui-data-label mt-2 normal-case tracking-[0.08em] text-slate-400">{option.context}</p>
               </button>
             )
           })}
@@ -200,7 +200,7 @@ export default function AssetTransactionForm({
         <div className="border-b border-slate-200 pb-3">
           <p className="ui-kicker">Step 2</p>
           <h2 className="ui-section-title">Current Vs Resulting State</h2>
-          <p className="text-sm text-slate-500">Review what the asset looks like now and what will be saved after this transaction.</p>
+          <p className="ui-page-intro mt-2">Review what the asset looks like now and what will be saved after this transaction.</p>
         </div>
 
         <div className="mt-4 grid gap-4 xl:grid-cols-2">
@@ -208,20 +208,20 @@ export default function AssetTransactionForm({
             <p className="ui-kicker">Current State</p>
             <div className="mt-3 space-y-3">
               <div>
-                <p className="text-xs text-slate-400">Owner</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{asset.assignedTo || 'Unassigned'}</p>
+                <p className="ui-data-label">Owner</p>
+                <p className="ui-data-value mt-1">{asset.assignedTo || 'Unassigned'}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Department</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{asset.department || 'Not set'}</p>
+                <p className="ui-data-label">Department</p>
+                <p className="ui-data-value mt-1">{asset.department || 'Not set'}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Location</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{asset.location || 'Not set'}</p>
+                <p className="ui-data-label">Location</p>
+                <p className="ui-data-value mt-1">{asset.location || 'Not set'}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Status</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{asset.status}</p>
+                <p className="ui-data-label">Status</p>
+                <p className="ui-data-value mt-1">{asset.status}</p>
               </div>
             </div>
           </div>
@@ -230,20 +230,20 @@ export default function AssetTransactionForm({
             <p className="ui-kicker">Result After Save</p>
             <div className="mt-3 space-y-3">
               <div>
-                <p className="text-xs text-slate-400">Owner</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{outcomePreview.owner}</p>
+                <p className="ui-data-label">Owner</p>
+                <p className="ui-data-value mt-1">{outcomePreview.owner}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Department</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{outcomePreview.department}</p>
+                <p className="ui-data-label">Department</p>
+                <p className="ui-data-value mt-1">{outcomePreview.department}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Location</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{outcomePreview.location}</p>
+                <p className="ui-data-label">Location</p>
+                <p className="ui-data-value mt-1">{outcomePreview.location}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Status</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{outcomePreview.status}</p>
+                <p className="ui-data-label">Status</p>
+                <p className="ui-data-value mt-1">{outcomePreview.status}</p>
               </div>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function AssetTransactionForm({
         <div className="border-b border-slate-200 pb-3">
           <p className="ui-kicker">Step 3</p>
           <h2 className="ui-section-title">Enter Transaction Details</h2>
-          <p className="text-sm text-slate-500">Complete the destination, location, and note fields so the history stays clear for the next person.</p>
+          <p className="ui-page-intro mt-2">Complete the destination, location, and note fields so the history stays clear for the next person.</p>
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -318,9 +318,9 @@ export default function AssetTransactionForm({
         </div>
       </section>
 
-      <div className="rounded-2xl border border-[#4E5A7A]/10 bg-white/85 px-4 py-3 text-sm text-slate-600">
+      <div className="rounded-2xl border border-[#4E5A7A]/10 bg-white/85 px-4 py-3">
         Recorded by:
-        <span className="ml-1 font-semibold text-slate-800">{processedBy}</span>
+        <span className="ui-data-value ml-1 text-slate-800">{processedBy}</span>
       </div>
 
       <div className="flex flex-wrap justify-end gap-2 pt-2">

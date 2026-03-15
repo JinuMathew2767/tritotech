@@ -109,8 +109,8 @@ export default function AssetAnalytics() {
         <div className="space-y-4">
           <div className="glass-table">
             <div className="border-b border-slate-100 px-5 py-4">
-              <h2 className="font-semibold text-slate-900">Expiry Watchlist</h2>
-              <p className="mt-1 text-sm text-slate-500">Assets that need renewal planning based on the primary expiry date.</p>
+              <h2 className="ui-section-title">Expiry Watchlist</h2>
+              <p className="ui-page-intro mt-2">Assets that need renewal planning based on the primary expiry date.</p>
             </div>
             <div className="divide-y divide-slate-100">
               {sortByDate([...expiryExpired, ...expirySoon], 'expiryDate').length === 0 ? (
@@ -122,9 +122,9 @@ export default function AssetAnalytics() {
                   return (
                     <div key={`expiry-${asset.id}`} className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#4E5A7A]">{asset.id}</p>
-                        <h3 className="mt-1 font-semibold text-slate-900">{asset.name}</h3>
-                        <p className="mt-1 text-sm text-slate-500">{asset.vendor} - {asset.category}</p>
+                        <p className="ui-list-id">{asset.id}</p>
+                        <h3 className="ui-list-title mt-1">{asset.name}</h3>
+                        <p className="ui-list-meta mt-1">{asset.vendor} - {asset.category}</p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${presentation.badgeTone}`}>
@@ -149,8 +149,8 @@ export default function AssetAnalytics() {
 
           <div className="glass-table">
             <div className="border-b border-slate-100 px-5 py-4">
-              <h2 className="font-semibold text-slate-900">Warranty Watchlist</h2>
-              <p className="mt-1 text-sm text-slate-500">Coverage status derived from warranty expiry dates.</p>
+              <h2 className="ui-section-title">Warranty Watchlist</h2>
+              <p className="ui-page-intro mt-2">Coverage status derived from warranty expiry dates.</p>
             </div>
             <div className="divide-y divide-slate-100">
               {sortByDate([...warrantyExpired, ...warrantySoon], 'warrantyExpiry').length === 0 ? (
@@ -162,9 +162,9 @@ export default function AssetAnalytics() {
                   return (
                     <div key={`warranty-${asset.id}`} className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#4E5A7A]">{asset.id}</p>
-                        <h3 className="mt-1 font-semibold text-slate-900">{asset.name}</h3>
-                        <p className="mt-1 text-sm text-slate-500">{asset.brandModel}</p>
+                        <p className="ui-list-id">{asset.id}</p>
+                        <h3 className="ui-list-title mt-1">{asset.name}</h3>
+                        <p className="ui-list-meta mt-1">{asset.brandModel}</p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${presentation.badgeTone}`}>
@@ -191,16 +191,16 @@ export default function AssetAnalytics() {
         <div className="space-y-4">
           <div className="card p-5">
             <h2 className="ui-section-title">Priority Actions</h2>
-            <p className="mt-1 text-sm text-slate-500">The assets that should be reviewed first based on the nearest risk window.</p>
+            <p className="ui-page-intro mt-2">The assets that should be reviewed first based on the nearest risk window.</p>
             <div className="mt-4 space-y-3">
               {priorityQueue.length === 0 ? (
                 <div className="rounded-2xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-400">No priority assets need follow-up right now.</div>
               ) : (
                 priorityQueue.map(({ asset, reasons }) => (
                   <Link key={asset.id} to={`/it-assets/${asset.id}`} className="block rounded-2xl bg-slate-50 p-4 transition-colors hover:bg-slate-100">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#4E5A7A]">{asset.id}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{asset.name}</p>
-                    <p className="mt-2 text-xs leading-5 text-slate-500">{reasons.join(' | ')}</p>
+                    <p className="ui-list-id">{asset.id}</p>
+                    <p className="ui-list-title mt-1">{asset.name}</p>
+                    <p className="ui-tile-body mt-2">{reasons.join(' | ')}</p>
                   </Link>
                 ))
               )}
@@ -216,8 +216,8 @@ export default function AssetAnalytics() {
                 { label: 'Warranty risk items', value: warrantySoon.length + warrantyExpired.length },
               ].map((item) => (
                 <div key={item.label} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                  <span className="text-sm text-slate-600">{item.label}</span>
-                  <span className="text-sm font-semibold text-slate-900">{item.value}</span>
+                  <span className="ui-data-note text-[12px]">{item.label}</span>
+                  <span className="ui-data-value">{item.value}</span>
                 </div>
               ))}
             </div>

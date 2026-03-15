@@ -60,29 +60,29 @@ export default function AssetTransactionDocument() {
           <h2 className="ui-section-title">Document Header</h2>
           <div className="mt-4 space-y-3">
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-400">Transaction Type</p>
-              <p className="mt-1 text-sm font-semibold capitalize text-slate-900">{document.transactionType}</p>
+              <p className="ui-data-label">Transaction Type</p>
+              <p className="ui-data-value mt-1 capitalize">{document.transactionType}</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-400">Department</p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">{document.department}</p>
+              <p className="ui-data-label">Department</p>
+              <p className="ui-data-value mt-1">{document.department}</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-400">Location</p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">{document.location}</p>
+              <p className="ui-data-label">Location</p>
+              <p className="ui-data-value mt-1">{document.location}</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-400">Issued To</p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">{document.issuedTo}</p>
+              <p className="ui-data-label">Issued To</p>
+              <p className="ui-data-value mt-1">{document.issuedTo}</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-400">Recorded By</p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">{document.createdBy}</p>
+              <p className="ui-data-label">Recorded By</p>
+              <p className="ui-data-value mt-1">{document.createdBy}</p>
             </div>
             {document.note ? (
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs text-slate-400">Note</p>
-                <p className="mt-1 text-sm leading-6 text-slate-700">{document.note}</p>
+                <p className="ui-data-label">Note</p>
+                <p className="ui-page-intro mt-1 text-slate-700">{document.note}</p>
               </div>
             ) : null}
           </div>
@@ -91,7 +91,7 @@ export default function AssetTransactionDocument() {
         <div className="card p-5">
           <div className="border-b border-slate-200 pb-3">
             <h2 className="ui-section-title">Transaction Items</h2>
-            <p className="mt-1 text-sm text-slate-500">Each asset that was included in this document is listed below.</p>
+            <p className="ui-page-intro mt-2">Each asset that was included in this document is listed below.</p>
           </div>
 
           <div className="mt-4 space-y-3">
@@ -100,27 +100,27 @@ export default function AssetTransactionDocument() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#4E5A7A]">{item.assetId}</p>
-                      <Link to={`/it-assets/${item.assetId}`} className="text-xs font-medium text-[#4E5A7A] underline-offset-2 hover:underline">
+                      <p className="ui-list-id">{item.assetId}</p>
+                      <Link to={`/it-assets/${item.assetId}`} className="ui-data-note text-[#4E5A7A] underline-offset-2 hover:underline">
                         Open asset
                       </Link>
                     </div>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{item.assetName}</p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="ui-data-value mt-1 text-[14px]">{item.assetName}</p>
+                    <p className="ui-data-note mt-1">
                       To {item.assignedTo} - {item.department} - {item.location}
                     </p>
                     {(item.fromAssignedTo || item.fromDepartment || item.fromLocation) && (
-                      <p className="mt-1 text-xs text-slate-400">
+                      <p className="mt-1 text-[11px] font-medium text-slate-400">
                         From {item.fromAssignedTo || 'Unassigned'} - {item.fromDepartment || 'No department'} - {item.fromLocation || 'No location'}
                       </p>
                     )}
                   </div>
-                  <div className="text-right text-xs text-slate-400">
+                  <div className="text-right text-[11px] font-medium text-slate-400">
                     <p>{formatAssetDate(item.assignedAt)}</p>
                     <p className="mt-1">By {item.assignedBy}</p>
                   </div>
                 </div>
-                {item.note ? <p className="mt-3 text-sm leading-6 text-slate-600">{item.note}</p> : null}
+                {item.note ? <p className="ui-page-intro mt-3 text-[13px] text-slate-600">{item.note}</p> : null}
               </div>
             ))}
           </div>

@@ -32,20 +32,20 @@ export default function FileUploadZone({ files, onChange, accept = '*', maxFiles
         onDrop={(e) => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files) }}
       >
         <Upload className="w-8 h-8 text-slate-400" />
-        <p className="text-sm text-slate-600">
+        <p className="ui-page-intro text-center text-[13px]">
           <span className="font-semibold text-[#4E5A7A]">Click to upload</span> or drag and drop
         </p>
-        <p className="text-xs text-slate-400">Max {maxFiles} files</p>
+        <p className="ui-data-note">Max {maxFiles} files</p>
         <input type="file" className="hidden" multiple accept={accept} onChange={(e) => addFiles(e.target.files)} />
       </label>
 
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((file, i) => (
-            <div key={i} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg text-sm">
+            <div key={i} className="flex items-center gap-2 rounded-lg bg-slate-50 p-2">
               <FileText className="w-4 h-4 text-[#4E5A7A] flex-shrink-0" />
-              <span className="flex-1 truncate text-slate-700">{file.name}</span>
-              <span className="text-xs text-slate-400">{(file.size / 1024).toFixed(0)} KB</span>
+              <span className="ui-data-value flex-1 truncate text-[13px]">{file.name}</span>
+              <span className="ui-data-note">{(file.size / 1024).toFixed(0)} KB</span>
               <button onClick={() => removeFile(i)} className="text-slate-400 hover:text-red-500">
                 <X className="w-4 h-4" />
               </button>

@@ -111,19 +111,19 @@ export default function AssetTransactions() {
             <h2 className="ui-section-title">Current Snapshot</h2>
             <div className="mt-4 space-y-3">
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs text-slate-400">Assigned To</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{asset.assignedTo || 'Unassigned'}</p>
+                <p className="ui-data-label">Assigned To</p>
+                <p className="ui-data-value mt-1">{asset.assignedTo || 'Unassigned'}</p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs text-slate-400">Department</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{asset.department || 'Not set'}</p>
+                <p className="ui-data-label">Department</p>
+                <p className="ui-data-value mt-1">{asset.department || 'Not set'}</p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs text-slate-400">Location</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{asset.location || 'Not set'}</p>
+                <p className="ui-data-label">Location</p>
+                <p className="ui-data-value mt-1">{asset.location || 'Not set'}</p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs text-slate-400">Status</p>
+                <p className="ui-data-label">Status</p>
                 <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${assetStatusTone[asset.status]}`}>
                   {asset.status}
                 </span>
@@ -133,17 +133,17 @@ export default function AssetTransactions() {
 
           <div className="card p-5">
             <h2 className="ui-section-title">Helpful Rules</h2>
-            <div className="mt-4 space-y-2 text-sm text-slate-600">
-              <p className="rounded-2xl bg-slate-50 px-4 py-3">Issue is best for stock or unassigned items that are being allocated now.</p>
-              <p className="rounded-2xl bg-slate-50 px-4 py-3">Return is best when an asset is coming back into storage, maintenance, or retirement.</p>
-              <p className="rounded-2xl bg-slate-50 px-4 py-3">Transfer is best when ownership changes directly between users, teams, or locations.</p>
-              <p className="rounded-2xl bg-slate-50 px-4 py-3">After saving, the assignment history below will update automatically with the movement you recorded.</p>
+            <div className="mt-4 space-y-2">
+              <p className="ui-tile-body rounded-2xl bg-slate-50 px-4 py-3">Issue is best for stock or unassigned items that are being allocated now.</p>
+              <p className="ui-tile-body rounded-2xl bg-slate-50 px-4 py-3">Return is best when an asset is coming back into storage, maintenance, or retirement.</p>
+              <p className="ui-tile-body rounded-2xl bg-slate-50 px-4 py-3">Transfer is best when ownership changes directly between users, teams, or locations.</p>
+              <p className="ui-tile-body rounded-2xl bg-slate-50 px-4 py-3">After saving, the assignment history below will update automatically with the movement you recorded.</p>
             </div>
           </div>
 
           <div className="card p-5">
             <h2 className="ui-section-title">Coverage Reminder</h2>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="ui-page-intro mt-2">
               Asset expiry:
               <span className="ml-1 font-semibold text-slate-900">{formatAssetDate(asset.expiryDate)}</span>
             </p>

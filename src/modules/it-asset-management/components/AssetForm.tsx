@@ -320,7 +320,7 @@ export default function AssetForm({
               options={subcategoryOptions.map((subcategory) => ({ value: subcategory, label: subcategory }))}
             />
             <FieldError error={errors.subcategory} />
-            <p className="mt-1 text-xs text-slate-400">Managed under Settings - Masters - Asset Categories and Asset Subcategories.</p>
+            <p className="ui-data-note mt-1">Managed under Settings - Masters - Asset Categories and Asset Subcategories.</p>
           </div>
           <div>
             <label className="label">Serial Number</label>
@@ -367,7 +367,7 @@ export default function AssetForm({
             options={vendorOptions.map((vendor) => ({ value: vendor, label: vendor }))}
           />
           <FieldError error={errors.vendor} />
-          <p className="mt-1 text-xs text-slate-400">Managed under Settings - Masters - Asset Vendors.</p>
+          <p className="ui-data-note mt-1">Managed under Settings - Masters - Asset Vendors.</p>
         </div>
       </FormSection>
 
@@ -412,7 +412,7 @@ export default function AssetForm({
               buttonClassName={clsx(!!errors.expiryDate && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
             />
             <FieldError error={errors.expiryDate} />
-            <p className="mt-1 text-xs text-slate-400">Optional. Leave blank if this asset does not use an expiry date.</p>
+            <p className="ui-data-note mt-1">Optional. Leave blank if this asset does not use an expiry date.</p>
           </div>
           <div>
             <label className="label">Warranty Expiry</label>
@@ -423,7 +423,7 @@ export default function AssetForm({
               buttonClassName={clsx(!!errors.warrantyExpiry && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
             />
             <FieldError error={errors.warrantyExpiry} />
-            <p className="mt-1 text-xs text-slate-400">Optional. Leave blank if this asset does not use warranty tracking.</p>
+            <p className="ui-data-note mt-1">Optional. Leave blank if this asset does not use warranty tracking.</p>
           </div>
         </div>
       </FormSection>
@@ -458,7 +458,7 @@ export default function AssetForm({
               }))}
             />
             <FieldError error={errors.assignedTo} />
-            <p className="mt-1 text-xs text-slate-400">Managed under Settings - Masters - Asset Employees.</p>
+            <p className="ui-data-note mt-1">Managed under Settings - Masters - Asset Employees.</p>
           </div>
         </div>
 
@@ -488,7 +488,7 @@ export default function AssetForm({
               options={locationOptions.map((location) => ({ value: location, label: location }))}
             />
             <FieldError error={errors.location} />
-            {selectedDepartment?.location ? <p className="mt-1 text-xs text-slate-400">Linked from the selected department master.</p> : null}
+            {selectedDepartment?.location ? <p className="ui-data-note mt-1">Linked from the selected department master.</p> : null}
           </div>
         </div>
 

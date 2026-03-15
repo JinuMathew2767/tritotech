@@ -81,8 +81,8 @@ export default function AssetDashboard() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_360px]">
         <div className="glass-table">
           <div className="border-b border-slate-100 px-5 py-4">
-            <h2 className="font-semibold text-slate-900">Priority Queue</h2>
-            <p className="mt-1 text-sm text-slate-500">Assets that need renewal planning or immediate follow-up from the team.</p>
+            <h2 className="ui-section-title">Priority Queue</h2>
+            <p className="ui-page-intro mt-2">Assets that need renewal planning or immediate follow-up from the team.</p>
           </div>
           <div className="divide-y divide-slate-100">
             {attentionAssets.length === 0 ? (
@@ -93,9 +93,9 @@ export default function AssetDashboard() {
                 return (
                   <div key={asset.id} className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#4E5A7A]">{asset.id}</p>
-                      <h3 className="mt-1 font-semibold text-slate-900">{asset.name}</h3>
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="ui-list-id">{asset.id}</p>
+                      <h3 className="ui-list-title mt-1">{asset.name}</h3>
+                      <p className="ui-list-meta mt-1">
                         {asset.category} - {asset.vendor} - {asset.assignedTo || 'Unassigned'}
                       </p>
                     </div>
@@ -120,7 +120,7 @@ export default function AssetDashboard() {
         <div className="space-y-4">
           <div className="card p-5">
             <h2 className="ui-section-title">Quick Start</h2>
-            <p className="mt-1 text-sm text-slate-500">Pick the workspace that matches what you need to do next.</p>
+            <p className="ui-page-intro mt-2">Pick the workspace that matches what you need to do next.</p>
             <div className="mt-4 space-y-3">
               {[
                 {
@@ -151,8 +151,8 @@ export default function AssetDashboard() {
                     <Icon className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{title}</p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">{body}</p>
+                    <p className="ui-tile-title">{title}</p>
+                    <p className="ui-tile-body mt-1">{body}</p>
                   </div>
                 </Link>
               ))}
@@ -161,7 +161,7 @@ export default function AssetDashboard() {
 
           <div className="card p-5">
             <h2 className="ui-section-title">Operational Snapshot</h2>
-            <p className="mt-1 text-sm text-slate-500">A quick read on ownership and asset availability.</p>
+            <p className="ui-page-intro mt-2">A quick read on ownership and asset availability.</p>
             <div className="mt-4 space-y-3">
               {[
                 { label: 'Currently assigned', value: assignedCount },
@@ -170,8 +170,8 @@ export default function AssetDashboard() {
                 { label: 'Renewal attention', value: attentionCount },
               ].map((item) => (
                 <div key={item.label} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                  <span className="text-sm text-slate-600">{item.label}</span>
-                  <span className="text-sm font-semibold text-slate-900">{item.value}</span>
+                  <span className="ui-data-note text-[12px]">{item.label}</span>
+                  <span className="ui-data-value">{item.value}</span>
                 </div>
               ))}
             </div>

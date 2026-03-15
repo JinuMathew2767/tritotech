@@ -51,16 +51,21 @@ export default function AssetWorkspaceHeader({
             <div
               className={clsx(
                 'inline-flex items-center rounded-full border border-[#4E5A7A]/10 bg-[#4E5A7A]/10 font-semibold uppercase tracking-[0.16em] text-[#4E5A7A]',
-                compact ? 'gap-1.5 px-2.5 py-0.5 text-[11px]' : 'gap-2 px-3 py-1 text-xs'
+                compact ? 'gap-1.5 px-2.5 py-0.5 text-[10px]' : 'gap-2 px-3 py-1 text-[11px]'
               )}
             >
               <BadgeIcon className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
               {badgeLabel}
             </div>
-            <h1 className={clsx('font-bold tracking-tight text-slate-900', compact ? 'mt-2 text-xl' : 'mt-3 text-2xl')}>
+            <h1
+              className={clsx(
+                'font-extrabold leading-[0.98] tracking-[-0.05em] text-slate-900',
+                compact ? 'mt-2 text-[1.95rem]' : 'mt-3 text-[2.2rem]'
+              )}
+            >
               {title}
             </h1>
-            <p className={clsx('text-slate-500', compact ? 'mt-1 text-xs leading-5' : 'mt-2 text-sm leading-6')}>
+            <p className={clsx('text-slate-500', compact ? 'mt-2 text-[13px] font-medium leading-6' : 'mt-2 text-[14px] font-medium leading-7')}>
               {description}
             </p>
           </div>
@@ -71,7 +76,10 @@ export default function AssetWorkspaceHeader({
                 <Link
                   key={`${label}-${to}`}
                   to={to}
-                  className={clsx(tone === 'primary' ? 'btn-primary' : 'btn-secondary', compact ? 'gap-1.5 px-3 py-2 text-xs' : 'gap-2')}
+                  className={clsx(
+                    tone === 'primary' ? 'btn-primary' : 'btn-secondary',
+                    compact ? 'gap-1.5 px-3 py-2 text-[12px]' : 'gap-2'
+                  )}
                 >
                   {Icon && <Icon className="h-4 w-4" />}
                   {label}
@@ -92,8 +100,10 @@ export default function AssetWorkspaceHeader({
                   statToneClasses[tone]
                 )}
               >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-                <p className={clsx('font-semibold text-current', compact ? 'mt-0.5 text-[13px]' : 'mt-1 text-sm')}>{value}</p>
+                <p className="ui-data-label">{label}</p>
+                <p className={clsx('font-semibold tracking-[-0.015em] text-current', compact ? 'mt-1 text-[13px] leading-5' : 'mt-1 text-[14px] leading-5')}>
+                  {value}
+                </p>
               </div>
             ))}
           </div>

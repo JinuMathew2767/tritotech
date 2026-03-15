@@ -433,7 +433,7 @@ export default function AssetTransactionHub() {
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
               <p className="ui-kicker">Step 1</p>
-              <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Choose Action</h2>
+              <h2 className="ui-section-title mt-0.5">Choose Action</h2>
             </div>
 
             <div className="mt-2.5 grid gap-2 md:grid-cols-2">
@@ -451,7 +451,7 @@ export default function AssetTransactionHub() {
                         <div className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${option.tone}`}>
                           {option.label}
                         </div>
-                        <p className="mt-1 text-[11px] leading-4 text-slate-500">{option.helper}</p>
+                        <p className="ui-data-note mt-1">{option.helper}</p>
                       </div>
                     </div>
                   </button>
@@ -463,8 +463,8 @@ export default function AssetTransactionHub() {
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
               <p className="ui-kicker">Step 2</p>
-              <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Choose Assets</h2>
-              <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+              <h2 className="ui-section-title mt-0.5">Choose Assets</h2>
+              <p className="ui-data-note mt-1">
                 {mode === 'issue'
                   ? 'Select one or more assets that are currently available to issue to the same employee.'
                   : 'Select one or more assets that already have an active owner and are ready to transfer together.'}
@@ -479,9 +479,9 @@ export default function AssetTransactionHub() {
 
               {errors.asset && <p className="text-xs text-red-600">{errors.asset}</p>}
 
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs text-slate-600">
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-slate-600">
                 <p>
-                  <span className="font-semibold text-slate-900">{selectedAssets.length}</span>
+                  <span className="ui-data-value text-[13px]">{selectedAssets.length}</span>
                   <span className="ml-1">asset{selectedAssets.length === 1 ? '' : 's'} selected</span>
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -531,9 +531,9 @@ export default function AssetTransactionHub() {
                               <Check className="h-2.5 w-2.5" />
                             </span>
                             <div className="min-w-0">
-                              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#4E5A7A]">{asset.id}</p>
-                              <p className="mt-0.5 truncate text-[13px] font-semibold leading-5 text-slate-900">{asset.name}</p>
-                              <p className="truncate text-[10px] leading-4 text-slate-500">
+                              <p className="ui-list-id">{asset.id}</p>
+                              <p className="ui-data-value mt-0.5 truncate text-[14px]">{asset.name}</p>
+                              <p className="ui-data-note truncate">
                                 {asset.category} - {asset.subcategory} - {asset.vendor}
                               </p>
                             </div>
@@ -548,17 +548,17 @@ export default function AssetTransactionHub() {
                           </div>
                         </div>
 
-                        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] leading-4 text-slate-500">
+                        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] leading-4 text-slate-500">
                           <span className="min-w-0 truncate">
-                            <span className="font-semibold uppercase tracking-[0.12em] text-slate-400">Owner:</span>{' '}
+                            <span className="ui-data-label mr-1">Owner</span>
                             {asset.assignedTo || 'Unassigned'}
                           </span>
                           <span className="min-w-0 truncate">
-                            <span className="font-semibold uppercase tracking-[0.12em] text-slate-400">Dept:</span>{' '}
+                            <span className="ui-data-label mr-1">Dept</span>
                             {asset.department || 'Not set'}
                           </span>
                           <span className="min-w-0 truncate">
-                            <span className="font-semibold uppercase tracking-[0.12em] text-slate-400">Loc:</span>{' '}
+                            <span className="ui-data-label mr-1">Loc</span>
                             {asset.location || 'Not set'}
                           </span>
                         </div>
@@ -573,7 +573,7 @@ export default function AssetTransactionHub() {
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
               <p className="ui-kicker">Step 3</p>
-              <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Choose From And To</h2>
+              <h2 className="ui-section-title mt-0.5">Choose From And To</h2>
             </div>
 
             <div className="mt-2.5 grid gap-2.5 xl:grid-cols-2">
@@ -581,22 +581,22 @@ export default function AssetTransactionHub() {
                 <p className="ui-kicker">From</p>
                 <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
                   <div>
-                    <p className="text-xs text-slate-400">Selected Assets</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
+                    <p className="ui-data-label">Selected Assets</p>
+                    <p className="ui-data-value mt-1">
                       {selectedAssets.length > 0 ? `${selectedAssets.length} asset${selectedAssets.length === 1 ? '' : 's'}` : 'None selected'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400">Owner</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{fromOwner}</p>
+                    <p className="ui-data-label">Owner</p>
+                    <p className="ui-data-value mt-1">{fromOwner}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400">Department</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{fromDepartment}</p>
+                    <p className="ui-data-label">Department</p>
+                    <p className="ui-data-value mt-1">{fromDepartment}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400">Location</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{fromLocation}</p>
+                    <p className="ui-data-label">Location</p>
+                    <p className="ui-data-value mt-1">{fromLocation}</p>
                   </div>
                 </div>
               </div>
@@ -619,7 +619,7 @@ export default function AssetTransactionHub() {
                       }))}
                     />
                     {errors.assignedTo && <p className="mt-1 text-xs text-red-600">{errors.assignedTo}</p>}
-                    <p className="mt-1 text-[11px] text-slate-400">Source: Settings - Masters - Asset Employees.</p>
+                    <p className="ui-data-note mt-1">Source: Settings - Masters - Asset Employees.</p>
                   </div>
 
                   <div className="grid gap-2.5 md:grid-cols-2">
@@ -651,7 +651,7 @@ export default function AssetTransactionHub() {
                         options={locationOptions.map((location) => ({ value: location, label: location }))}
                       />
                       {errors.location && <p className="mt-1 text-xs text-red-600">{errors.location}</p>}
-                      {selectedDepartment?.location ? <p className="mt-1 text-[11px] text-slate-400">Linked from department master.</p> : null}
+                      {selectedDepartment?.location ? <p className="ui-data-note mt-1">Linked from department master.</p> : null}
                     </div>
                   </div>
 
@@ -672,7 +672,7 @@ export default function AssetTransactionHub() {
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
               <p className="ui-kicker">Step 4</p>
-              <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Additional Details</h2>
+              <h2 className="ui-section-title mt-0.5">Additional Details</h2>
             </div>
 
             <div className="mt-2.5 space-y-2.5">
@@ -689,7 +689,7 @@ export default function AssetTransactionHub() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2">
-                <div className="text-xs text-slate-600">
+                <div className="ui-data-note">
                   Recorded by:
                   <span className="ml-1 font-semibold text-slate-900">{actorNameFromUser(user?.first_name, user?.last_name)}</span>
                 </div>
@@ -703,7 +703,7 @@ export default function AssetTransactionHub() {
 
         <div className="space-y-2">
           <div className="card p-3">
-            <h2 className="text-sm font-semibold text-slate-900">Selected Assets</h2>
+            <h2 className="ui-section-title">Selected Assets</h2>
             {selectedAssets.length === 0 ? (
               <div className="mt-2.5 rounded-xl bg-slate-50 px-3 py-4 text-center text-xs text-slate-400">
                 Choose one or more eligible assets to start the transaction.
@@ -711,11 +711,11 @@ export default function AssetTransactionHub() {
             ) : (
               <div className="mt-2.5 space-y-2">
                 <div className="rounded-xl bg-slate-50 p-2.5">
-                  <p className="text-xs text-slate-400">Batch Summary</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">
+                  <p className="ui-data-label">Batch Summary</p>
+                  <p className="ui-data-value mt-1">
                     {selectedAssets.length} asset{selectedAssets.length === 1 ? '' : 's'} ready for {mode}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="ui-data-note mt-1">
                     {selectedAssets.slice(0, 3).map((asset) => asset.id).join(', ')}
                     {selectedAssets.length > 3 ? ` + ${selectedAssets.length - 3} more` : ''}
                   </p>
@@ -723,11 +723,11 @@ export default function AssetTransactionHub() {
 
                 {primarySelectedAsset && (
                   <div className="rounded-xl bg-slate-50 p-2.5">
-                    <p className="text-xs text-slate-400">Primary Preview Asset</p>
+                    <p className="ui-data-label">Primary Preview Asset</p>
                     <div className="mt-2 flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{primarySelectedAsset.name}</p>
-                        <p className="mt-1 text-xs text-slate-500">{formatAssetDate(primarySelectedAsset.expiryDate)}</p>
+                        <p className="ui-data-value">{primarySelectedAsset.name}</p>
+                        <p className="ui-data-note mt-1">{formatAssetDate(primarySelectedAsset.expiryDate)}</p>
                       </div>
                       {selectedAssetExpiry && (
                         <span className={clsx('rounded-full border px-2.5 py-1 text-[11px] font-semibold', selectedAssetExpiry.badgeTone)}>
@@ -739,22 +739,22 @@ export default function AssetTransactionHub() {
                 )}
 
                 <div className="rounded-xl bg-slate-50 p-2.5">
-                  <p className="text-xs text-slate-400">Live Preview</p>
+                  <p className="ui-data-label">Live Preview</p>
                   <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
                     <div>
-                      <p className="text-xs text-slate-400">To Owner</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">{nextOwner}</p>
+                      <p className="ui-data-label">To Owner</p>
+                      <p className="ui-data-value mt-1">{nextOwner}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400">To Department</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">{nextDepartment}</p>
+                      <p className="ui-data-label">To Department</p>
+                      <p className="ui-data-value mt-1">{nextDepartment}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400">To Location</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">{nextLocation}</p>
+                      <p className="ui-data-label">To Location</p>
+                      <p className="ui-data-value mt-1">{nextLocation}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400">Resulting Status</p>
+                      <p className="ui-data-label">Resulting Status</p>
                       <span className={clsx('mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold', assetStatusTone[values.status])}>
                         {values.status}
                       </span>
@@ -781,15 +781,15 @@ export default function AssetTransactionHub() {
 
           {primarySelectedAsset && primarySelectedAsset.assignmentHistory.length > 0 && (
             <div className="card p-3">
-              <h2 className="text-sm font-semibold text-slate-900">Recent Movement</h2>
-              <p className="mt-1 text-[11px] text-slate-500">Latest history for the first selected asset.</p>
+              <h2 className="ui-section-title">Recent Movement</h2>
+              <p className="ui-data-note mt-1">Latest history for the first selected asset.</p>
               <div className="mt-2.5 space-y-2">
                 {primarySelectedAsset.assignmentHistory.slice(0, 3).map((entry) => (
                   <div key={entry.id} className="rounded-xl bg-slate-50 p-2.5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{entry.assignedTo}</p>
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="ui-data-value">{entry.assignedTo}</p>
+                        <p className="ui-data-note mt-1">
                           {entry.department} - {entry.location}
                         </p>
                       </div>
@@ -797,7 +797,7 @@ export default function AssetTransactionHub() {
                         {entry.type}
                       </span>
                     </div>
-                    <p className="mt-3 text-xs text-slate-400">
+                    <p className="ui-data-note mt-3 text-slate-400">
                       {formatAssetDate(entry.assignedAt)} by {entry.assignedBy}
                     </p>
                   </div>
@@ -812,10 +812,10 @@ export default function AssetTransactionHub() {
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-2.5">
           <div>
             <p className="ui-kicker">Transaction List</p>
-            <h2 className="mt-0.5 text-sm font-semibold text-slate-900">
+            <h2 className="ui-section-title mt-0.5">
               {mode === 'issue' ? 'Issued Asset Records' : 'Transferred Asset Records'}
             </h2>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="ui-data-note mt-1">
               Every recorded issue or transfer document remains visible here for quick review without leaving the workspace.
             </p>
           </div>
@@ -835,7 +835,7 @@ export default function AssetTransactionHub() {
                 <div>
                   <p className="ui-kicker">Transaction Number</p>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-slate-900">{document.transactionNumber}</p>
+                    <p className="ui-data-value">{document.transactionNumber}</p>
                     <span className={clsx('rounded-full border px-2 py-0.5 text-[10px] font-semibold', transactionToneByType[document.transactionType] || 'bg-slate-50 text-slate-700 border-slate-200')}>
                       {document.transactionType}
                     </span>
@@ -843,15 +843,15 @@ export default function AssetTransactionHub() {
                 </div>
                 <div>
                   <p className="ui-kicker">Transaction Date</p>
-                  <p className="mt-1 text-sm text-slate-700">{formatAssetDate(document.transactionDate)}</p>
+                  <p className="ui-data-note mt-1 text-slate-700">{formatAssetDate(document.transactionDate)}</p>
                 </div>
                 <div>
                   <p className="ui-kicker">Asset Count</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">{document.assetCount}</p>
+                  <p className="ui-data-value mt-1">{document.assetCount}</p>
                 </div>
                 <div>
                   <p className="ui-kicker">Issued To</p>
-                  <p className="mt-1 text-sm text-slate-700">{document.issuedTo}</p>
+                  <p className="ui-data-note mt-1 text-slate-700">{document.issuedTo}</p>
                 </div>
                 <div className="md:justify-self-end">
                   <Link to={`/it-assets/transactions/documents/${document.transactionNumber}`} className="btn-secondary w-full justify-center px-3 py-2 text-xs md:w-auto">
