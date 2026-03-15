@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import clsx from 'clsx'
 import { Check, ChevronDown } from 'lucide-react'
+import { createPortal } from 'react-dom'
 
 export interface DropdownOption {
   value: string
@@ -54,19 +55,86 @@ export default function DropdownSelect(props: DropdownSelectProps) {
   } = props
 
   const [open, setOpen] = useState(false)
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({})
+  const [contentMaxHeight, setContentMaxHeight] = useState<number | undefined>(undefined)
   const rootRef = useRef<HTMLDivElement | null>(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const updatePanelPosition = () => {
+      if (!rootRef.current) return
+
+      const rect = rootRef.current.getBoundingClientRect()
+      const viewportHeight = window.innerHeight
+      const viewportWidth = window.innerWidth
+      const gutter = 12
+      const offset = 8
+      const availableBelow = viewportHeight - rect.bottom - gutter
+      const availableAbove = rect.top - gutter
+      const openUpward = availableBelow < 220 && availableAbove > availableBelow
+      const width = Math.min(rect.width, viewportWidth - gutter * 2)
+      const left = Math.min(Math.max(rect.left, gutter), viewportWidth - width - gutter)
+      const maxHeight = Math.max(
+        140,
+        Math.min(openUpward ? availableAbove - offset : availableBelow - offset, 320)
+      )
+
+      setContentMaxHeight(maxHeight)
+      setPanelStyle(
+        openUpward
+          ? {
+              position: 'fixed',
+              left,
+              width,
+              bottom: Math.max(viewportHeight - rect.top + offset, gutter),
+              zIndex: 80,
+            }
+          : {
+              position: 'fixed',
+              left,
+              width,
+              top: Math.min(rect.bottom + offset, viewportHeight - gutter),
+              zIndex: 80,
+            }
+      )
+    }
+
+    updatePanelPosition()
+    window.addEventListener('resize', updatePanelPosition)
+    window.addEventListener('scroll', updatePanelPosition, true)
+    return () => {
+      window.removeEventListener('resize', updatePanelPosition)
+      window.removeEventListener('scroll', updatePanelPosition, true)
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open) return
 
     const handlePointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node
+      if (!rootRef.current?.contains(target) && !panelRef.current?.contains(target)) {
         setOpen(false)
       }
     }
 
     document.addEventListener('mousedown', handlePointerDown)
     return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
   }, [open])
 
   const optionMap = useMemo(() => new Map(options.map((option) => [option.value, option])), [options])
@@ -98,8 +166,62 @@ export default function DropdownSelect(props: DropdownSelectProps) {
 
   const isSelected = (value: string) => (props.multiple ? props.value.includes(value) : props.value === value)
 
+  const panel =
+    open && !disabled
+      ? createPortal(
+          <div
+            ref={panelRef}
+            style={panelStyle}
+            className={clsx(
+              'rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)] backdrop-blur-md',
+              panelClassName
+            )}
+          >
+            {options.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-slate-400">{emptyMessage}</div>
+            ) : (
+              <div
+                style={contentMaxHeight ? { maxHeight: `${contentMaxHeight}px` } : undefined}
+                className={clsx('space-y-2 overflow-y-auto pr-1', maxPanelHeightClassName)}
+              >
+                {options.map((option) => {
+                  const selected = isSelected(option.value)
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => !option.disabled && toggleValue(option.value)}
+                      disabled={option.disabled}
+                      className={clsx(
+                        'flex w-full items-start gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all',
+                        selected
+                          ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50',
+                        option.disabled && 'cursor-not-allowed opacity-50',
+                        optionClassName
+                      )}
+                    >
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#4E5A7A]">
+                        {selected ? <Check className="h-3 w-3" /> : null}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-medium leading-5 text-slate-800">{option.label}</span>
+                        {option.description ? (
+                          <span className="block text-[11px] leading-4 text-slate-400">{option.description}</span>
+                        ) : null}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>,
+          document.body
+        )
+      : null
+
   return (
-    <div ref={rootRef} className="space-y-2">
+    <div ref={rootRef} className="relative">
       <button
         type="button"
         onClick={() => !disabled && setOpen((current) => !current)}
@@ -121,51 +243,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
           )}
         />
       </button>
-
-      {open && !disabled && (
-        <div
-          className={clsx(
-            'rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)]',
-            panelClassName
-          )}
-        >
-          {options.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-slate-400">{emptyMessage}</div>
-          ) : (
-            <div className={clsx('space-y-2 overflow-y-auto pr-1', maxPanelHeightClassName)}>
-              {options.map((option) => {
-                const selected = isSelected(option.value)
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => !option.disabled && toggleValue(option.value)}
-                    disabled={option.disabled}
-                    className={clsx(
-                      'flex w-full items-start gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all',
-                      selected
-                        ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
-                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50',
-                      option.disabled && 'cursor-not-allowed opacity-50',
-                      optionClassName
-                    )}
-                  >
-                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#4E5A7A]">
-                      {selected ? <Check className="h-3 w-3" /> : null}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm leading-5 font-medium text-slate-800">{option.label}</span>
-                      {option.description ? (
-                        <span className="block text-[11px] leading-4 text-slate-400">{option.description}</span>
-                      ) : null}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      )}
+      {panel}
     </div>
   )
 }
