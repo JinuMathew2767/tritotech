@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import Modal from '@/components/ui/Modal'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import type { PendingUser } from '@/services/userService'
 import type { Ticket } from '@/services/ticketService'
 
@@ -49,18 +50,16 @@ export default function AssignTicketModal({
 
         <div>
           <label className="label">Assign To</label>
-          <select
-            className="input"
+          <DropdownSelect
             value={selectedUserId}
-            onChange={(event) => setSelectedUserId(event.target.value)}
-          >
-            <option value="">Select a team member</option>
-            {assignees.map((assignee) => (
-              <option key={assignee.id} value={assignee.id}>
-                {assignee.first_name} {assignee.last_name} ({assignee.role.replace('_', ' ')})
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedUserId}
+            placeholder="Select a team member"
+            options={assignees.map((assignee) => ({
+              value: String(assignee.id),
+              label: `${assignee.first_name} ${assignee.last_name}`,
+              description: assignee.role.replace('_', ' '),
+            }))}
+          />
           {selectedAssignee && (
             <p className="text-xs text-slate-500 mt-1">
               {selectedAssignee.email}

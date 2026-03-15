@@ -4,6 +4,7 @@ import axios from 'axios'
 import { ArrowRightLeft, Check, FolderKanban, Repeat2, RotateCcw, Search, Warehouse } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import { useAuth } from '@/contexts/AuthContext'
 import AssetModuleTabs from '../components/AssetModuleTabs'
@@ -71,9 +72,6 @@ const createInitialFormState = (mode: TransactionWorkspaceMode): TransactionForm
   status: mode === 'issue' ? 'Assigned' : 'Assigned',
   note: '',
 })
-
-const cardFieldClass = (hasError?: boolean) =>
-  clsx('input', hasError && 'border-red-300 focus:border-red-400 focus:ring-red-100')
 
 const areSelectionsEqual = (left: string[], right: string[]) =>
   left.length === right.length && left.every((value, index) => value === right[index])
@@ -608,19 +606,18 @@ export default function AssetTransactionHub() {
                 <div className="mt-2.5 grid gap-2.5">
                   <div>
                     <label className="label">{mode === 'issue' ? 'Issue To' : 'Transfer To'}</label>
-                    <select
-                      className={cardFieldClass(!!errors.assignedTo)}
+                    <DropdownSelect
                       value={values.assignedTo}
-                      onChange={(event) => handleAssigneeChange(event.target.value)}
+                      onChange={handleAssigneeChange}
+                      placeholder="Select asset employee"
                       disabled={selectedAssets.length === 0}
-                    >
-                      <option value="">Select asset employee</option>
-                      {employeeOptions.map((employee) => (
-                        <option key={`${employee.id}-${employee.employeeCode}`} value={employee.name}>
-                          {employee.name}{employee.department ? ` - ${employee.department}` : ''}
-                        </option>
-                      ))}
-                    </select>
+                      buttonClassName={clsx(!!errors.assignedTo && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+                      options={employeeOptions.map((employee) => ({
+                        value: employee.name,
+                        label: employee.name,
+                        description: employee.department || undefined,
+                      }))}
+                    />
                     {errors.assignedTo && <p className="mt-1 text-xs text-red-600">{errors.assignedTo}</p>}
                     <p className="mt-1 text-[11px] text-slate-400">Source: Settings - Masters - Asset Employees.</p>
                   </div>
@@ -628,37 +625,31 @@ export default function AssetTransactionHub() {
                   <div className="grid gap-2.5 md:grid-cols-2">
                     <div>
                       <label className="label">Department</label>
-                      <select
-                        className={cardFieldClass(!!errors.department)}
+                      <DropdownSelect
                         value={values.department}
-                        onChange={(event) => handleDepartmentChange(event.target.value)}
+                        onChange={handleDepartmentChange}
+                        placeholder="Select department"
                         disabled={selectedAssets.length === 0}
-                      >
-                        <option value="">Select department</option>
-                        {departmentOptions.map((department) => (
-                          <option key={department.id} value={department.name}>
-                            {department.name}
-                          </option>
-                        ))}
-                      </select>
+                        buttonClassName={clsx(!!errors.department && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+                        options={departmentOptions.map((department) => ({
+                          value: department.name,
+                          label: department.name,
+                          description: department.location || undefined,
+                        }))}
+                      />
                       {errors.department && <p className="mt-1 text-xs text-red-600">{errors.department}</p>}
                     </div>
 
                     <div>
                       <label className="label">Location</label>
-                      <select
-                        className={cardFieldClass(!!errors.location)}
+                      <DropdownSelect
                         value={values.location}
-                        onChange={(event) => updateField('location', event.target.value)}
+                        onChange={(value) => updateField('location', value)}
+                        placeholder="Select location"
                         disabled={selectedAssets.length === 0}
-                      >
-                        <option value="">Select location</option>
-                        {locationOptions.map((location) => (
-                          <option key={location} value={location}>
-                            {location}
-                          </option>
-                        ))}
-                      </select>
+                        buttonClassName={clsx(!!errors.location && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+                        options={locationOptions.map((location) => ({ value: location, label: location }))}
+                      />
                       {errors.location && <p className="mt-1 text-xs text-red-600">{errors.location}</p>}
                       {selectedDepartment?.location ? <p className="mt-1 text-[11px] text-slate-400">Linked from department master.</p> : null}
                     </div>
@@ -666,18 +657,12 @@ export default function AssetTransactionHub() {
 
                   <div>
                     <label className="label">Resulting Status</label>
-                    <select
-                      className="input"
+                    <DropdownSelect
                       value={values.status}
-                      onChange={(event) => updateField('status', event.target.value as AssetStatus)}
+                      onChange={(value) => updateField('status', value as AssetStatus)}
                       disabled={selectedAssets.length === 0}
-                    >
-                      {statusOptionsByMode[mode].map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
+                      options={statusOptionsByMode[mode].map((status) => ({ value: status, label: status }))}
+                    />
                   </div>
                 </div>
               </div>

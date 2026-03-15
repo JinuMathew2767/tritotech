@@ -4,6 +4,7 @@ import { Eye, EyeOff, Shield } from 'lucide-react'
 import authService from '@/services/authService'
 import companyService from '@/services/companyService'
 import { fetchBrandingSettings, getBrandingSettings } from '@/services/brandingService'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import toast from 'react-hot-toast'
 
 const defaultCompanies = [
@@ -11,8 +12,9 @@ const defaultCompanies = [
   'Skymat Building Materials Trading LLC',
   'Smart Insulation Finishing Systems LLC',
   'Innotech Polimers Manufacturing LLC',
-  'Triton-UVC Division'
+  'Triton-UVC Division',
 ]
+
 const departments = [
   'Accounts',
   'Admin',
@@ -36,12 +38,20 @@ const departments = [
   'Design',
   'Process and Compliance',
   'Logistics',
-  'Order Management'
+  'Order Management',
 ]
 
 export default function SignupPage() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', password: '', company: '', department: '', role: '' })
+  const [form, setForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    company: '',
+    department: '',
+    role: '',
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [branding, setBranding] = useState(() => getBrandingSettings())
@@ -62,11 +72,16 @@ export default function SignupPage() {
       .catch(() => undefined)
   }, [])
 
-  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [key]: e.target.value }))
+  const setField =
+    (key: keyof typeof form) =>
+    (event: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((current) => ({ ...current, [key]: event.target.value }))
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
+  const setSelect = (key: keyof typeof form) => (value: string) =>
+    setForm((current) => ({ ...current, [key]: value }))
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
     setLoading(true)
     try {
       await authService.signup(form)
@@ -81,7 +96,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left decorative panel */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 bg-gradient-to-br from-[#0a1628] to-[#1a2e3a] p-12">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-[#4E5A7A]">
@@ -94,15 +108,13 @@ export default function SignupPage() {
           <span className="text-white font-bold text-xl">{branding.appName}</span>
         </div>
         <div>
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">
-            Join the Triton IT ecosystem
-          </h1>
+          <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">Join the Triton IT ecosystem</h1>
           <p className="text-slate-400">Create your account to start submitting and tracking IT support tickets.</p>
           <div className="mt-8 space-y-3">
-            {['Fast ticket submission', 'Real-time status tracking', 'Expert IT staff support', 'Knowledge base access'].map((f) => (
-              <div key={f} className="flex items-center gap-3 text-slate-300 text-sm">
-                <span className="w-5 h-5 rounded-full bg-[#4E5A7A]/20 text-[#4E5A7A] flex items-center justify-center text-xs">✓</span>
-                {f}
+            {['Fast ticket submission', 'Real-time status tracking', 'Expert IT staff support', 'Knowledge base access'].map((feature) => (
+              <div key={feature} className="flex items-center gap-3 text-slate-300 text-sm">
+                <span className="w-5 h-5 rounded-full bg-[#4E5A7A]/20 text-[#4E5A7A] flex items-center justify-center text-xs">+</span>
+                {feature}
               </div>
             ))}
           </div>
@@ -110,10 +122,8 @@ export default function SignupPage() {
         <p className="text-slate-600 text-sm">© {new Date().getFullYear()} Triton Group</p>
       </div>
 
-      {/* Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[#f6f7f8] overflow-y-auto">
         <div className="w-full max-w-sm">
-          {/* Mobile logo */}
           <div className="flex items-center gap-2 lg:hidden mb-8">
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-[#4E5A7A]">
               {branding.logoDataUrl ? (
@@ -127,24 +137,24 @@ export default function SignupPage() {
 
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
-            <p className="text-slate-500 text-sm mt-1">Fill in your details — an admin will approve your account</p>
+            <p className="text-slate-500 text-sm mt-1">Fill in your details so an admin can approve your account.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label">First name</label>
-                <input className="input" placeholder="John" value={form.first_name} onChange={set('first_name')} required />
+                <input className="input" placeholder="John" value={form.first_name} onChange={setField('first_name')} required />
               </div>
               <div>
                 <label className="label">Last name</label>
-                <input className="input" placeholder="Doe" value={form.last_name} onChange={set('last_name')} required />
+                <input className="input" placeholder="Doe" value={form.last_name} onChange={setField('last_name')} required />
               </div>
             </div>
 
             <div>
               <label className="label">Work email</label>
-              <input type="email" className="input" placeholder="john.doe@tritongroup.com" value={form.email} onChange={set('email')} required />
+              <input type="email" className="input" placeholder="john.doe@tritongroup.com" value={form.email} onChange={setField('email')} required />
             </div>
 
             <div>
@@ -155,7 +165,7 @@ export default function SignupPage() {
                   className="input pr-10"
                   placeholder="min. 8 characters"
                   value={form.password}
-                  onChange={set('password')}
+                  onChange={setField('password')}
                   minLength={8}
                   required
                 />
@@ -167,28 +177,34 @@ export default function SignupPage() {
 
             <div>
               <label className="label">Role</label>
-              <select className="input" value={form.role} onChange={set('role')} required>
-                <option value="">Select role…</option>
-                {['Employee', 'IT Staff', 'Admin'].map((r) => <option key={r}>{r}</option>)}
-              </select>
+              <DropdownSelect
+                value={form.role}
+                onChange={setSelect('role')}
+                placeholder="Select role..."
+                options={['Employee', 'IT Staff', 'Admin'].map((role) => ({ value: role, label: role }))}
+              />
             </div>
 
             {form.role !== 'Admin' && form.role !== 'IT Staff' && (
               <>
                 <div>
                   <label className="label">Company</label>
-                  <select className="input" value={form.company} onChange={set('company')} required>
-                    <option value="">Select company…</option>
-                    {companies.map((c) => <option key={c}>{c}</option>)}
-                  </select>
+                  <DropdownSelect
+                    value={form.company}
+                    onChange={setSelect('company')}
+                    placeholder="Select company..."
+                    options={companies.map((company) => ({ value: company, label: company }))}
+                  />
                 </div>
 
                 <div>
                   <label className="label">Department</label>
-                  <select className="input" value={form.department} onChange={set('department')} required>
-                    <option value="">Select department…</option>
-                    {departments.map((d) => <option key={d}>{d}</option>)}
-                  </select>
+                  <DropdownSelect
+                    value={form.department}
+                    onChange={setSelect('department')}
+                    placeholder="Select department..."
+                    options={departments.map((department) => ({ value: department, label: department }))}
+                  />
                 </div>
               </>
             )}
@@ -197,7 +213,7 @@ export default function SignupPage() {
               {loading ? (
                 <span className="flex items-center gap-2 justify-center">
                   <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  Creating account…
+                  Creating account...
                 </span>
               ) : 'Create Account'}
             </button>
@@ -212,4 +228,3 @@ export default function SignupPage() {
     </div>
   )
 }
-

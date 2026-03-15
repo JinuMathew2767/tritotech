@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import clsx from 'clsx'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import type { AssetRecord, AssetStatus } from '../data/mockAssets'
 import type { AssetTransactionMode, AssetTransactionValues } from '../services/assetService'
 
@@ -296,17 +297,11 @@ export default function AssetTransactionForm({
 
           <div>
             <label className="label">Resulting Status</label>
-            <select
-              className="input"
+            <DropdownSelect
               value={values.status}
-              onChange={(event) => updateField('status', event.target.value as AssetStatus)}
-            >
-              {statusOptionsByType[values.type].map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => updateField('status', value as AssetStatus)}
+              options={statusOptionsByType[values.type].map((status) => ({ value: status, label: status }))}
+            />
           </div>
         </div>
 

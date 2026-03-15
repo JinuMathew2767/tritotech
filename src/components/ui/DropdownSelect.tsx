@@ -1,0 +1,171 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import clsx from 'clsx'
+import { Check, ChevronDown } from 'lucide-react'
+
+export interface DropdownOption {
+  value: string
+  label: string
+  description?: string
+  disabled?: boolean
+}
+
+type BaseProps = {
+  options: DropdownOption[]
+  placeholder?: string
+  disabled?: boolean
+  emptyMessage?: string
+  buttonClassName?: string
+  panelClassName?: string
+  optionClassName?: string
+  maxPanelHeightClassName?: string
+}
+
+type SingleSelectProps = BaseProps & {
+  value: string
+  onChange: (value: string) => void
+  multiple?: false
+}
+
+type MultiSelectProps = BaseProps & {
+  value: string[]
+  onChange: (value: string[]) => void
+  multiple: true
+  summaryFormatter?: (selectedLabels: string[]) => string
+}
+
+type DropdownSelectProps = SingleSelectProps | MultiSelectProps
+
+const defaultSummaryFormatter = (selectedLabels: string[]) => {
+  if (selectedLabels.length === 0) return 'Select option(s)'
+  if (selectedLabels.length <= 2) return selectedLabels.join(', ')
+  return `${selectedLabels.length} selected`
+}
+
+export default function DropdownSelect(props: DropdownSelectProps) {
+  const {
+    options,
+    placeholder = 'Select...',
+    disabled = false,
+    emptyMessage = 'No options available',
+    buttonClassName,
+    panelClassName,
+    optionClassName,
+    maxPanelHeightClassName = 'max-h-56',
+  } = props
+
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [open])
+
+  const optionMap = useMemo(() => new Map(options.map((option) => [option.value, option])), [options])
+
+  const selectedLabels = useMemo(() => {
+    if (props.multiple) {
+      return props.value.map((value) => optionMap.get(value)?.label || value).filter(Boolean)
+    }
+    if (!props.value) return []
+    return [optionMap.get(props.value)?.label || props.value]
+  }, [optionMap, props])
+
+  const summary = props.multiple
+    ? (props.summaryFormatter || defaultSummaryFormatter)(selectedLabels)
+    : selectedLabels[0] || placeholder
+
+  const toggleValue = (value: string) => {
+    if (props.multiple) {
+      const nextValue = props.value.includes(value)
+        ? props.value.filter((item) => item !== value)
+        : [...props.value, value]
+      props.onChange(nextValue)
+      return
+    }
+
+    props.onChange(value)
+    setOpen(false)
+  }
+
+  const isSelected = (value: string) => (props.multiple ? props.value.includes(value) : props.value === value)
+
+  return (
+    <div ref={rootRef} className="space-y-2">
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen((current) => !current)}
+        disabled={disabled}
+        className={clsx(
+          'input flex w-full items-center justify-between gap-3 text-left transition-colors',
+          open && 'border-[#4E5A7A]/35 ring-2 ring-[#4E5A7A]/10',
+          disabled && 'cursor-not-allowed bg-slate-50 text-slate-400',
+          buttonClassName
+        )}
+      >
+        <span className={clsx('truncate', selectedLabels.length === 0 ? 'text-slate-400' : 'text-slate-800')}>
+          {summary}
+        </span>
+        <ChevronDown
+          className={clsx(
+            'h-4 w-4 shrink-0 text-slate-400 transition-transform',
+            open && 'rotate-180 text-[#4E5A7A]'
+          )}
+        />
+      </button>
+
+      {open && !disabled && (
+        <div
+          className={clsx(
+            'rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)]',
+            panelClassName
+          )}
+        >
+          {options.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-slate-400">{emptyMessage}</div>
+          ) : (
+            <div className={clsx('space-y-2 overflow-y-auto pr-1', maxPanelHeightClassName)}>
+              {options.map((option) => {
+                const selected = isSelected(option.value)
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => !option.disabled && toggleValue(option.value)}
+                    disabled={option.disabled}
+                    className={clsx(
+                      'flex w-full items-start gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all',
+                      selected
+                        ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50',
+                      option.disabled && 'cursor-not-allowed opacity-50',
+                      optionClassName
+                    )}
+                  >
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#4E5A7A]">
+                      {selected ? <Check className="h-3 w-3" /> : null}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm leading-5 font-medium text-slate-800">{option.label}</span>
+                      {option.description ? (
+                        <span className="block text-[11px] leading-4 text-slate-400">{option.description}</span>
+                      ) : null}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}

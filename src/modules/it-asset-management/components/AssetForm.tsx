@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 're
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import {
   assetStatuses,
   createEmptyAssetFormValues,
@@ -296,18 +297,13 @@ export default function AssetForm({
           </div>
           <div>
             <label className="label">Asset Category</label>
-            <select
-              className={fieldClass(!!errors.category)}
+            <DropdownSelect
               value={values.category}
-              onChange={(event) => handleCategoryChange(event.target.value)}
-            >
-              <option value="">Select category</option>
-              {categoryOptions.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              onChange={handleCategoryChange}
+              placeholder="Select category"
+              buttonClassName={clsx(!!errors.category && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+              options={categoryOptions.map((category) => ({ value: category, label: category }))}
+            />
             <FieldError error={errors.category} />
           </div>
         </div>
@@ -315,18 +311,13 @@ export default function AssetForm({
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="label">Subcategory</label>
-            <select
-              className={fieldClass(!!errors.subcategory)}
+            <DropdownSelect
               value={values.subcategory}
-              onChange={(event) => updateField('subcategory', event.target.value)}
-            >
-              <option value="">Select subcategory</option>
-              {subcategoryOptions.map((subcategory) => (
-                <option key={subcategory} value={subcategory}>
-                  {subcategory}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => updateField('subcategory', value)}
+              placeholder="Select subcategory"
+              buttonClassName={clsx(!!errors.subcategory && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+              options={subcategoryOptions.map((subcategory) => ({ value: subcategory, label: subcategory }))}
+            />
             <FieldError error={errors.subcategory} />
             <p className="mt-1 text-xs text-slate-400">Managed under Settings - Masters - Asset Categories and Asset Subcategories.</p>
           </div>
@@ -367,18 +358,13 @@ export default function AssetForm({
 
         <div>
           <label className="label">Vendor</label>
-          <select
-            className={fieldClass(!!errors.vendor)}
+          <DropdownSelect
             value={values.vendor}
-            onChange={(event) => updateField('vendor', event.target.value)}
-          >
-            <option value="">Select vendor</option>
-            {vendorOptions.map((vendor) => (
-              <option key={vendor} value={vendor}>
-                {vendor}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => updateField('vendor', value)}
+            placeholder="Select vendor"
+            buttonClassName={clsx(!!errors.vendor && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+            options={vendorOptions.map((vendor) => ({ value: vendor, label: vendor }))}
+          />
           <FieldError error={errors.vendor} />
           <p className="mt-1 text-xs text-slate-400">Managed under Settings - Masters - Asset Vendors.</p>
         </div>
@@ -449,33 +435,27 @@ export default function AssetForm({
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="label">Status</label>
-            <select
-              className={fieldClass(!!errors.status)}
+            <DropdownSelect
               value={values.status}
-              onChange={(event) => updateField('status', event.target.value as AssetFormValues['status'])}
-            >
-              {assetStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => updateField('status', value as AssetFormValues['status'])}
+              buttonClassName={clsx(!!errors.status && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+              options={assetStatuses.map((status) => ({ value: status, label: status }))}
+            />
             <FieldError error={errors.status} />
           </div>
           <div>
             <label className="label">Assigned User</label>
-            <select
-              className={fieldClass(!!errors.assignedTo)}
+            <DropdownSelect
               value={values.assignedTo}
-              onChange={(event) => handleAssignedUserChange(event.target.value)}
-            >
-              <option value="">Select from employee master</option>
-              {employeeOptions.map((employee) => (
-                <option key={`${employee.id}-${employee.employeeCode}`} value={employee.name}>
-                  {employee.name}{employee.department ? ` - ${employee.department}` : ''}
-                </option>
-              ))}
-            </select>
+              onChange={handleAssignedUserChange}
+              placeholder="Select from employee master"
+              buttonClassName={clsx(!!errors.assignedTo && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+              options={employeeOptions.map((employee) => ({
+                value: employee.name,
+                label: employee.name,
+                description: employee.department || undefined,
+              }))}
+            />
             <FieldError error={errors.assignedTo} />
             <p className="mt-1 text-xs text-slate-400">Managed under Settings - Masters - Asset Employees.</p>
           </div>
@@ -484,34 +464,28 @@ export default function AssetForm({
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="label">Department</label>
-            <select
-              className={fieldClass(!!errors.department)}
+            <DropdownSelect
               value={values.department}
-              onChange={(event) => handleDepartmentChange(event.target.value)}
-            >
-              <option value="">Select department</option>
-              {departmentOptions.map((department) => (
-                <option key={department.id} value={department.name}>
-                  {department.name}
-                </option>
-              ))}
-            </select>
+              onChange={handleDepartmentChange}
+              placeholder="Select department"
+              buttonClassName={clsx(!!errors.department && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+              options={departmentOptions.map((department) => ({
+                value: department.name,
+                label: department.name,
+                description: department.location || undefined,
+              }))}
+            />
             <FieldError error={errors.department} />
           </div>
           <div>
             <label className="label">Location</label>
-            <select
-              className={fieldClass(!!errors.location)}
+            <DropdownSelect
               value={values.location}
-              onChange={(event) => updateField('location', event.target.value)}
-            >
-              <option value="">Select location</option>
-              {locationOptions.map((location) => (
-                <option key={location} value={location}>
-                  {location}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => updateField('location', value)}
+              placeholder="Select location"
+              buttonClassName={clsx(!!errors.location && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+              options={locationOptions.map((location) => ({ value: location, label: location }))}
+            />
             <FieldError error={errors.location} />
             {selectedDepartment?.location ? <p className="mt-1 text-xs text-slate-400">Linked from the selected department master.</p> : null}
           </div>

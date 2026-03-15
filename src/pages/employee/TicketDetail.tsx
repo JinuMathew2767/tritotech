@@ -4,6 +4,7 @@ import { ArrowLeft, Paperclip, Send } from 'lucide-react'
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badge'
 import Avatar from '@/components/ui/Avatar'
 import AssignTicketModal from '@/components/tickets/AssignTicketModal'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import ticketService, { type Ticket } from '@/services/ticketService'
 import commentService, { type Comment } from '@/services/commentService'
@@ -393,17 +394,17 @@ export default function TicketDetail() {
                   </div>
                   <div>
                     <label className="label">Ticket Status</label>
-                    <select
-                      className="input"
+                    <DropdownSelect
                       value={ticketStatus}
-                      onChange={(e) => setTicketStatus(e.target.value as Ticket['status'])}
+                      onChange={(value) => setTicketStatus(value as Ticket['status'])}
                       disabled={isResolved}
-                    >
-                      <option value="open">Open</option>
-                      {ticket.assigned_to && <option value="assigned_pending">Assigned Pending</option>}
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                    </select>
+                      options={[
+                        { value: 'open', label: 'Open' },
+                        ...(ticket.assigned_to ? [{ value: 'assigned_pending', label: 'Assigned Pending' }] : []),
+                        { value: 'in_progress', label: 'In Progress' },
+                        { value: 'resolved', label: 'Resolved' },
+                      ]}
+                    />
                   </div>
 
                   {!isResolved ? (

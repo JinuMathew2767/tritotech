@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Boxes, LayoutDashboard, Plus, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import AssetModuleTabs from '../components/AssetModuleTabs'
 import AssetTable from '../components/AssetTable'
@@ -108,23 +109,23 @@ export default function AssetList() {
             />
           </div>
 
-          <select className="input" value={category} onChange={(event) => setCategory(event.target.value as typeof category)}>
-            <option value="All">All categories</option>
-            {categoryOptions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+          <DropdownSelect
+            value={category}
+            onChange={(value) => setCategory(value as typeof category)}
+            options={[
+              { value: 'All', label: 'All categories' },
+              ...categoryOptions.map((item) => ({ value: item, label: item })),
+            ]}
+          />
 
-          <select className="input" value={status} onChange={(event) => setStatus(event.target.value as typeof status)}>
-            <option value="All">All statuses</option>
-            {assetStatuses.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+          <DropdownSelect
+            value={status}
+            onChange={(value) => setStatus(value as typeof status)}
+            options={[
+              { value: 'All', label: 'All statuses' },
+              ...assetStatuses.map((item) => ({ value: item, label: item })),
+            ]}
+          />
 
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">

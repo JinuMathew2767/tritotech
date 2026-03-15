@@ -6,6 +6,7 @@ import ticketService, { type TicketPriority } from '@/services/ticketService'
 import categoryService, { type Category } from '@/services/categoryService'
 import departmentService, { type DepartmentMaster } from '@/services/departmentService'
 import subcategoryService from '@/services/subcategoryService'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import FileUploadZone from '@/components/ui/FileUploadZone'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -296,31 +297,26 @@ export default function RaiseTicket() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="label">Category *</label>
-              <select
-                className="input"
+              <DropdownSelect
                 value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value)
+                onChange={(value) => {
+                  setCategory(value)
                   setSubcategory('')
                 }}
-                required
                 disabled={loadingCategories}
-              >
-                <option value="">{loadingCategories ? 'Loading...' : 'Select...'}</option>
-                {categories.map((item) => <option key={item.id}>{item.name}</option>)}
-              </select>
+                placeholder={loadingCategories ? 'Loading...' : 'Select...'}
+                options={categories.map((item) => ({ value: item.name, label: item.name }))}
+              />
             </div>
             <div>
               <label className="label">Subcategory</label>
-              <select
-                className="input"
+              <DropdownSelect
                 value={subcategory}
-                onChange={(e) => setSubcategory(e.target.value)}
+                onChange={setSubcategory}
                 disabled={!category || subcategories.length === 0}
-              >
-                <option value="">Select...</option>
-                {subcategories.map((item) => <option key={item}>{item}</option>)}
-              </select>
+                placeholder="Select..."
+                options={subcategories.map((item) => ({ value: item, label: item }))}
+              />
               {category && subcategories.length === 0 && (
                 <p className="mt-1 text-xs text-slate-400">No subcategories configured for this category yet.</p>
               )}

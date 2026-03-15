@@ -23,6 +23,7 @@ import {
   getBrandingSettings,
   updateBrandingSettings,
 } from '@/services/brandingService'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import assetService, {
   type AssetCategoryMaster,
   type AssetDepartmentMaster,
@@ -762,9 +763,14 @@ export default function AdminSettings() {
             </div>
             <div>
               <label className="label">Timezone</label>
-              <select className="input" value={timezone} onChange={(e) => setTimezone(e.target.value)}>
-                {['Asia/Dubai', 'UTC', 'Europe/London', 'America/New_York', 'Asia/Kolkata'].map((tz) => <option key={tz}>{tz}</option>)}
-              </select>
+              <DropdownSelect
+                value={timezone}
+                onChange={setTimezone}
+                options={['Asia/Dubai', 'UTC', 'Europe/London', 'America/New_York', 'Asia/Kolkata'].map((tz) => ({
+                  value: tz,
+                  label: tz,
+                }))}
+              />
             </div>
             <div className="rounded-xl border-2 border-dashed border-slate-200 p-6 text-center">
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" onChange={handleLogoUpload} />
@@ -927,14 +933,16 @@ export default function AdminSettings() {
                   </div>
                   <div>
                     <label className="label">Parent Category</label>
-                    <select className="input" value={subcategoryCategoryId} onChange={(e) => setSubcategoryCategoryId(e.target.value)} disabled={categories.length === 0}>
-                      <option value="">Select...</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}{category.is_active ? '' : ' (Inactive)'}
-                        </option>
-                      ))}
-                    </select>
+                    <DropdownSelect
+                      value={subcategoryCategoryId}
+                      onChange={setSubcategoryCategoryId}
+                      placeholder="Select..."
+                      disabled={categories.length === 0}
+                      options={categories.map((category) => ({
+                        value: String(category.id),
+                        label: `${category.name}${category.is_active ? '' : ' (Inactive)'}`,
+                      }))}
+                    />
                   </div>
                   <div>
                     <label className="label">Subcategory Name</label>
@@ -1130,14 +1138,16 @@ export default function AdminSettings() {
                   </div>
                   <div>
                     <label className="label">Parent Asset Category</label>
-                    <select className="input" value={assetSubcategoryCategoryId} onChange={(e) => setAssetSubcategoryCategoryId(e.target.value)} disabled={selectableAssetCategories.length === 0}>
-                      <option value="">Select...</option>
-                      {selectableAssetCategories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}{category.isActive ? '' : ' (Inactive)'}
-                        </option>
-                      ))}
-                    </select>
+                    <DropdownSelect
+                      value={assetSubcategoryCategoryId}
+                      onChange={setAssetSubcategoryCategoryId}
+                      placeholder="Select..."
+                      disabled={selectableAssetCategories.length === 0}
+                      options={selectableAssetCategories.map((category) => ({
+                        value: String(category.id),
+                        label: `${category.name}${category.isActive ? '' : ' (Inactive)'}`,
+                      }))}
+                    />
                   </div>
                   <div>
                     <label className="label">Subcategory Name</label>
@@ -1454,14 +1464,17 @@ export default function AdminSettings() {
 
                   <div>
                     <label className="label">Department</label>
-                    <select className="input" value={assetEmployeeDepartmentId} onChange={(e) => setAssetEmployeeDepartmentId(e.target.value)} disabled={assetDepartments.length === 0}>
-                      <option value="">Select...</option>
-                      {assetDepartments.map((department) => (
-                        <option key={department.id} value={department.id}>
-                          {department.name}{department.location ? ` - ${department.location}` : ''}
-                        </option>
-                      ))}
-                    </select>
+                    <DropdownSelect
+                      value={assetEmployeeDepartmentId}
+                      onChange={setAssetEmployeeDepartmentId}
+                      placeholder="Select..."
+                      disabled={assetDepartments.length === 0}
+                      options={assetDepartments.map((department) => ({
+                        value: String(department.id),
+                        label: department.name,
+                        description: department.location || undefined,
+                      }))}
+                    />
                     {selectedAssetDepartment?.location ? (
                       <p className="mt-1 text-xs text-slate-400">Location from department master: {selectedAssetDepartment.location}</p>
                     ) : null}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Pencil, Plus, Route, Save, ShieldCheck, Trash2, Workflow } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Modal from '@/components/ui/Modal'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import ticketService, { type TicketStats } from '@/services/ticketService'
 import routingRuleService, {
@@ -314,60 +315,46 @@ export default function RoutingRules() {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="label">Company Scope</label>
-              <select
-                className="input"
+              <DropdownSelect
                 value={form.company_id}
-                onChange={(event) => setForm((prev) => ({ ...prev, company_id: event.target.value }))}
-              >
-                <option value="">Any company</option>
-                {meta.companies.map((company) => (
-                  <option key={company.id} value={company.id}>{company.label}</option>
-                ))}
-              </select>
+                onChange={(value) => setForm((prev) => ({ ...prev, company_id: value }))}
+                placeholder="Any company"
+                options={meta.companies.map((company) => ({ value: String(company.id), label: company.label }))}
+              />
             </div>
             <div>
               <label className="label">Department Scope</label>
-              <select
-                className="input"
+              <DropdownSelect
                 value={form.department_id}
-                onChange={(event) => setForm((prev) => ({ ...prev, department_id: event.target.value }))}
-              >
-                <option value="">Any department</option>
-                {meta.departments.map((department) => (
-                  <option key={department.id} value={department.id}>{department.label}</option>
-                ))}
-              </select>
+                onChange={(value) => setForm((prev) => ({ ...prev, department_id: value }))}
+                placeholder="Any department"
+                options={meta.departments.map((department) => ({ value: String(department.id), label: department.label }))}
+              />
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="label">Category Scope</label>
-              <select
-                className="input"
+              <DropdownSelect
                 value={form.category_id}
-                onChange={(event) => setForm((prev) => ({ ...prev, category_id: event.target.value }))}
-              >
-                <option value="">Any category</option>
-                {meta.categories.map((category) => (
-                  <option key={category.id} value={category.id}>{category.label}</option>
-                ))}
-              </select>
+                onChange={(value) => setForm((prev) => ({ ...prev, category_id: value }))}
+                placeholder="Any category"
+                options={meta.categories.map((category) => ({ value: String(category.id), label: category.label }))}
+              />
             </div>
             <div>
               <label className="label">Assign To</label>
-              <select
-                className="input"
+              <DropdownSelect
                 value={form.assignee_user_id}
-                onChange={(event) => setForm((prev) => ({ ...prev, assignee_user_id: event.target.value }))}
-              >
-                <option value="">Select assignee</option>
-                {meta.assignees.map((assignee) => (
-                  <option key={assignee.id} value={assignee.id}>
-                    {assignee.label} ({assignee.role.replace('_', ' ')})
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setForm((prev) => ({ ...prev, assignee_user_id: value }))}
+                placeholder="Select assignee"
+                options={meta.assignees.map((assignee) => ({
+                  value: String(assignee.id),
+                  label: assignee.label,
+                  description: assignee.role.replace('_', ' '),
+                }))}
+              />
             </div>
           </div>
 

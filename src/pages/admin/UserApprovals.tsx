@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Check, Pencil, Save, User, Users, X } from 'lucide-react'
 import Avatar from '@/components/ui/Avatar'
+import DropdownSelect from '@/components/ui/DropdownSelect'
 import Modal from '@/components/ui/Modal'
 import toast from 'react-hot-toast'
 import userService from '@/services/userService'
@@ -201,23 +202,27 @@ export default function UserApprovals() {
                 
                 {activeTab === 0 ? (
                   <>
-                    <select 
-                      className="rounded-xl border border-white/75 bg-white/82 px-2 py-1 text-xs text-slate-600 shadow-sm backdrop-blur-md focus:outline-none focus:ring-1 focus:ring-[#4E5A7A]"
+                    <DropdownSelect
                       value={assignments[user.id]?.company ?? (user.company !== 'Unknown' ? user.company : '')}
-                      onChange={(e) => handleAssignmentChange(user.id, 'company', e.target.value)}
-                    >
-                      <option value="">Global Access (All Companies)</option>
-                      {meta?.companies.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                      onChange={(value) => handleAssignmentChange(user.id, 'company', value)}
+                      placeholder="Global Access (All Companies)"
+                      buttonClassName="min-h-0 rounded-xl px-3 py-2 text-xs"
+                      panelClassName="rounded-2xl"
+                      optionClassName="rounded-xl px-2.5 py-2"
+                      maxPanelHeightClassName="max-h-48"
+                      options={(meta?.companies ?? []).map((company) => ({ value: company, label: company }))}
+                    />
 
-                    <select 
-                      className="rounded-xl border border-white/75 bg-white/82 px-2 py-1 text-xs text-slate-600 shadow-sm backdrop-blur-md focus:outline-none focus:ring-1 focus:ring-[#4E5A7A]"
+                    <DropdownSelect
                       value={assignments[user.id]?.department ?? (user.department !== 'Unknown' ? user.department : '')}
-                      onChange={(e) => handleAssignmentChange(user.id, 'department', e.target.value)}
-                    >
-                      <option value="">Global Access (All Departments)</option>
-                      {meta?.departments.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
+                      onChange={(value) => handleAssignmentChange(user.id, 'department', value)}
+                      placeholder="Global Access (All Departments)"
+                      buttonClassName="min-h-0 rounded-xl px-3 py-2 text-xs"
+                      panelClassName="rounded-2xl"
+                      optionClassName="rounded-xl px-2.5 py-2"
+                      maxPanelHeightClassName="max-h-48"
+                      options={(meta?.departments ?? []).map((department) => ({ value: department, label: department }))}
+                    />
                   </>
                 ) : (
                   <>
@@ -285,41 +290,50 @@ export default function UserApprovals() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="label">Role</label>
-              <select className="input" value={form.role} onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}>
-                {meta?.roles.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
-              </select>
+              <DropdownSelect
+                value={form.role}
+                onChange={(value) => setForm((prev) => ({ ...prev, role: value }))}
+                options={(meta?.roles ?? []).map((role) => ({ value: role.value, label: role.label }))}
+              />
             </div>
             <div>
               <label className="label">Status</label>
-              <select className="input" value={form.status} onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}>
-                {meta?.statuses.map((status) => <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>)}
-              </select>
+              <DropdownSelect
+                value={form.status}
+                onChange={(value) => setForm((prev) => ({ ...prev, status: value }))}
+                options={(meta?.statuses ?? []).map((status) => ({
+                  value: status,
+                  label: status.charAt(0).toUpperCase() + status.slice(1),
+                }))}
+              />
             </div>
             <div>
               <label className="label">Company Access</label>
-              <select className="input" value={form.company} onChange={(e) => setForm((prev) => ({ ...prev, company: e.target.value }))}>
-                <option value="">Global Access (All Companies)</option>
-                {meta?.companies.map((company) => <option key={company} value={company}>{company}</option>)}
-              </select>
+              <DropdownSelect
+                value={form.company}
+                onChange={(value) => setForm((prev) => ({ ...prev, company: value }))}
+                placeholder="Global Access (All Companies)"
+                options={(meta?.companies ?? []).map((company) => ({ value: company, label: company }))}
+              />
             </div>
             <div>
               <label className="label">Department Access</label>
-              <select
-                className="input"
+              <DropdownSelect
                 value={form.department_access_mode}
-                onChange={(e) =>
+                onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    department_access_mode: e.target.value as 'global' | 'single' | 'multiple',
+                    department_access_mode: value as 'global' | 'single' | 'multiple',
                     department: '',
                     departments: [],
                   }))
                 }
-              >
-                <option value="global">Global Access (All Departments)</option>
-                <option value="single">Single Department</option>
-                <option value="multiple">Multiple Departments</option>
-              </select>
+                options={[
+                  { value: 'global', label: 'Global Access (All Departments)' },
+                  { value: 'single', label: 'Single Department' },
+                  { value: 'multiple', label: 'Multiple Departments' },
+                ]}
+              />
             </div>
             <div className="md:col-span-2">
               <label className="label">
@@ -330,38 +344,40 @@ export default function UserApprovals() {
                   This user can work with all departments in the permitted company.
                 </div>
               ) : form.department_access_mode === 'single' ? (
-                <select
-                  className="input"
+                <DropdownSelect
                   value={form.departments[0] || ''}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setForm((prev) => ({
                       ...prev,
-                      department: e.target.value,
-                      departments: e.target.value ? [e.target.value] : [],
+                      department: value,
+                      departments: value ? [value] : [],
                     }))
                   }
-                >
-                  <option value="">Select department...</option>
-                  {meta?.departments.map((department) => <option key={department} value={department}>{department}</option>)}
-                </select>
+                  placeholder="Select department..."
+                  options={(meta?.departments ?? []).map((department) => ({ value: department, label: department }))}
+                />
               ) : (
-                <select
+                <DropdownSelect
                   multiple
-                  className="input min-h-40"
                   value={form.departments}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      departments: Array.from(e.target.selectedOptions, (option) => option.value),
-                    }))
-                  }
-                >
-                  {meta?.departments.map((department) => <option key={department} value={department}>{department}</option>)}
-                </select>
+                  onChange={(value) => setForm((prev) => ({ ...prev, departments: value }))}
+                  placeholder="Select departments..."
+                  maxPanelHeightClassName="max-h-64"
+                  summaryFormatter={(selected) => {
+                    if (selected.length === 0) return 'Select departments...'
+                    if (selected.length <= 2) return selected.join(', ')
+                    return `${selected.length} departments selected`
+                  }}
+                  options={(meta?.departments ?? []).map((department) => ({
+                    value: department,
+                    label: department,
+                    description: 'Select to include this department',
+                  }))}
+                />
               )}
               {form.department_access_mode === 'multiple' && (
                 <p className="mt-1 text-xs text-slate-400">
-                  Hold `Ctrl` while clicking to select multiple departments.
+                  Choose one or more departments from the same dropdown list.
                 </p>
               )}
             </div>
