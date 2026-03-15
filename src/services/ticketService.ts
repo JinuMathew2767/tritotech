@@ -14,6 +14,7 @@ export interface Ticket {
   subcategory?: string
   company: string
   department: string
+  departments: string[]
   created_by: { id: number; name: string; avatar?: string }
   assigned_to?: { id: number; name: string; avatar?: string }
   created_at: string
@@ -33,7 +34,8 @@ export interface CreateTicketPayload {
   category: string
   subcategory?: string
   company: string
-  department: string
+  department?: string
+  departments?: string[]
   customer_expected_resolution_at?: string
   attachments?: File[]
 }

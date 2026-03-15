@@ -26,9 +26,12 @@ export default function RaiseTicket() {
   const permittedDepartments = user?.department_access || []
   const hasGlobalDepartmentAccess = departmentAccessMode === 'global'
   const hasMultipleDepartmentAccess = departmentAccessMode === 'multiple'
+
   const [subject, setSubject] = useState('')
   const [company, setCompany] = useState(allowedCompany)
-  const [department, setDepartment] = useState(departmentAccessMode === 'single' ? allowedDepartment : '')
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>(
+    departmentAccessMode === 'single' && allowedDepartment ? [allowedDepartment] : []
+  )
   const [departments, setDepartments] = useState<DepartmentMaster[]>([])
   const [category, setCategory] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
@@ -44,7 +47,7 @@ export default function RaiseTicket() {
 
   useEffect(() => {
     setCompany(allowedCompany)
-    setDepartment(departmentAccessMode === 'single' ? allowedDepartment : '')
+    setSelectedDepartments(departmentAccessMode === 'single' && allowedDepartment ? [allowedDepartment] : [])
   }, [allowedCompany, allowedDepartment, departmentAccessMode])
 
   useEffect(() => {
@@ -85,16 +88,31 @@ export default function RaiseTicket() {
       .catch(() => toast.error('Failed to load subcategories'))
   }, [categories, category])
 
+  const availableDepartmentNames = hasMultipleDepartmentAccess
+    ? permittedDepartments
+    : departments.map((item) => item.name)
+
+  const toggleDepartment = (departmentName: string) => {
+    setSelectedDepartments((current) =>
+      current.includes(departmentName)
+        ? current.filter((item) => item !== departmentName)
+        : [...current, departmentName]
+    )
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+
     if (!allowedCompany) {
       toast.error('Your account is missing a company assignment. Please contact admin.')
       return
     }
-    if (!department) {
-      toast.error('Please choose a department before submitting the ticket.')
+
+    if (selectedDepartments.length === 0) {
+      toast.error('Please choose at least one department before submitting the ticket.')
       return
     }
+
     setLoading(true)
     try {
       const ticket = await ticketService.create({
@@ -104,8 +122,11 @@ export default function RaiseTicket() {
         category,
         subcategory,
         company,
-        department,
-        customer_expected_resolution_at: customerExpectedDate ? new Date(`${customerExpectedDate}T17:00:00`).toISOString() : undefined,
+        department: selectedDepartments[0],
+        departments: selectedDepartments,
+        customer_expected_resolution_at: customerExpectedDate
+          ? new Date(`${customerExpectedDate}T17:00:00`).toISOString()
+          : undefined,
         attachments: files,
       })
       toast.success('Ticket submitted successfully!')
@@ -130,12 +151,17 @@ export default function RaiseTicket() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Section 1 */}
         <div className="card p-5 space-y-4">
           <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Basic Information</h2>
           <div>
             <label className="label">Subject *</label>
-            <input className="input" placeholder="Brief description of the issue…" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+            <input
+              className="input"
+              placeholder="Brief description of the issue..."
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              required
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -149,26 +175,50 @@ export default function RaiseTicket() {
               />
             </div>
             <div>
-              <label className="label">Department</label>
+              <label className="label">{hasGlobalDepartmentAccess || hasMultipleDepartmentAccess ? 'Departments' : 'Department'}</label>
               {hasGlobalDepartmentAccess || hasMultipleDepartmentAccess ? (
-                <select
-                  className="input"
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  required
-                  disabled={hasGlobalDepartmentAccess ? loadingDepartments : false}
-                >
-                  <option value="">
-                    {hasGlobalDepartmentAccess && loadingDepartments ? 'Loading…' : 'Select…'}
-                  </option>
-                  {hasMultipleDepartmentAccess
-                    ? permittedDepartments.map((item) => <option key={item}>{item}</option>)
-                    : departments.map((item) => <option key={item.id}>{item.name}</option>)}
-                </select>
+                <div className="space-y-2">
+                  {hasGlobalDepartmentAccess && loadingDepartments ? (
+                    <div className="input bg-slate-50 text-slate-400">Loading departments...</div>
+                  ) : availableDepartmentNames.length === 0 ? (
+                    <div className="input bg-slate-50 text-slate-400">No departments available</div>
+                  ) : (
+                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                      {availableDepartmentNames.map((item) => {
+                        const checked = selectedDepartments.includes(item)
+                        return (
+                          <label
+                            key={item}
+                            className={clsx(
+                              'flex cursor-pointer items-start gap-3 rounded-2xl border px-3 py-3 transition-all',
+                              checked
+                                ? 'border-[#4E5A7A]/40 bg-[#4E5A7A]/8 shadow-[0_10px_30px_-24px_rgba(78,90,122,0.45)]'
+                                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                            )}
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-1 h-4 w-4 rounded border-slate-300 text-[#4E5A7A] focus:ring-[#4E5A7A]/30"
+                              checked={checked}
+                              onChange={() => toggleDepartment(item)}
+                              disabled={loadingDepartments}
+                            />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-slate-800">{item}</p>
+                              <p className="text-xs text-slate-400">
+                                {checked ? 'Included in this ticket' : 'Select to include this department'}
+                              </p>
+                            </div>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <input
                   className="input bg-slate-50 text-slate-600"
-                  value={department}
+                  value={selectedDepartments[0] || ''}
                   readOnly
                   disabled
                   placeholder="No department assigned"
@@ -183,17 +233,16 @@ export default function RaiseTicket() {
           )}
           {hasGlobalDepartmentAccess && (
             <p className="text-xs text-slate-500">
-              Your company is fixed to your allowed company. You can choose any active department for this ticket.
+              Your company is fixed to your allowed company. You can select one or more active departments for this ticket.
             </p>
           )}
           {hasMultipleDepartmentAccess && (
             <p className="text-xs text-slate-500">
-              Your company is fixed to your allowed company. You can choose one permitted department for this ticket.
+              Your company is fixed to your allowed company. You can select one or more of your permitted departments for this ticket.
             </p>
           )}
         </div>
 
-        {/* Section 2 */}
         <div className="card p-5 space-y-4">
           <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Issue Details</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -202,11 +251,14 @@ export default function RaiseTicket() {
               <select
                 className="input"
                 value={category}
-                onChange={(e) => { setCategory(e.target.value); setSubcategory('') }}
+                onChange={(e) => {
+                  setCategory(e.target.value)
+                  setSubcategory('')
+                }}
                 required
                 disabled={loadingCategories}
               >
-                <option value="">{loadingCategories ? 'Loading…' : 'Select…'}</option>
+                <option value="">{loadingCategories ? 'Loading...' : 'Select...'}</option>
                 {categories.map((item) => <option key={item.id}>{item.name}</option>)}
               </select>
             </div>
@@ -218,7 +270,7 @@ export default function RaiseTicket() {
                 onChange={(e) => setSubcategory(e.target.value)}
                 disabled={!category || subcategories.length === 0}
               >
-                <option value="">Select…</option>
+                <option value="">Select...</option>
                 {subcategories.map((item) => <option key={item}>{item}</option>)}
               </select>
               {category && subcategories.length === 0 && (
@@ -235,7 +287,10 @@ export default function RaiseTicket() {
                   key={value}
                   type="button"
                   onClick={() => setPriority(value)}
-                  className={clsx('rounded-xl border-2 p-3 text-left transition-all', priority === value ? color : 'border-slate-200 hover:border-slate-300')}
+                  className={clsx(
+                    'rounded-xl border-2 p-3 text-left transition-all',
+                    priority === value ? color : 'border-slate-200 hover:border-slate-300'
+                  )}
                 >
                   <p className="text-xs font-bold">{label}</p>
                   <p className="text-xs opacity-70 mt-0.5">{desc}</p>
@@ -248,7 +303,7 @@ export default function RaiseTicket() {
             <label className="label">Description *</label>
             <textarea
               className="input min-h-[120px] resize-none"
-              placeholder="Describe the issue in detail. Include any error messages, steps to reproduce, and impact…"
+              placeholder="Describe the issue in detail. Include any error messages, steps to reproduce, and impact..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
@@ -268,18 +323,23 @@ export default function RaiseTicket() {
           </div>
         </div>
 
-        {/* Section 3 */}
         <div className="card p-5">
           <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide mb-4">Attachments</h2>
           <FileUploadZone files={files} onChange={setFiles} />
         </div>
 
-        {/* Footer */}
         <div className="flex items-center gap-3 justify-end">
           <Link to="/dashboard" className="btn-secondary">Cancel</Link>
-          <button type="submit" disabled={loading || !allowedCompany || !department} className="btn-primary min-w-[140px]">
+          <button
+            type="submit"
+            disabled={loading || !allowedCompany || selectedDepartments.length === 0}
+            className="btn-primary min-w-[140px]"
+          >
             {loading ? (
-              <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Submitting…</span>
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                Submitting...
+              </span>
             ) : 'Submit Ticket'}
           </button>
         </div>

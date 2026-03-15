@@ -3,6 +3,7 @@ import { prisma } from '../db'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { findMatchingRoutingRule } from '../services/routingRulesService'
 import { createNotifications, getActiveAdminIds } from '../services/notificationsService'
+import { getTicketDepartmentAccessMap, syncTicketDepartmentAccess } from '../services/ticketDepartmentAccessService'
 import { getUserDepartmentAccess } from '../services/userDepartmentAccessService'
 
 const router = Router()
@@ -72,10 +73,17 @@ const safeCreateNotifications = async ({
   }
 }
 
-const formatReactTicket = (t: any) => {
+const getTicketDepartmentNames = (ticket: any, departmentNames: string[]) => {
+  if (departmentNames.length > 0) return departmentNames
+  if (ticket.Departments?.Name) return [ticket.Departments.Name]
+  return []
+}
+
+const formatReactTicket = (t: any, departmentNames: string[] = []) => {
   const status = t.Status.toLowerCase().replace(/\s+/g, '_')
   const actualResolutionDate = t.ClosedAt || t.ResolvedAt || null
   const slaDueDate = t.SupportExpectedResolutionAt || t.CustomerExpectedResolutionAt || null
+  const resolvedDepartmentNames = getTicketDepartmentNames(t, departmentNames)
 
   let slaStatus: 'none' | 'on_track' | 'overdue' | 'resolved_on_time' | 'resolved_late' = 'none'
   if (slaDueDate) {
@@ -96,7 +104,8 @@ const formatReactTicket = (t: any) => {
     category: t.Categories?.Name || 'General',
     subcategory: t.Subcategories?.Name,
     company: t.Companies?.Name || 'Triton ME',
-    department: t.Departments?.Name || '',
+    department: resolvedDepartmentNames.join(', '),
+    departments: resolvedDepartmentNames,
     created_at: t.CreatedAt.toISOString(),
     updated_at: t.UpdatedAt.toISOString(),
     customer_expected_resolution_at: t.CustomerExpectedResolutionAt ? t.CustomerExpectedResolutionAt.toISOString() : null,
@@ -118,6 +127,11 @@ const formatReactTicket = (t: any) => {
       : undefined,
     assignee_name: t.Users_Tickets_AssignedToIdToUsers ? t.Users_Tickets_AssignedToIdToUsers.FullName : undefined,
   }
+}
+
+const formatReactTickets = async (tickets: any[]) => {
+  const departmentMap = await getTicketDepartmentAccessMap(tickets.map((ticket) => ticket.Id))
+  return tickets.map((ticket) => formatReactTicket(ticket, departmentMap.get(ticket.Id)?.names || []))
 }
 
 const toDbStatus = (status: string) => {
@@ -173,6 +187,7 @@ const getStatsPayload = async () => {
       },
     }),
   ])
+  const ticketDepartmentMap = await getTicketDepartmentAccessMap(tickets.map((ticket) => ticket.Id))
 
   const activeTickets = tickets.filter((ticket) =>
     ACTIVE_STATUSES.includes(ticket.Status as (typeof ACTIVE_STATUSES)[number])
@@ -217,20 +232,29 @@ const getStatsPayload = async () => {
     >()
 
     tickets.forEach((ticket) => {
-      const name = ticket[key]?.Name || 'Unassigned'
-      const item = bucket.get(name) || { total: 0, open: 0, resolved: 0, overdue: 0, slaMet: 0, completed: 0 }
-      item.total += 1
-      if (ticket.Status !== 'Resolved') item.open += 1
-      if (ticket.Status === 'Resolved') item.resolved += 1
-      if (ticket.Status !== 'Resolved' && ticket.SupportExpectedResolutionAt && ticket.SupportExpectedResolutionAt < new Date()) {
-        item.overdue += 1
-      }
-      const actual = ticket.ClosedAt || ticket.ResolvedAt
-      if (actual && ticket.SupportExpectedResolutionAt) {
-        item.completed += 1
-        if (actual <= ticket.SupportExpectedResolutionAt) item.slaMet += 1
-      }
-      bucket.set(name, item)
+      const names =
+        key === 'Companies'
+          ? [ticket[key]?.Name || 'Unassigned']
+          : (() => {
+              const departmentNames = getTicketDepartmentNames(ticket, ticketDepartmentMap.get(ticket.Id)?.names || [])
+              return departmentNames.length ? departmentNames : ['Unassigned']
+            })()
+
+      names.forEach((name) => {
+        const item = bucket.get(name) || { total: 0, open: 0, resolved: 0, overdue: 0, slaMet: 0, completed: 0 }
+        item.total += 1
+        if (ticket.Status !== 'Resolved') item.open += 1
+        if (ticket.Status === 'Resolved') item.resolved += 1
+        if (ticket.Status !== 'Resolved' && ticket.SupportExpectedResolutionAt && ticket.SupportExpectedResolutionAt < new Date()) {
+          item.overdue += 1
+        }
+        const actual = ticket.ClosedAt || ticket.ResolvedAt
+        if (actual && ticket.SupportExpectedResolutionAt) {
+          item.completed += 1
+          if (actual <= ticket.SupportExpectedResolutionAt) item.slaMet += 1
+        }
+        bucket.set(name, item)
+      })
     })
 
     return Array.from(bucket.entries())
@@ -445,7 +469,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       prisma.tickets.count({ where }),
     ])
 
-    res.json({ results: tickets.map(formatReactTicket), count })
+    res.json({ results: await formatReactTickets(tickets), count })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to fetch tickets' })
@@ -454,7 +478,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
 
 router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { subject, description, priority, category, subcategory, company, department, customer_expected_resolution_at } = req.body
+    const { subject, description, priority, category, subcategory, company, department, departments, customer_expected_resolution_at } = req.body
 
     const count = await prisma.tickets.count()
     const ticket_number = `INC-${1000 + count}`
@@ -489,7 +513,22 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
     }
 
     const companyRecord = company ? await prisma.companies.findFirst({ where: { Name: company, IsActive: true } }) : null
-    const departmentRecord = department ? await prisma.departments.findFirst({ where: { Name: department, IsActive: true } }) : null
+    const requestedDepartmentNames = Array.from(
+      new Set(
+        (Array.isArray(departments) ? departments : [department])
+          .map((item) => String(item || '').trim())
+          .filter(Boolean)
+      )
+    )
+    const departmentRecords = requestedDepartmentNames.length
+      ? await prisma.departments.findMany({
+          where: {
+            Name: { in: requestedDepartmentNames },
+            IsActive: true,
+          },
+          select: { Id: true, Name: true },
+        })
+      : []
     const isEmployee = req.user?.role === 'employee'
     const departmentAccess = await getUserDepartmentAccess(req.user.id)
 
@@ -504,30 +543,58 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
         return
       }
 
-      if (!departmentRecord) {
-        res.status(400).json({ error: 'Please choose a valid active department' })
+      if (!requestedDepartmentNames.length) {
+        res.status(400).json({ error: 'Please choose at least one valid active department' })
         return
       }
 
-      if (creator.DepartmentId && departmentRecord.Id !== creator.DepartmentId) {
+      if (departmentRecords.length !== requestedDepartmentNames.length) {
+        res.status(400).json({ error: 'Please choose valid active departments' })
+        return
+      }
+
+      if (creator.DepartmentId && departmentRecords.some((departmentRecord) => departmentRecord.Id !== creator.DepartmentId)) {
         res.status(403).json({ error: 'You can only create tickets for your assigned department' })
         return
       }
 
-      if (!creator.DepartmentId && departmentAccess.ids.length > 0 && !departmentAccess.ids.includes(departmentRecord.Id)) {
+      if (
+        !creator.DepartmentId &&
+        departmentAccess.ids.length > 0 &&
+        departmentRecords.some((departmentRecord) => !departmentAccess.ids.includes(departmentRecord.Id))
+      ) {
         res.status(403).json({ error: 'You can only create tickets for your permitted departments' })
         return
       }
     }
 
+    if (!isEmployee && requestedDepartmentNames.length && departmentRecords.length !== requestedDepartmentNames.length) {
+      res.status(400).json({ error: 'Please choose valid active departments' })
+      return
+    }
+
     const effectiveCompanyId = isEmployee ? creator.CompanyId : companyRecord?.Id || creator.CompanyId || null
-    const effectiveDepartmentId = isEmployee ? creator.DepartmentId : departmentRecord?.Id || creator.DepartmentId || null
+    const orderedDepartmentRecords = requestedDepartmentNames
+      .map((name) => departmentRecords.find((departmentRecord) => departmentRecord.Name === name))
+      .filter((departmentRecord): departmentRecord is { Id: number; Name: string } => Boolean(departmentRecord))
+    const effectiveDepartmentId =
+      orderedDepartmentRecords[0]?.Id || (isEmployee ? creator.DepartmentId : creator.DepartmentId || null)
     const createdAt = new Date()
-    const matchedRoutingRule = await findMatchingRoutingRule({
-      companyId: effectiveCompanyId,
-      departmentId: effectiveDepartmentId,
-      categoryId: categoryRecord?.Id || null,
-    })
+    let matchedRoutingRule = null
+    const routingDepartmentIds = orderedDepartmentRecords.length
+      ? orderedDepartmentRecords.map((departmentRecord) => departmentRecord.Id)
+      : effectiveDepartmentId
+        ? [effectiveDepartmentId]
+        : []
+
+    for (const departmentId of routingDepartmentIds) {
+      matchedRoutingRule = await findMatchingRoutingRule({
+        companyId: effectiveCompanyId,
+        departmentId,
+        categoryId: categoryRecord?.Id || null,
+      })
+      if (matchedRoutingRule) break
+    }
     const assignedToId = matchedRoutingRule?.assignee_user_id || categoryRecord?.DefaultAssigneeId || null
     const initialStatus = assignedToId ? 'Assigned Pending' : 'Open'
 
@@ -556,6 +623,14 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
       },
       include: ticketIncludes,
     })
+    await syncTicketDepartmentAccess(
+      ticket.Id,
+      orderedDepartmentRecords.length
+        ? orderedDepartmentRecords.map((departmentRecord) => departmentRecord.Id)
+        : effectiveDepartmentId
+          ? [effectiveDepartmentId]
+          : []
+    )
 
     await createActivityLog({
       ticketId: ticket.Id,
@@ -598,7 +673,14 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
       })
     }
 
-    res.status(201).json(formatReactTicket(ticket))
+    res.status(201).json(
+      formatReactTicket(
+        ticket,
+        orderedDepartmentRecords.length
+          ? orderedDepartmentRecords.map((departmentRecord) => departmentRecord.Name)
+          : []
+      )
+    )
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to create ticket' })
@@ -634,7 +716,7 @@ router.get('/my', authenticate, async (req: AuthRequest, res: Response): Promise
       prisma.tickets.count({ where }),
     ])
 
-    res.json({ results: tickets.map(formatReactTicket), count })
+    res.json({ results: await formatReactTickets(tickets), count })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to fetch my tickets' })
@@ -654,7 +736,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promis
       return
     }
 
-    res.json(formatReactTicket(ticket))
+    res.json((await formatReactTickets([ticket]))[0])
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to retrieve ticket' })
@@ -787,7 +869,7 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
       })
     }
 
-    res.json(formatReactTicket(ticket))
+    res.json((await formatReactTickets([ticket]))[0])
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to update ticket' })
@@ -843,7 +925,7 @@ router.post('/:id/assign_self', authenticate, async (req: AuthRequest, res: Resp
       })
     }
 
-    res.json(formatReactTicket(ticket))
+    res.json((await formatReactTickets([ticket]))[0])
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to self assign ticket' })
@@ -913,7 +995,7 @@ router.post('/:id/assign', authenticate, async (req: AuthRequest, res: Response)
       })
     }
 
-    res.json(formatReactTicket(ticket))
+    res.json((await formatReactTickets([ticket]))[0])
   } catch (err: any) {
     console.error(err)
     const statusCode = err.message === 'Assignee must be an active IT staff or admin user' ? 400 : 500
@@ -960,7 +1042,7 @@ router.post('/:id/start_task', authenticate, async (req: AuthRequest, res: Respo
         res.status(404).json({ error: 'Ticket not found' })
         return
       }
-      res.json(formatReactTicket(ticket))
+      res.json((await formatReactTickets([ticket]))[0])
       return
     }
 
@@ -987,7 +1069,7 @@ router.post('/:id/start_task', authenticate, async (req: AuthRequest, res: Respo
       })
     }
 
-    res.json(formatReactTicket(ticket))
+    res.json((await formatReactTickets([ticket]))[0])
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to start task' })

@@ -17,6 +17,7 @@ import notificationRoutes from './routes/notifications'
 import { ensureBrandingSettingsTable } from './services/brandingService'
 import { ensureRoutingRulesTable } from './services/routingRulesService'
 import { ensureAssetTables } from './services/assetService'
+import { ensureTicketDepartmentAccessTable } from './services/ticketDepartmentAccessService'
 import { ensureUserDepartmentAccessTable } from './services/userDepartmentAccessService'
 
 dotenv.config()
@@ -75,7 +76,13 @@ app.use('/api/tickets', ticketRoutes)
 app.use('/api/tickets/:ticketId/comments', commentRoutes)
 
 const PORT = process.env.PORT || 8000
-Promise.all([ensureRoutingRulesTable(), ensureAssetTables(), ensureBrandingSettingsTable(), ensureUserDepartmentAccessTable()])
+Promise.all([
+  ensureRoutingRulesTable(),
+  ensureAssetTables(),
+  ensureBrandingSettingsTable(),
+  ensureUserDepartmentAccessTable(),
+  ensureTicketDepartmentAccessTable(),
+])
   .catch((error) => {
     console.error('Failed to ensure startup tables exist', error)
   })
