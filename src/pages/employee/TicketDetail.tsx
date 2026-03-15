@@ -357,7 +357,7 @@ export default function TicketDetail() {
         <div className="grid h-full min-h-0 gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1.45fr)_360px] xl:grid-cols-[minmax(0,1.6fr)_380px]">
           <section className="order-1 flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,252,0.9)_100%)] shadow-[0_20px_44px_-34px_rgba(15,23,42,0.32)] sm:rounded-[28px] sm:shadow-[0_24px_60px_-34px_rgba(15,23,42,0.35)] lg:min-h-0">
             <div className="border-b border-slate-100 px-3 py-3 sm:px-4 sm:py-4">
-              <div className="mx-auto flex w-full max-w-[54rem] flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mx-auto flex w-full max-w-[46rem] flex-col gap-2.5 xl:max-w-[48rem] sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-[15px] font-semibold text-slate-900 sm:text-base">Conversation</h2>
                   <p className="text-[11px] text-slate-400 sm:text-xs">
@@ -365,7 +365,7 @@ export default function TicketDetail() {
                   </p>
                 </div>
                 {ticket.assigned_to && (
-                  <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-[#4E5A7A] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:self-auto">
+                  <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-slate-200/80 bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-slate-500 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:self-auto">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#4E5A7A] sm:h-2 sm:w-2" />
                     Assigned to {ticket.assigned_to.name}
                   </div>
@@ -375,9 +375,9 @@ export default function TicketDetail() {
 
             <div
               ref={conversationViewportRef}
-              className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(180deg,#eef2f7_0%,#e7edf5_100%)] px-2 py-2.5 [scrollbar-color:rgba(100,116,139,0.55)_transparent] [scrollbar-width:thin] sm:px-4 sm:py-5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/60 hover:[&::-webkit-scrollbar-thumb]:bg-slate-500/60"
+              className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(180deg,#eef2f7_0%,#e7edf5_100%)] px-2 py-2.5 [scrollbar-color:rgba(100,116,139,0.42)_transparent] [scrollbar-width:thin] sm:px-4 sm:py-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/45 hover:[&::-webkit-scrollbar-thumb]:bg-slate-500/50"
             >
-              <div className="mx-auto w-full max-w-[54rem] space-y-2 sm:space-y-3.5">
+              <div className="mx-auto w-full max-w-[46rem] space-y-2 xl:max-w-[48rem] sm:space-y-3">
                 {conversationItems.map((item) => {
                   const isMe = item.author.id === user?.id
                   const isSupportReply = !isMe && item.author.role !== 'employee'
@@ -394,13 +394,14 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
+                          variant="soft"
+                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] sm:mb-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
                         />
                       )}
 
                       <div
                         className={clsx(
-                          'w-fit min-w-0 max-w-[78%] px-2.5 py-2 sm:max-w-[min(78%,28rem)] sm:px-3.5 sm:py-3',
+                          'w-fit min-w-0 max-w-[78%] px-2.5 py-2 sm:max-w-[min(74%,24rem)] sm:px-3.5 sm:py-2.5',
                           bubbleClassName
                         )}
                       >
@@ -429,7 +430,8 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
+                          variant="soft"
+                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] sm:mb-1 sm:block sm:h-8 sm:w-8 sm:text-[11px]"
                         />
                       )}
                     </div>
@@ -439,17 +441,17 @@ export default function TicketDetail() {
             </div>
 
             <form onSubmit={sendReply} className="border-t border-slate-100 bg-white px-3 py-3 sm:px-4">
-              <div className="mx-auto w-full max-w-[54rem]">
-                <div className="flex items-end gap-1.5 rounded-[20px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-1.5 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] sm:gap-2 sm:rounded-[22px] sm:p-2">
+              <div className="mx-auto w-full max-w-[46rem] xl:max-w-[48rem]">
+                <div className="flex items-end gap-1.5 rounded-[18px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-1.5 shadow-[0_10px_20px_-24px_rgba(15,23,42,0.18)] sm:gap-2 sm:rounded-[20px] sm:p-1.5">
                   <button
                     type="button"
                     disabled={isResolved}
-                    className="rounded-xl p-2.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[#4E5A7A] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent sm:rounded-2xl sm:p-3"
+                    className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[#4E5A7A] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent sm:rounded-2xl sm:p-2.5"
                   >
-                    <Paperclip className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
+                    <Paperclip className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
                   </button>
                   <textarea
-                    className="min-h-[44px] max-h-28 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm leading-5 text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-400 sm:min-h-[50px] sm:py-2 sm:leading-6"
+                    className="min-h-[40px] max-h-24 flex-1 resize-none bg-transparent px-1 py-1 text-sm leading-5 text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-400 sm:min-h-[44px] sm:py-1.5 sm:leading-6"
                     rows={1}
                     placeholder={isResolved ? 'Ticket is resolved. Reopen it to continue the conversation.' : 'Write a thoughtful reply...'}
                     value={reply}
@@ -465,9 +467,9 @@ export default function TicketDetail() {
                   <button
                     type="submit"
                     disabled={isResolved || !reply.trim() || sending}
-                    className="rounded-[18px] bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] p-2.5 text-white shadow-[0_12px_22px_-18px_rgba(78,90,122,0.48)] transition-all hover:-translate-y-0.5 hover:bg-[#1a95d0] active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45 sm:rounded-[20px] sm:p-3"
+                    className="rounded-[16px] bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] p-2 text-white shadow-[0_10px_18px_-18px_rgba(78,90,122,0.48)] transition-all hover:-translate-y-0.5 hover:bg-[#1a95d0] active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45 sm:rounded-[18px] sm:p-2.5"
                   >
-                    <Send className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
+                    <Send className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
                   </button>
                 </div>
               </div>
