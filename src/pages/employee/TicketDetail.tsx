@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Paperclip, Send } from 'lucide-react'
 import clsx from 'clsx'
@@ -30,6 +30,8 @@ export default function TicketDetail() {
   const [savingAssignment, setSavingAssignment] = useState(false)
   const [loading, setLoading] = useState(true)
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false)
+  const conversationViewportRef = useRef<HTMLDivElement | null>(null)
+  const lastConversationItemIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -152,6 +154,73 @@ export default function TicketDetail() {
       isRequest: false,
     })),
   ]
+
+  useEffect(() => {
+    if (!ticket?.id) return
+
+    let active = true
+
+    const refreshComments = async () => {
+      if (document.visibilityState !== 'visible') return
+
+      try {
+        const latestComments = await commentService.list(ticket.id)
+        if (!active) return
+
+        setComments((currentComments) => {
+          const isSameList =
+            currentComments.length === latestComments.length &&
+            currentComments.every((comment, index) => comment.id === latestComments[index]?.id)
+
+          return isSameList ? currentComments : latestComments
+        })
+      } catch {
+        if (!active) return
+      }
+    }
+
+    const intervalId = window.setInterval(() => {
+      void refreshComments()
+    }, 4000)
+
+    const handleWindowFocus = () => {
+      void refreshComments()
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshComments()
+      }
+    }
+
+    window.addEventListener('focus', handleWindowFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      active = false
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', handleWindowFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [ticket?.id])
+
+  useEffect(() => {
+    const viewport = conversationViewportRef.current
+    const latestItemId = conversationItems[conversationItems.length - 1]?.id ?? null
+
+    if (!viewport || !latestItemId || latestItemId === lastConversationItemIdRef.current) {
+      lastConversationItemIdRef.current = latestItemId
+      return
+    }
+
+    lastConversationItemIdRef.current = latestItemId
+    window.requestAnimationFrame(() => {
+      viewport.scrollTo({
+        top: viewport.scrollHeight,
+        behavior: 'smooth',
+      })
+    })
+  }, [conversationItems])
 
   const handleAssignToMe = async () => {
     try {
@@ -291,21 +360,19 @@ export default function TicketDetail() {
               )}
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(78,90,122,0.06),transparent_30%),linear-gradient(180deg,#f8fafd_0%,#eef3f8_100%)] px-2.5 py-3 sm:px-4 sm:py-5">
+            <div
+              ref={conversationViewportRef}
+              className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(180deg,#eef2f7_0%,#e7edf5_100%)] px-2 py-2.5 sm:px-4 sm:py-5"
+            >
               <div className="space-y-2 sm:space-y-3.5">
                 {conversationItems.map((item) => {
                   const isMe = item.author.id === user?.id
                   const isSupportReply = !isMe && item.author.role !== 'employee'
                   const bubbleClassName = isMe
-                    ? 'rounded-br-[8px] border-transparent bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-white shadow-[0_10px_24px_-20px_rgba(78,90,122,0.4)] sm:shadow-[0_18px_36px_-22px_rgba(78,90,122,0.52)]'
+                    ? 'rounded-[18px] rounded-br-[6px] border border-[#c9ebbc] bg-[#d9fdd3] text-slate-800 shadow-none sm:shadow-[0_12px_28px_-24px_rgba(34,197,94,0.3)]'
                     : isSupportReply
-                      ? 'rounded-bl-[8px] border border-[#d9e2f2] bg-[linear-gradient(180deg,#f7faff_0%,#eef4ff_100%)] text-slate-800 shadow-[0_10px_24px_-22px_rgba(78,90,122,0.24)] sm:shadow-[0_16px_30px_-24px_rgba(78,90,122,0.3)]'
-                      : 'rounded-bl-[8px] border border-white/85 bg-white text-slate-800 shadow-[0_10px_22px_-22px_rgba(15,23,42,0.18)] sm:shadow-[0_16px_28px_-24px_rgba(15,23,42,0.2)]'
-                  const rolePillClassName = isMe
-                    ? 'bg-white/15 text-white/80'
-                    : isSupportReply
-                      ? 'bg-[#4E5A7A]/10 text-[#4E5A7A]'
-                      : 'bg-slate-100 text-slate-500'
+                      ? 'rounded-[18px] rounded-bl-[6px] border border-[#d7e6ff] bg-[#f2f7ff] text-slate-800 shadow-none sm:shadow-[0_12px_28px_-24px_rgba(59,130,246,0.24)]'
+                      : 'rounded-[18px] rounded-bl-[6px] border border-slate-200 bg-white text-slate-800 shadow-none sm:shadow-[0_12px_24px_-22px_rgba(15,23,42,0.12)]'
 
                   return (
                     <div key={item.id} className={clsx('flex items-end gap-1.5 sm:gap-2.5', isMe ? 'justify-end' : 'justify-start')}>
@@ -314,31 +381,32 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
+                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-9 sm:w-9 sm:text-xs"
                         />
                       )}
 
                       <div
                         className={clsx(
-                          'w-fit min-w-0 max-w-[72%] px-2.5 py-2 sm:max-w-[min(84%,28rem)] sm:px-4 sm:py-3.5',
+                          'w-fit min-w-0 max-w-[78%] px-2.5 py-2 sm:max-w-[min(78%,28rem)] sm:px-3.5 sm:py-3',
                           bubbleClassName
                         )}
                       >
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                          <span className={clsx('hidden rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] sm:inline-flex sm:px-2 sm:py-1 sm:text-[10px]', rolePillClassName)}>
-                            {item.roleLabel}
-                          </span>
-                          <p className={clsx('text-[12px] font-semibold sm:text-sm', isMe ? 'text-white' : 'text-slate-900')}>
-                            {isMe ? 'You' : item.author.name}
+                        {!isMe && (
+                          <p className={clsx('text-[11px] font-semibold sm:text-[12px]', isSupportReply ? 'text-[#4369a7]' : 'text-slate-500')}>
+                            {item.author.name}
                           </p>
-                        </div>
+                        )}
+                        {isMe && (
+                          <p className="hidden text-[11px] font-semibold text-slate-500 sm:block">
+                            You
+                          </p>
+                        )}
 
-                        <p className={clsx('mt-1 whitespace-pre-wrap break-words text-[13px] leading-[1.35rem] sm:mt-2 sm:text-[15px] sm:leading-7', isMe ? 'text-white' : 'text-slate-700')}>
+                        <p className={clsx('whitespace-pre-wrap break-words text-[13px] leading-[1.35rem] sm:mt-1 sm:text-[14px] sm:leading-6', !isMe && 'mt-1')}>
                           {item.body}
                         </p>
 
-                        <div className={clsx('mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:mt-3 sm:justify-between sm:gap-3 sm:text-[11px]', isMe ? 'text-white/65' : 'text-slate-400')}>
-                          <span>{item.isRequest ? 'Ticket opened' : 'Reply'}</span>
+                        <div className="mt-1 flex items-center justify-end text-[10px] text-slate-400 sm:mt-2 sm:text-[11px]">
                           <span>{timeAgo(item.created_at)}</span>
                         </div>
                       </div>
@@ -348,7 +416,7 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
+                          className="mb-0.5 hidden h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:block sm:h-9 sm:w-9 sm:text-xs"
                         />
                       )}
                     </div>
