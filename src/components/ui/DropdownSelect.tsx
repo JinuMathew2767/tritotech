@@ -55,13 +55,54 @@ export default function DropdownSelect(props: DropdownSelectProps) {
   } = props
 
   const [open, setOpen] = useState(false)
+  const [renderPanel, setRenderPanel] = useState(false)
+  const [panelVisible, setPanelVisible] = useState(false)
+  const [openDirection, setOpenDirection] = useState<'up' | 'down'>('down')
   const [panelStyle, setPanelStyle] = useState<CSSProperties>({})
   const [contentMaxHeight, setContentMaxHeight] = useState<number | undefined>(undefined)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
+  const closeTimerRef = useRef<number | null>(null)
+  const frameRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (!open) return
+    if (open) {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current)
+        closeTimerRef.current = null
+      }
+      setRenderPanel(true)
+      frameRef.current = window.requestAnimationFrame(() => setPanelVisible(true))
+      return
+    }
+
+    setPanelVisible(false)
+    closeTimerRef.current = window.setTimeout(() => {
+      setRenderPanel(false)
+      closeTimerRef.current = null
+    }, 160)
+
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current)
+        closeTimerRef.current = null
+      }
+    }
+  }, [open])
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current)
+      }
+      if (frameRef.current) {
+        window.cancelAnimationFrame(frameRef.current)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!renderPanel) return
 
     const updatePanelPosition = () => {
       if (!rootRef.current) return
@@ -81,6 +122,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
         Math.min(openUpward ? availableAbove - offset : availableBelow - offset, 320)
       )
 
+      setOpenDirection(openUpward ? 'up' : 'down')
       setContentMaxHeight(maxHeight)
       setPanelStyle(
         openUpward
@@ -108,7 +150,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
       window.removeEventListener('resize', updatePanelPosition)
       window.removeEventListener('scroll', updatePanelPosition, true)
     }
-  }, [open])
+  }, [renderPanel])
 
   useEffect(() => {
     if (!open) return
@@ -167,13 +209,19 @@ export default function DropdownSelect(props: DropdownSelectProps) {
   const isSelected = (value: string) => (props.multiple ? props.value.includes(value) : props.value === value)
 
   const panel =
-    open && !disabled
+    renderPanel && !disabled
       ? createPortal(
           <div
             ref={panelRef}
             style={panelStyle}
             className={clsx(
-              'rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)] backdrop-blur-md',
+              'origin-top transform-gpu rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)] backdrop-blur-md transition duration-150 ease-out',
+              openDirection === 'up' && 'origin-bottom',
+              panelVisible
+                ? 'translate-y-0 scale-100 opacity-100'
+                : openDirection === 'up'
+                  ? 'translate-y-1.5 scale-[0.985] opacity-0'
+                  : '-translate-y-1.5 scale-[0.985] opacity-0',
               panelClassName
             )}
           >
