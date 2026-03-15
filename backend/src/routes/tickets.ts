@@ -1076,4 +1076,61 @@ router.post('/:id/start_task', authenticate, async (req: AuthRequest, res: Respo
   }
 })
 
+router.delete('/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id as string)
+
+    if (req.user?.role !== 'admin') {
+      res.status(403).json({ error: 'Only admins can delete tickets' })
+      return
+    }
+
+    const existingTicket = await prisma.tickets.findUnique({
+      where: { Id: id },
+      select: { Id: true, TicketNumber: true, Title: true },
+    })
+
+    if (!existingTicket) {
+      res.status(404).json({ error: 'Ticket not found' })
+      return
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`
+        DELETE FROM "TicketDepartmentAccess"
+        WHERE "TicketId" = ${id}
+      `
+
+      await tx.ticketAttachments.deleteMany({
+        where: { TicketId: id },
+      })
+
+      await tx.ticketComments.deleteMany({
+        where: { TicketId: id },
+      })
+
+      await tx.ticketActivityLogs.deleteMany({
+        where: { TicketId: id },
+      })
+
+      await tx.notifications.deleteMany({
+        where: { TicketId: id },
+      })
+
+      await tx.tickets.delete({
+        where: { Id: id },
+      })
+    })
+
+    res.json({
+      id,
+      ticket_number: existingTicket.TicketNumber,
+      deleted: true,
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Failed to delete ticket' })
+  }
+})
+
 export default router

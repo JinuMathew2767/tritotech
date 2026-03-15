@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Paperclip, Send } from 'lucide-react'
+import { ArrowLeft, Paperclip, Send, Trash2 } from 'lucide-react'
 import clsx from 'clsx'
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badge'
 import Avatar from '@/components/ui/Avatar'
@@ -28,6 +28,7 @@ export default function TicketDetail() {
   const [sending, setSending] = useState(false)
   const [savingSla, setSavingSla] = useState(false)
   const [savingAssignment, setSavingAssignment] = useState(false)
+  const [deletingTicket, setDeletingTicket] = useState(false)
   const [loading, setLoading] = useState(true)
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false)
   const conversationViewportRef = useRef<HTMLDivElement | null>(null)
@@ -317,6 +318,27 @@ export default function TicketDetail() {
       toast.error(error.response?.data?.error || 'Failed to start task')
     } finally {
       setSavingSla(false)
+    }
+  }
+
+  const handleDeleteTicket = async () => {
+    if (!isAdmin || !ticket) return
+
+    const confirmed = window.confirm(
+      `Delete ticket "${ticket.ticket_number}" permanently? This will remove its conversation history and cannot be undone.`
+    )
+
+    if (!confirmed) return
+
+    try {
+      setDeletingTicket(true)
+      await ticketService.delete(ticket.id)
+      toast.success('Ticket deleted')
+      navigate('/agent/dashboard')
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Failed to delete ticket')
+    } finally {
+      setDeletingTicket(false)
     }
   }
 
@@ -642,6 +664,18 @@ export default function TicketDetail() {
                         )}
                       </div>
                     </div>
+                  )}
+
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      className="btn-secondary w-full gap-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                      disabled={deletingTicket}
+                      onClick={handleDeleteTicket}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {deletingTicket ? 'Deleting ticket...' : 'Delete Ticket'}
+                    </button>
                   )}
                 </div>
               </div>

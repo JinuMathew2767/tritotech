@@ -127,6 +127,10 @@ const ticketService = {
     return data
   },
 
+  async delete(id: number): Promise<void> {
+    await api.delete(`/tickets/${id}/`)
+  },
+
   async getMyTickets(params?: TicketListParams): Promise<PaginatedTickets> {
     const { data } = await api.get<PaginatedTickets>('/tickets/my/', { params })
     return data
