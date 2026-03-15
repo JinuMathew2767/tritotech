@@ -273,34 +273,34 @@ export default function TicketDetail() {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 p-4">
-        <div className="grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1.45fr)_360px] xl:grid-cols-[minmax(0,1.6fr)_380px]">
-          <section className="order-1 flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-[28px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,252,0.9)_100%)] shadow-[0_24px_60px_-34px_rgba(15,23,42,0.35)] lg:min-h-0">
-            <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex-1 min-h-0 p-2.5 sm:p-4">
+        <div className="grid h-full min-h-0 gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1.45fr)_360px] xl:grid-cols-[minmax(0,1.6fr)_380px]">
+          <section className="order-1 flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,252,0.9)_100%)] shadow-[0_20px_44px_-34px_rgba(15,23,42,0.32)] sm:rounded-[28px] sm:shadow-[0_24px_60px_-34px_rgba(15,23,42,0.35)] lg:min-h-0">
+            <div className="flex flex-col gap-2.5 border-b border-slate-100 px-3 py-3 sm:gap-3 sm:px-4 sm:py-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-base font-semibold text-slate-900">Conversation</h2>
-                <p className="text-xs text-slate-400">
+                <h2 className="text-[15px] font-semibold text-slate-900 sm:text-base">Conversation</h2>
+                <p className="text-[11px] text-slate-400 sm:text-xs">
                   {conversationItems.length} message{conversationItems.length === 1 ? '' : 's'}
                 </p>
               </div>
               {ticket.assigned_to && (
-                <div className="inline-flex max-w-full items-center gap-2 self-start rounded-full border border-white/70 bg-[#4E5A7A]/8 px-3 py-1.5 text-xs font-semibold text-[#4E5A7A] sm:self-auto">
-                  <span className="h-2 w-2 rounded-full bg-[#4E5A7A]" />
+                <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-white/70 bg-[#4E5A7A]/8 px-2.5 py-1 text-[11px] font-semibold text-[#4E5A7A] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:self-auto">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#4E5A7A] sm:h-2 sm:w-2" />
                   Assigned to {ticket.assigned_to.name}
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(78,90,122,0.06),transparent_30%),linear-gradient(180deg,#f8fafd_0%,#eef3f8_100%)] px-2.5 py-3 sm:px-4 sm:py-5">
-              <div className="space-y-2.5 sm:space-y-3.5">
+              <div className="space-y-2 sm:space-y-3.5">
                 {conversationItems.map((item) => {
                   const isMe = item.author.id === user?.id
                   const isSupportReply = !isMe && item.author.role !== 'employee'
                   const bubbleClassName = isMe
-                    ? 'rounded-br-[8px] border-transparent bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-white shadow-[0_18px_36px_-22px_rgba(78,90,122,0.52)]'
+                    ? 'rounded-br-[8px] border-transparent bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-white shadow-[0_10px_24px_-20px_rgba(78,90,122,0.4)] sm:shadow-[0_18px_36px_-22px_rgba(78,90,122,0.52)]'
                     : isSupportReply
-                      ? 'rounded-bl-[8px] border border-[#d9e2f2] bg-[linear-gradient(180deg,#f7faff_0%,#eef4ff_100%)] text-slate-800 shadow-[0_16px_30px_-24px_rgba(78,90,122,0.3)]'
-                      : 'rounded-bl-[8px] border border-white/85 bg-white text-slate-800 shadow-[0_16px_28px_-24px_rgba(15,23,42,0.2)]'
+                      ? 'rounded-bl-[8px] border border-[#d9e2f2] bg-[linear-gradient(180deg,#f7faff_0%,#eef4ff_100%)] text-slate-800 shadow-[0_10px_24px_-22px_rgba(78,90,122,0.24)] sm:shadow-[0_16px_30px_-24px_rgba(78,90,122,0.3)]'
+                      : 'rounded-bl-[8px] border border-white/85 bg-white text-slate-800 shadow-[0_10px_22px_-22px_rgba(15,23,42,0.18)] sm:shadow-[0_16px_28px_-24px_rgba(15,23,42,0.2)]'
                   const rolePillClassName = isMe
                     ? 'bg-white/15 text-white/80'
                     : isSupportReply
@@ -314,30 +314,30 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 shrink-0 ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
+                          className="mb-0.5 h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
                         />
                       )}
 
                       <div
                         className={clsx(
-                          'max-w-[min(76%,18rem)] px-3 py-2.5 sm:max-w-[min(84%,28rem)] sm:px-4 sm:py-3.5',
+                          'w-fit min-w-0 max-w-[72%] px-2.5 py-2 sm:max-w-[min(84%,28rem)] sm:px-4 sm:py-3.5',
                           bubbleClassName
                         )}
                       >
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                          <span className={clsx('inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] sm:px-2 sm:py-1 sm:text-[10px]', rolePillClassName)}>
+                          <span className={clsx('hidden rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] sm:inline-flex sm:px-2 sm:py-1 sm:text-[10px]', rolePillClassName)}>
                             {item.roleLabel}
                           </span>
-                          <p className={clsx('text-[13px] font-semibold sm:text-sm', isMe ? 'text-white' : 'text-slate-900')}>
-                            {item.author.name}
+                          <p className={clsx('text-[12px] font-semibold sm:text-sm', isMe ? 'text-white' : 'text-slate-900')}>
+                            {isMe ? 'You' : item.author.name}
                           </p>
                         </div>
 
-                        <p className={clsx('mt-1.5 whitespace-pre-wrap text-[14px] leading-6 sm:mt-2 sm:text-[15px] sm:leading-7', isMe ? 'text-white' : 'text-slate-700')}>
+                        <p className={clsx('mt-1 whitespace-pre-wrap break-words text-[13px] leading-[1.35rem] sm:mt-2 sm:text-[15px] sm:leading-7', isMe ? 'text-white' : 'text-slate-700')}>
                           {item.body}
                         </p>
 
-                        <div className={clsx('mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:mt-3 sm:justify-between sm:gap-3 sm:text-[11px]', isMe ? 'text-white/65' : 'text-slate-400')}>
+                        <div className={clsx('mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:mt-3 sm:justify-between sm:gap-3 sm:text-[11px]', isMe ? 'text-white/65' : 'text-slate-400')}>
                           <span>{item.isRequest ? 'Ticket opened' : 'Reply'}</span>
                           <span>{timeAgo(item.created_at)}</span>
                         </div>
@@ -348,7 +348,7 @@ export default function TicketDetail() {
                           name={item.author.name}
                           src={item.author.avatar}
                           size="xs"
-                          className="mb-0.5 shrink-0 ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
+                          className="mb-0.5 h-6 w-6 shrink-0 text-[9px] ring-2 ring-white/80 sm:mb-1 sm:h-9 sm:w-9 sm:text-xs"
                         />
                       )}
                     </div>
