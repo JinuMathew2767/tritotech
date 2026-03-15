@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, ChevronDown, Save } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -45,6 +45,7 @@ export default function RaiseTicket() {
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [loadingDepartments, setLoadingDepartments] = useState(hasGlobalDepartmentAccess)
   const [departmentPickerOpen, setDepartmentPickerOpen] = useState(false)
+  const departmentPickerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setCompany(allowedCompany)
@@ -89,6 +90,19 @@ export default function RaiseTicket() {
       .then((items) => setSubcategories(items.map((item) => item.name)))
       .catch(() => toast.error('Failed to load subcategories'))
   }, [categories, category])
+
+  useEffect(() => {
+    if (!departmentPickerOpen) return
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!departmentPickerRef.current?.contains(event.target as Node)) {
+        setDepartmentPickerOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [departmentPickerOpen])
 
   const availableDepartmentNames = hasMultipleDepartmentAccess
     ? permittedDepartments
@@ -192,7 +206,7 @@ export default function RaiseTicket() {
                   ) : availableDepartmentNames.length === 0 ? (
                     <div className="input bg-slate-50 text-slate-400">No departments available</div>
                   ) : (
-                    <div>
+                    <div ref={departmentPickerRef}>
                       <button
                         type="button"
                         onClick={() => setDepartmentPickerOpen((current) => !current)}
