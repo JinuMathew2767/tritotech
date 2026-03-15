@@ -169,15 +169,15 @@ export default function RaiseTicket() {
         <Link to="/dashboard" className="p-2 rounded-lg hover:bg-slate-100 text-slate-500">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-xl font-bold text-slate-900">New Ticket</h1>
-        <span className="ml-auto text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+        <h1 className="ui-section-title text-xl sm:text-[1.35rem]">New Ticket</h1>
+        <span className="ui-chip-text ml-auto flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-slate-400">
           <Save className="w-3 h-3" /> Draft auto-saved
         </span>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="card p-5 space-y-4">
-          <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Basic Information</h2>
+          <h2 className="ui-kicker text-slate-500">Basic Information</h2>
           <div>
             <label className="label">Subject *</label>
             <input
@@ -251,8 +251,8 @@ export default function RaiseTicket() {
                                     disabled={loadingDepartments}
                                   />
                                   <div className="min-w-0">
-                                    <p className="text-sm leading-5 font-medium text-slate-800">{item}</p>
-                                    <p className="text-[11px] leading-4 text-slate-400">
+                                    <p className="text-[14px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{item}</p>
+                                    <p className="text-[11px] font-medium leading-4 text-slate-400">
                                       {checked ? 'Included in this ticket' : 'Select to include this department'}
                                     </p>
                                   </div>
@@ -294,7 +294,7 @@ export default function RaiseTicket() {
         </div>
 
         <div className="card p-5 space-y-4">
-          <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Issue Details</h2>
+          <h2 className="ui-kicker text-slate-500">Issue Details</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="label">Category *</label>
@@ -337,8 +337,8 @@ export default function RaiseTicket() {
                     priority === value ? color : 'border-slate-200 hover:border-slate-300'
                   )}
                 >
-                  <p className="text-xs font-bold">{label}</p>
-                  <p className="text-xs opacity-70 mt-0.5">{desc}</p>
+                  <p className="text-[13px] font-semibold leading-none tracking-[-0.015em]">{label}</p>
+                  <p className="mt-1 text-[11px] font-medium opacity-70">{desc}</p>
                 </button>
               ))}
             </div>
@@ -368,7 +368,7 @@ export default function RaiseTicket() {
         </div>
 
         <div className="card p-5">
-          <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide mb-4">Attachments</h2>
+          <h2 className="ui-kicker mb-4 text-slate-500">Attachments</h2>
           <FileUploadZone files={files} onChange={setFiles} />
         </div>
 

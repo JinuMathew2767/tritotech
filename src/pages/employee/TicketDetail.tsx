@@ -354,20 +354,20 @@ export default function TicketDetail() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#4E5A7A]">{ticket.ticket_number}</p>
-            <h1 className="mt-1 text-xl font-bold text-slate-900">{ticket.subject}</h1>
+            <p className="ui-kicker text-[#4E5A7A]">{ticket.ticket_number}</p>
+            <h1 className="mt-1 text-[1.7rem] font-extrabold leading-[1.05] tracking-[-0.04em] text-slate-900">{ticket.subject}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge status={ticket.status} />
               <PriorityBadge priority={ticket.priority} />
-              <span className="rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+              <span className="ui-chip-text rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1 text-slate-600">
                 {ticket.category}
               </span>
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 sm:text-xs">
-              <span className="rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-slate-500">
+              <span className="ui-chip-text rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
                 {ticket.company}
               </span>
-              <span className="rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
+              <span className="ui-chip-text rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
                 {formatDate(ticket.created_at)}
               </span>
             </div>
@@ -381,13 +381,13 @@ export default function TicketDetail() {
             <div className="border-b border-slate-100 px-3 py-3 sm:px-4 sm:py-4">
               <div className="mx-auto flex w-full max-w-[46rem] flex-col gap-2.5 xl:max-w-[48rem] sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-[15px] font-semibold text-slate-900 sm:text-base">Conversation</h2>
-                  <p className="text-[11px] text-slate-400 sm:text-xs">
+                  <h2 className="ui-section-title">Conversation</h2>
+                  <p className="ui-kicker mt-1 normal-case tracking-[0.08em]">
                     {conversationItems.length} message{conversationItems.length === 1 ? '' : 's'}
                   </p>
                 </div>
                 {ticket.assigned_to && (
-                  <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-slate-200/80 bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-slate-500 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:self-auto">
+                  <div className="ui-chip-text inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-slate-200/80 bg-white/70 px-2.5 py-1 text-slate-500 sm:gap-2 sm:px-3 sm:py-1.5 sm:self-auto">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#4E5A7A] sm:h-2 sm:w-2" />
                     Assigned to {ticket.assigned_to.name}
                   </div>
@@ -428,12 +428,12 @@ export default function TicketDetail() {
                         )}
                       >
                         {!isMe && (
-                          <p className={clsx('text-[11px] font-semibold sm:text-[12px]', isSupportReply ? 'text-[#4369a7]' : 'text-slate-500')}>
+                          <p className={clsx('text-[11px] font-semibold uppercase tracking-[0.08em] sm:text-[12px]', isSupportReply ? 'text-[#4369a7]' : 'text-slate-500')}>
                             {item.author.name}
                           </p>
                         )}
                         {isMe && (
-                          <p className="hidden text-[11px] font-semibold text-slate-500 sm:block">
+                          <p className="hidden text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 sm:block">
                             You
                           </p>
                         )}
@@ -443,7 +443,7 @@ export default function TicketDetail() {
                         </p>
 
                         <div className="mt-1 flex items-center justify-end text-[10px] text-slate-400 sm:mt-2 sm:text-[11px]">
-                          <span>{timeAgo(item.created_at)}</span>
+                          <span className="font-medium">{timeAgo(item.created_at)}</span>
                         </div>
                       </div>
 
@@ -500,30 +500,30 @@ export default function TicketDetail() {
 
           <aside className="order-2 min-h-0 space-y-4 lg:overflow-y-auto lg:pr-1 lg:[scrollbar-color:rgba(100,116,139,0.5)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-2 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-slate-400/60">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <h2 className="text-base font-semibold text-slate-900">Overview</h2>
+              <h2 className="ui-section-title">Overview</h2>
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {meta.map(({ label, value }) => (
                   <div key={label} className="rounded-xl bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400 mb-1">{label}</p>
-                    <div className="text-sm font-medium text-slate-800">{value}</div>
+                    <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">{label}</p>
+                    <div className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">{value}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-3 rounded-xl bg-slate-50 p-3">
-                <p className="text-xs text-slate-400 mb-1">Requester</p>
-                <p className="text-sm font-medium text-slate-800">{ticket.created_by.name}</p>
+                <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">Requester</p>
+                <p className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">{ticket.created_by.name}</p>
                 <p className="text-xs text-slate-500 mt-1">{ticket.company} · {ticket.department}</p>
               </div>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <h2 className="text-base font-semibold text-slate-900">SLA Snapshot</h2>
+              <h2 className="ui-section-title">SLA Snapshot</h2>
               <div className="mt-4 space-y-3">
                 {slaCards.map(({ label, value, sub }) => (
                   <div key={label} className="rounded-xl bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400 mb-1">{label}</p>
-                    <div className="text-sm font-medium text-slate-800">{value}</div>
-                    {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+                    <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">{label}</p>
+                    <div className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">{value}</div>
+                    {sub && <p className="mt-1 text-[12px] font-medium text-slate-500">{sub}</p>}
                   </div>
                 ))}
               </div>
@@ -545,7 +545,7 @@ export default function TicketDetail() {
 
             {isSupportUser && (
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <h2 className="text-base font-semibold text-slate-900">Actions</h2>
+                <h2 className="ui-section-title">Actions</h2>
                 <div className="mt-4 space-y-4">
                   <div>
                     <label className="label">Support Proposed Resolution Time</label>
@@ -636,8 +636,8 @@ export default function TicketDetail() {
 
                   {!isResolved && (
                     <div className="rounded-xl bg-slate-50 p-3">
-                      <p className="text-xs text-slate-400 mb-1">Assignment</p>
-                      <p className="text-sm font-medium text-slate-800">
+                      <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">Assignment</p>
+                      <p className="text-[14px] font-semibold leading-6 tracking-[-0.015em] text-slate-800">
                         {ticket.assigned_to ? ticket.assigned_to.name : 'Unassigned'}
                       </p>
                       <div className="mt-3">

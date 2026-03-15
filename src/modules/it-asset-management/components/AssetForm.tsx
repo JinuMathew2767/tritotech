@@ -48,9 +48,9 @@ function FormSection({
   return (
     <section className="rounded-3xl border border-slate-200 bg-slate-50/85 p-4">
       <div className="flex flex-col gap-1 border-b border-slate-200 pb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{step}</p>
-        <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-        <p className="text-sm text-slate-500">{description}</p>
+        <p className="ui-kicker">{step}</p>
+        <h2 className="ui-section-title">{title}</h2>
+        <p className="ui-body-muted">{description}</p>
       </div>
       <div className="mt-4 space-y-4">{children}</div>
     </section>

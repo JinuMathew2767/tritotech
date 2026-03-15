@@ -190,7 +190,7 @@ export default function AssetAnalytics() {
 
         <div className="space-y-4">
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Priority Actions</h2>
+            <h2 className="ui-section-title">Priority Actions</h2>
             <p className="mt-1 text-sm text-slate-500">The assets that should be reviewed first based on the nearest risk window.</p>
             <div className="mt-4 space-y-3">
               {priorityQueue.length === 0 ? (
@@ -208,7 +208,7 @@ export default function AssetAnalytics() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Coverage Health</h2>
+            <h2 className="ui-section-title">Coverage Health</h2>
             <div className="mt-4 space-y-3">
               {[
                 { label: 'Assets requiring attention', value: totalAttention },

@@ -108,7 +108,7 @@ export default function AssetTransactions() {
 
         <div className="space-y-4">
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Current Snapshot</h2>
+            <h2 className="ui-section-title">Current Snapshot</h2>
             <div className="mt-4 space-y-3">
               <div className="rounded-2xl bg-slate-50 p-4">
                 <p className="text-xs text-slate-400">Assigned To</p>
@@ -132,7 +132,7 @@ export default function AssetTransactions() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Helpful Rules</h2>
+            <h2 className="ui-section-title">Helpful Rules</h2>
             <div className="mt-4 space-y-2 text-sm text-slate-600">
               <p className="rounded-2xl bg-slate-50 px-4 py-3">Issue is best for stock or unassigned items that are being allocated now.</p>
               <p className="rounded-2xl bg-slate-50 px-4 py-3">Return is best when an asset is coming back into storage, maintenance, or retirement.</p>
@@ -142,7 +142,7 @@ export default function AssetTransactions() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Coverage Reminder</h2>
+            <h2 className="ui-section-title">Coverage Reminder</h2>
             <p className="mt-2 text-sm text-slate-600">
               Asset expiry:
               <span className="ml-1 font-semibold text-slate-900">{formatAssetDate(asset.expiryDate)}</span>

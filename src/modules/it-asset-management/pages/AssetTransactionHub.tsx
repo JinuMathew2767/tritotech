@@ -432,7 +432,7 @@ export default function AssetTransactionHub() {
         <form onSubmit={handleSubmit} className="space-y-2.5">
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Step 1</p>
+              <p className="ui-kicker">Step 1</p>
               <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Choose Action</h2>
             </div>
 
@@ -462,7 +462,7 @@ export default function AssetTransactionHub() {
 
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Step 2</p>
+              <p className="ui-kicker">Step 2</p>
               <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Choose Assets</h2>
               <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
                 {mode === 'issue'
@@ -572,13 +572,13 @@ export default function AssetTransactionHub() {
 
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Step 3</p>
+              <p className="ui-kicker">Step 3</p>
               <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Choose From And To</h2>
             </div>
 
             <div className="mt-2.5 grid gap-2.5 xl:grid-cols-2">
               <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">From</p>
+                <p className="ui-kicker">From</p>
                 <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
                   <div>
                     <p className="text-xs text-slate-400">Selected Assets</p>
@@ -602,7 +602,7 @@ export default function AssetTransactionHub() {
               </div>
 
               <div className="rounded-xl border border-[#4E5A7A]/12 bg-white/85 p-3 shadow-[0_14px_34px_-28px_rgba(78,90,122,0.45)]">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">To</p>
+                <p className="ui-kicker">To</p>
                 <div className="mt-2.5 grid gap-2.5">
                   <div>
                     <label className="label">{mode === 'issue' ? 'Issue To' : 'Transfer To'}</label>
@@ -671,7 +671,7 @@ export default function AssetTransactionHub() {
 
           <section className="card p-3">
             <div className="border-b border-slate-200 pb-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Step 4</p>
+              <p className="ui-kicker">Step 4</p>
               <h2 className="mt-0.5 text-sm font-semibold text-slate-900">Additional Details</h2>
             </div>
 
@@ -811,7 +811,7 @@ export default function AssetTransactionHub() {
       <section className="card mt-2.5 p-3.5">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-2.5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Transaction List</p>
+            <p className="ui-kicker">Transaction List</p>
             <h2 className="mt-0.5 text-sm font-semibold text-slate-900">
               {mode === 'issue' ? 'Issued Asset Records' : 'Transferred Asset Records'}
             </h2>
@@ -833,7 +833,7 @@ export default function AssetTransactionHub() {
             transactionDocuments.map((document) => (
               <div key={document.transactionNumber} className="grid gap-2.5 rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 md:grid-cols-[1.3fr_1fr_90px_1.1fr_82px] md:items-center">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Transaction Number</p>
+                  <p className="ui-kicker">Transaction Number</p>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-slate-900">{document.transactionNumber}</p>
                     <span className={clsx('rounded-full border px-2 py-0.5 text-[10px] font-semibold', transactionToneByType[document.transactionType] || 'bg-slate-50 text-slate-700 border-slate-200')}>
@@ -842,15 +842,15 @@ export default function AssetTransactionHub() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Transaction Date</p>
+                  <p className="ui-kicker">Transaction Date</p>
                   <p className="mt-1 text-sm text-slate-700">{formatAssetDate(document.transactionDate)}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Asset Count</p>
+                  <p className="ui-kicker">Asset Count</p>
                   <p className="mt-1 text-sm font-semibold text-slate-900">{document.assetCount}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Issued To</p>
+                  <p className="ui-kicker">Issued To</p>
                   <p className="mt-1 text-sm text-slate-700">{document.issuedTo}</p>
                 </div>
                 <div className="md:justify-self-end">

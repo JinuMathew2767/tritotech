@@ -52,17 +52,17 @@ export default function LoginPage() {
               <Shield className="h-5 w-5 text-white" />
             )}
           </div>
-          <span className="text-xl font-bold text-white">{branding.appName}</span>
+          <span className="text-[1.55rem] font-extrabold leading-none tracking-[-0.035em] text-white">{branding.appName}</span>
         </div>
 
         <div>
-          <h1 className="mb-4 text-4xl font-extrabold leading-tight text-white">Welcome back</h1>
-          <p className="text-base text-slate-400">
+          <h1 className="mb-4 text-[3.2rem] font-extrabold leading-[0.96] tracking-[-0.05em] text-white">Welcome back</h1>
+          <p className="text-[1.05rem] font-medium leading-8 text-slate-400">
             Sign in to access tickets, dashboards, analytics, and operational controls across the portal.
           </p>
           <div className="mt-10 space-y-3">
             {highlights.map((item) => (
-              <div key={item} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+              <div key={item} className="rounded-xl border border-white/10 bg-white/5 p-4 text-[15px] font-medium leading-7 tracking-[-0.01em] text-slate-300">
                 {item}
               </div>
             ))}
@@ -82,13 +82,13 @@ export default function LoginPage() {
                 <Shield className="h-4 w-4 text-white" />
               )}
             </div>
-            <span className="font-bold text-slate-900">{branding.appName}</span>
+            <span className="text-[1.2rem] font-extrabold leading-none tracking-[-0.03em] text-slate-900">{branding.appName}</span>
           </div>
 
           <div className="auth-card lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none">
             <div className="mb-7">
-              <h2 className="text-[2rem] font-extrabold tracking-tight text-slate-900">Sign In</h2>
-              <p className="mt-1 text-[15px] text-slate-500">Enter your credentials to access the portal</p>
+              <h2 className="ui-page-title text-[2rem] sm:text-[2rem]">Sign In</h2>
+              <p className="ui-body-muted mt-2">Enter your credentials to access the portal</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">

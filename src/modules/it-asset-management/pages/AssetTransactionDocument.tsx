@@ -57,7 +57,7 @@ export default function AssetTransactionDocument() {
 
       <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
         <div className="card p-5">
-          <h2 className="text-base font-semibold text-slate-900">Document Header</h2>
+          <h2 className="ui-section-title">Document Header</h2>
           <div className="mt-4 space-y-3">
             <div className="rounded-2xl bg-slate-50 p-4">
               <p className="text-xs text-slate-400">Transaction Type</p>
@@ -90,7 +90,7 @@ export default function AssetTransactionDocument() {
 
         <div className="card p-5">
           <div className="border-b border-slate-200 pb-3">
-            <h2 className="text-base font-semibold text-slate-900">Transaction Items</h2>
+            <h2 className="ui-section-title">Transaction Items</h2>
             <p className="mt-1 text-sm text-slate-500">Each asset that was included in this document is listed below.</p>
           </div>
 

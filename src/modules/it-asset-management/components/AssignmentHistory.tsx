@@ -21,7 +21,7 @@ export default function AssignmentHistory({ history }: AssignmentHistoryProps) {
           <ClipboardList className="h-4.5 w-4.5" />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-slate-900">Assignment History</h2>
+          <h2 className="ui-section-title">Assignment History</h2>
           <p className="text-xs text-slate-500">Track ownership changes and handovers over the asset lifecycle.</p>
         </div>
       </div>

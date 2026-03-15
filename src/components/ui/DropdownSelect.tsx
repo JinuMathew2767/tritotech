@@ -253,9 +253,9 @@ export default function DropdownSelect(props: DropdownSelectProps) {
                         {selected ? <Check className="h-3 w-3" /> : null}
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-sm font-medium leading-5 text-slate-800">{option.label}</span>
+                        <span className="block text-[14px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{option.label}</span>
                         {option.description ? (
-                          <span className="block text-[11px] leading-4 text-slate-400">{option.description}</span>
+                          <span className="block text-[11px] font-medium leading-4 tracking-[0.01em] text-slate-400">{option.description}</span>
                         ) : null}
                       </span>
                     </button>
@@ -281,7 +281,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
           buttonClassName
         )}
       >
-        <span className={clsx('truncate', selectedLabels.length === 0 ? 'text-slate-400' : 'text-slate-800')}>
+        <span className={clsx('truncate text-[14px] font-semibold leading-none tracking-[-0.015em]', selectedLabels.length === 0 ? 'text-slate-400' : 'text-slate-800')}>
           {summary}
         </span>
         <ChevronDown

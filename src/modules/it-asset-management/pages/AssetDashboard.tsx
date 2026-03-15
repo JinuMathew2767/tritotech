@@ -119,7 +119,7 @@ export default function AssetDashboard() {
 
         <div className="space-y-4">
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Quick Start</h2>
+            <h2 className="ui-section-title">Quick Start</h2>
             <p className="mt-1 text-sm text-slate-500">Pick the workspace that matches what you need to do next.</p>
             <div className="mt-4 space-y-3">
               {[
@@ -160,7 +160,7 @@ export default function AssetDashboard() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Operational Snapshot</h2>
+            <h2 className="ui-section-title">Operational Snapshot</h2>
             <p className="mt-1 text-sm text-slate-500">A quick read on ownership and asset availability.</p>
             <div className="mt-4 space-y-3">
               {[

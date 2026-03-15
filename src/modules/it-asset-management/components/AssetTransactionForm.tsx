@@ -168,8 +168,8 @@ export default function AssetTransactionForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       <section className="rounded-3xl border border-slate-200 bg-slate-50/85 p-4">
         <div className="border-b border-slate-200 pb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Step 1</p>
-          <h2 className="text-base font-semibold text-slate-900">Choose Transaction Type</h2>
+          <p className="ui-kicker">Step 1</p>
+          <h2 className="ui-section-title">Choose Transaction Type</h2>
           <p className="text-sm text-slate-500">Select the workflow that best matches what is happening to this asset now.</p>
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
@@ -198,14 +198,14 @@ export default function AssetTransactionForm({
 
       <section className="rounded-3xl border border-slate-200 bg-slate-50/85 p-4">
         <div className="border-b border-slate-200 pb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Step 2</p>
-          <h2 className="text-base font-semibold text-slate-900">Current Vs Resulting State</h2>
+          <p className="ui-kicker">Step 2</p>
+          <h2 className="ui-section-title">Current Vs Resulting State</h2>
           <p className="text-sm text-slate-500">Review what the asset looks like now and what will be saved after this transaction.</p>
         </div>
 
         <div className="mt-4 grid gap-4 xl:grid-cols-2">
           <div className="rounded-2xl border border-white/70 bg-white/85 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Current State</p>
+            <p className="ui-kicker">Current State</p>
             <div className="mt-3 space-y-3">
               <div>
                 <p className="text-xs text-slate-400">Owner</p>
@@ -227,7 +227,7 @@ export default function AssetTransactionForm({
           </div>
 
           <div className="rounded-2xl border border-[#4E5A7A]/12 bg-white/85 p-4 shadow-[0_14px_30px_-24px_rgba(78,90,122,0.4)]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Result After Save</p>
+            <p className="ui-kicker">Result After Save</p>
             <div className="mt-3 space-y-3">
               <div>
                 <p className="text-xs text-slate-400">Owner</p>
@@ -252,8 +252,8 @@ export default function AssetTransactionForm({
 
       <section className="rounded-3xl border border-slate-200 bg-slate-50/85 p-4">
         <div className="border-b border-slate-200 pb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Step 3</p>
-          <h2 className="text-base font-semibold text-slate-900">Enter Transaction Details</h2>
+          <p className="ui-kicker">Step 3</p>
+          <h2 className="ui-section-title">Enter Transaction Details</h2>
           <p className="text-sm text-slate-500">Complete the destination, location, and note fields so the history stays clear for the next person.</p>
         </div>
 

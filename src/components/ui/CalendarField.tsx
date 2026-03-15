@@ -264,10 +264,10 @@ export default function CalendarField({
             <div className="rounded-[20px] border border-white/75 bg-white/78 p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  <p className="ui-kicker">
                     {mode === 'datetime' ? 'Date And Time' : 'Calendar'}
                   </p>
-                  <p className="mt-0.5 text-base font-semibold text-slate-900">{format(viewDate, 'MMMM yyyy')}</p>
+                  <p className="ui-section-title mt-0.5">{format(viewDate, 'MMMM yyyy')}</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button

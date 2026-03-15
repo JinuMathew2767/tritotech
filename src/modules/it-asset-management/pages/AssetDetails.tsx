@@ -148,7 +148,7 @@ export default function AssetDetails() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_380px]">
         <div className="space-y-4">
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Asset Profile</h2>
+            <h2 className="ui-section-title">Asset Profile</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {detailRows(asset).map((row) => (
                 <div key={row.label} className="rounded-2xl bg-slate-50 p-3">
@@ -160,7 +160,7 @@ export default function AssetDetails() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Placement And Ownership</h2>
+            <h2 className="ui-section-title">Placement And Ownership</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <div className="rounded-2xl bg-slate-50 p-3">
                 <p className="text-xs text-slate-400">Assigned To</p>
@@ -178,7 +178,7 @@ export default function AssetDetails() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-base font-semibold text-slate-900">Notes</h2>
+            <h2 className="ui-section-title">Notes</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600">{asset.notes || 'No additional asset notes recorded yet.'}</p>
           </div>
 
@@ -192,7 +192,7 @@ export default function AssetDetails() {
                 <ShieldCheck className="h-4.5 w-4.5" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-slate-900">Coverage Status</h2>
+                <h2 className="ui-section-title">Coverage Status</h2>
                 <p className="text-xs text-slate-500">Operational and renewal health for this record.</p>
               </div>
             </div>
@@ -233,7 +233,7 @@ export default function AssetDetails() {
                 <CalendarDays className="h-4.5 w-4.5" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-slate-900">Recommended Actions</h2>
+                <h2 className="ui-section-title">Recommended Actions</h2>
                 <p className="text-xs text-slate-500">The clearest next steps based on this asset's current state.</p>
               </div>
             </div>

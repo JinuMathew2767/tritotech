@@ -836,7 +836,7 @@ export default function AdminSettings() {
                 <div ref={categoryEditorRef} className="card p-5 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-slate-900">{editingCategoryId ? 'Edit Category' : 'Add Category'}</h2>
+                      <h2 className="ui-section-title">{editingCategoryId ? 'Edit Category' : 'Add Category'}</h2>
                       <p className="mt-1 text-sm text-slate-500">Create concern categories like ERP, Network, Hardware, and Access.</p>
                     </div>
                     <div className="rounded-2xl bg-[#4E5A7A]/10 p-2 text-[#4E5A7A]"><FolderTree className="h-5 w-5" /></div>
@@ -876,7 +876,7 @@ export default function AdminSettings() {
 
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Category Master</h2>
+                    <h2 className="ui-section-title">Category Master</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">{categories.length} total</span>
                   </div>
                   <div className="space-y-3">
@@ -926,7 +926,7 @@ export default function AdminSettings() {
                 <div ref={subcategoryEditorRef} className="card p-5 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-slate-900">{editingSubcategoryId ? 'Edit Subcategory' : 'Add Subcategory'}</h2>
+                      <h2 className="ui-section-title">{editingSubcategoryId ? 'Edit Subcategory' : 'Add Subcategory'}</h2>
                       <p className="mt-1 text-sm text-slate-500">Create subcategories or modules under any concern category.</p>
                     </div>
                     <div className="rounded-2xl bg-[#4E5A7A]/10 p-2 text-[#4E5A7A]"><Layers3 className="h-5 w-5" /></div>
@@ -980,7 +980,7 @@ export default function AdminSettings() {
 
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Subcategory Master</h2>
+                    <h2 className="ui-section-title">Subcategory Master</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">{subcategories.length} total</span>
                   </div>
                   <div className="space-y-3">
@@ -1028,7 +1028,7 @@ export default function AdminSettings() {
                 <div ref={assetCategoryEditorRef} className="card p-5 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-slate-900">{editingAssetCategoryId ? 'Edit Asset Category' : 'Add Asset Category'}</h2>
+                      <h2 className="ui-section-title">{editingAssetCategoryId ? 'Edit Asset Category' : 'Add Asset Category'}</h2>
                       <p className="mt-1 text-sm text-slate-500">Create reusable asset classifications like Hardware, Software, Cloud, or any category your asset register needs.</p>
                     </div>
                     <div className="rounded-2xl bg-[#4E5A7A]/10 p-2 text-[#4E5A7A]"><Layers3 className="h-5 w-5" /></div>
@@ -1068,7 +1068,7 @@ export default function AdminSettings() {
 
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Asset Category Master</h2>
+                    <h2 className="ui-section-title">Asset Category Master</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">{assetCategories.length} total</span>
                   </div>
                   <div className="space-y-3">
@@ -1131,7 +1131,7 @@ export default function AdminSettings() {
                 <div ref={assetSubcategoryEditorRef} className="card p-5 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-slate-900">{editingAssetSubcategoryId ? 'Edit Asset Subcategory' : 'Add Asset Subcategory'}</h2>
+                      <h2 className="ui-section-title">{editingAssetSubcategoryId ? 'Edit Asset Subcategory' : 'Add Asset Subcategory'}</h2>
                       <p className="mt-1 text-sm text-slate-500">Create dependent asset subcategories so users can pick only the right options for each asset category.</p>
                     </div>
                     <div className="rounded-2xl bg-[#4E5A7A]/10 p-2 text-[#4E5A7A]"><Layers3 className="h-5 w-5" /></div>
@@ -1180,7 +1180,7 @@ export default function AdminSettings() {
 
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Asset Subcategory Master</h2>
+                    <h2 className="ui-section-title">Asset Subcategory Master</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">{assetSubcategories.length} total</span>
                   </div>
                   <div className="space-y-3">
@@ -1242,7 +1242,7 @@ export default function AdminSettings() {
                 <div ref={assetVendorEditorRef} className="card p-5 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-slate-900">{editingAssetVendorId ? 'Edit Asset Vendor' : 'Add Asset Vendor'}</h2>
+                      <h2 className="ui-section-title">{editingAssetVendorId ? 'Edit Asset Vendor' : 'Add Asset Vendor'}</h2>
                       <p className="mt-1 text-sm text-slate-500">Maintain a reusable vendor list for asset creation and reporting.</p>
                     </div>
                     <div className="rounded-2xl bg-[#4E5A7A]/10 p-2 text-[#4E5A7A]"><Layers3 className="h-5 w-5" /></div>
@@ -1272,7 +1272,7 @@ export default function AdminSettings() {
 
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Asset Vendor Master</h2>
+                    <h2 className="ui-section-title">Asset Vendor Master</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">{assetVendors.length} total</span>
                   </div>
                   <div className="space-y-3">
@@ -1322,7 +1322,7 @@ export default function AdminSettings() {
                 <div ref={departmentEditorRef} className="card p-5 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-slate-900">{editingDepartmentId ? 'Edit Department' : 'Add Department'}</h2>
+                      <h2 className="ui-section-title">{editingDepartmentId ? 'Edit Department' : 'Add Department'}</h2>
                       <p className="mt-1 text-sm text-slate-500">Maintain business departments and their default locations for asset issue, transfer, and reporting flows.</p>
                     </div>
                     <div className="rounded-2xl bg-[#4E5A7A]/10 p-2 text-[#4E5A7A]"><Layers3 className="h-5 w-5" /></div>
@@ -1367,7 +1367,7 @@ export default function AdminSettings() {
 
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Department Master</h2>
+                    <h2 className="ui-section-title">Department Master</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">{departments.length} total</span>
                   </div>
 
@@ -1441,7 +1441,7 @@ export default function AdminSettings() {
                 <div ref={employeeEditorRef} className="card p-5 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-slate-900">{editingAssetEmployeeId ? 'Edit Asset Employee' : 'Add Asset Employee'}</h2>
+                      <h2 className="ui-section-title">{editingAssetEmployeeId ? 'Edit Asset Employee' : 'Add Asset Employee'}</h2>
                       <p className="mt-1 text-sm text-slate-500">Maintain a dedicated employee master for asset issue and transfer workflows without depending on portal login users.</p>
                     </div>
                     <div className="rounded-2xl bg-[#4E5A7A]/10 p-2 text-[#4E5A7A]"><Layers3 className="h-5 w-5" /></div>
@@ -1502,7 +1502,7 @@ export default function AdminSettings() {
 
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Asset Employee Master</h2>
+                    <h2 className="ui-section-title">Asset Employee Master</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">{assetEmployees.filter((employee) => employee.isActive).length} active</span>
                   </div>
 
