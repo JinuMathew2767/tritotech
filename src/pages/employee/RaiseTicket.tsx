@@ -192,7 +192,7 @@ export default function RaiseTicket() {
                   ) : availableDepartmentNames.length === 0 ? (
                     <div className="input bg-slate-50 text-slate-400">No departments available</div>
                   ) : (
-                    <div className="relative">
+                    <div>
                       <button
                         type="button"
                         onClick={() => setDepartmentPickerOpen((current) => !current)}
@@ -213,7 +213,7 @@ export default function RaiseTicket() {
                       </button>
 
                       {departmentPickerOpen && (
-                        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-10 rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)]">
+                        <div className="mt-2 rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)]">
                           <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
                             {availableDepartmentNames.map((item) => {
                               const checked = selectedDepartments.includes(item)
