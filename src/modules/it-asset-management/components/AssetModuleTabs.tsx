@@ -47,8 +47,8 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
               key={id}
               to={to}
               className={clsx(
-                'flex items-start border transition-all',
-                compact ? 'gap-2.5 rounded-xl px-3 py-2' : 'gap-3 rounded-2xl px-3.5 py-3',
+                'flex border transition-all',
+                compact ? 'items-center gap-2.5 rounded-xl px-3 py-2' : 'items-center gap-3 rounded-2xl px-3.5 py-3',
                 activeTab === id
                   ? 'border-[#4E5A7A]/25 bg-[#4E5A7A]/10 text-[#4E5A7A] shadow-sm'
                   : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
@@ -56,15 +56,15 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
             >
               <div
                 className={clsx(
-                  'mt-0.5 flex flex-shrink-0 items-center justify-center rounded-xl',
+                  'flex flex-shrink-0 items-center justify-center rounded-xl',
                   compact ? 'h-8 w-8' : 'h-9 w-9',
                   activeTab === id ? 'bg-white/80 text-[#4E5A7A]' : 'bg-slate-100 text-slate-500'
                 )}
               >
                 <Icon className="h-4 w-4" />
               </div>
-              <div className="min-w-0">
-                <p className={clsx('font-semibold leading-5', compact ? 'text-[13px]' : 'text-sm')}>{label}</p>
+              <div className="min-w-0 self-center">
+                <p className={clsx('font-semibold leading-none', compact ? 'text-[13px]' : 'text-sm')}>{label}</p>
                 <p className={clsx('mt-0.5 text-slate-500', compact ? 'hidden text-[11px] leading-4 2xl:block' : 'text-xs leading-5')}>
                   {hint}
                 </p>
