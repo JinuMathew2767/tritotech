@@ -292,150 +292,109 @@ export default function ITStaffDashboard() {
     { icon: AlertCircle, label: 'Overdue Queue', value: stats.overdue, color: 'text-red-600', bg: 'bg-red-50' },
   ]
 
+  const compactStats = [
+    ...kpis.map(({ icon, label, value, color, bg }) => ({ icon, label, value: String(value), color, bg })),
+    {
+      icon: Sparkles,
+      label: 'Support ETA',
+      value: stats.sla_analysis.avg_support_expected_hours ? `${stats.sla_analysis.avg_support_expected_hours.toFixed(1)}h` : '--',
+      color: 'text-sky-700',
+      bg: 'bg-sky-50',
+    },
+    {
+      icon: RotateCcw,
+      label: 'Resolution',
+      value: stats.sla_analysis.avg_actual_resolution_hours ? `${stats.sla_analysis.avg_actual_resolution_hours.toFixed(1)}h` : '--',
+      color: 'text-indigo-700',
+      bg: 'bg-indigo-50',
+    },
+    {
+      icon: TicketCheck,
+      label: 'ETA Met',
+      value: `${stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%`,
+      color: 'text-emerald-700',
+      bg: 'bg-emerald-50',
+    },
+  ]
+
   return (
     <div className="page-shell space-y-3">
-      <div className="rounded-[24px] border border-white/70 bg-white/72 p-4 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.28)] backdrop-blur-xl">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#d5dce7] bg-[linear-gradient(135deg,rgba(78,90,122,0.14)_0%,rgba(78,90,122,0.06)_100%)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#4E5A7A] shadow-[0_14px_28px_-24px_rgba(78,90,122,0.22)]">
-              <TicketCheck className="h-3 w-3" />
-              Ticket Desk
+      <div className="rounded-[22px] border border-white/70 bg-white/72 p-3 shadow-[0_16px_34px_-30px_rgba(15,23,42,0.24)] backdrop-blur-xl">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 xl:flex-row xl:items-end xl:justify-between">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#d5dce7] bg-[linear-gradient(135deg,rgba(78,90,122,0.14)_0%,rgba(78,90,122,0.06)_100%)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#4E5A7A] shadow-[0_14px_28px_-24px_rgba(78,90,122,0.22)]">
+                <TicketCheck className="h-3 w-3" />
+                Ticket Desk
+              </div>
+              <h1 className="mt-2 text-[1.25rem] font-bold tracking-tight text-slate-900">Queue Overview</h1>
+              <p className="mt-1 text-[11px] leading-5 text-slate-500">{tabDescription}</p>
             </div>
-            <h1 className="mt-2 text-[1.7rem] font-bold tracking-tight text-slate-900">Live Queue View</h1>
-            <p className="mt-1.5 max-w-2xl text-xs leading-5 text-slate-500">{tabDescription}</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)]">
-                {tickets.length} visible in this lane
+
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)]">
+                {tickets.length} shown
               </span>
-              <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)]">
+              <span className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)]">
                 {activeRangeLabel}
               </span>
+              <span className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)]">
+                My workload: {myActiveCount}
+              </span>
+              <span className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)]">
+                Resolved: {resolvedCount}
+              </span>
             </div>
           </div>
-          <div className="grid gap-2.5 sm:grid-cols-2 xl:w-[320px]">
-            <div className="rounded-[22px] border border-white/70 bg-white/55 p-3.5 shadow-[0_14px_28px_-26px_rgba(15,23,42,0.32)] backdrop-blur-md">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">My Workload</p>
-              <p className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">{myActiveCount}</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Assigned pending and in-progress items currently owned by you.
-              </p>
-            </div>
-            <div className="rounded-[22px] border border-white/70 bg-white/55 p-3.5 shadow-[0_14px_28px_-26px_rgba(15,23,42,0.32)] backdrop-blur-md">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Resolved Share</p>
-                  <p className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">{resolvedCount}</p>
-                </div>
-                <div className="rounded-2xl border border-white/70 bg-white/70 p-2 text-emerald-600 shadow-sm">
-                  <Sparkles className="h-4.5 w-4.5" />
-                </div>
-              </div>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Completed tickets currently reflected in the live platform snapshot.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {kpis.map(({ icon: Icon, label, value, color, bg }) => (
-          <div key={label} className="metric-tile p-3.5">
-            <div className="relative z-10 flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-                <p className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">{value}</p>
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 2xl:grid-cols-7">
+            {compactStats.map(({ icon: Icon, label, value, color, bg }) => (
+              <div key={label} className="rounded-[18px] border border-white/70 bg-white/58 px-3 py-2.5 shadow-[0_12px_26px_-24px_rgba(15,23,42,0.25)] backdrop-blur-md">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+                    <p className="mt-1.5 text-[1.05rem] font-bold leading-none tracking-tight text-slate-900">{value}</p>
+                  </div>
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${bg}`}>
+                    <Icon className={`h-4 w-4 ${color}`} />
+                  </div>
+                </div>
               </div>
-              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${bg}`}>
-                <Icon className={`h-4.5 w-4.5 ${color}`} />
-              </div>
-            </div>
-            <div className="mt-3 h-1.5 rounded-full bg-white/70">
-              <div
-                className={clsx(
-                  'h-1.5 rounded-full',
-                  label === 'Overdue Queue'
-                    ? 'bg-red-500'
-                    : label === 'In Progress'
-                      ? 'bg-emerald-500'
-                      : label === 'Assigned Pending'
-                        ? 'bg-violet-500'
-                        : 'bg-[#4E5A7A]'
-                )}
-                style={{ width: `${Math.min(100, Math.max(12, (Number(value) / Math.max(stats.total, 1)) * 100))}%` }}
-              />
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="metric-tile p-3.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Avg Support Proposed ETA</p>
-          <p className="mt-1.5 text-[1.75rem] font-extrabold tracking-tight text-slate-900">
-            {stats.sla_analysis.avg_support_expected_hours
-              ? `${stats.sla_analysis.avg_support_expected_hours.toFixed(1)}h`
-              : '--'}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-slate-500">Average promise currently being made by the support desk.</p>
-        </div>
-        <div className="metric-tile p-3.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Avg Actual Resolution</p>
-          <p className="mt-1.5 text-[1.75rem] font-extrabold tracking-tight text-slate-900">
-            {stats.sla_analysis.avg_actual_resolution_hours
-              ? `${stats.sla_analysis.avg_actual_resolution_hours.toFixed(1)}h`
-              : '--'}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-slate-500">Real completion pace across resolved items in the system.</p>
-        </div>
-        <div className="metric-tile p-3.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Met Proposed ETA</p>
-          <p className="mt-1.5 text-[1.75rem] font-extrabold tracking-tight text-slate-900">
-            {stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%
-          </p>
-          <p className="mt-1 text-xs leading-5 text-slate-500">
-            How often the queue is closing within the support commitment window.
-          </p>
         </div>
       </div>
 
       <div className="glass-table">
         <div className="border-b border-slate-100 px-4 py-3">
           <div className="flex flex-col gap-3">
-            <div className="rounded-[22px] border border-white/70 bg-white/55 p-2.5 shadow-[0_14px_28px_-26px_rgba(15,23,42,0.32)] backdrop-blur-md">
-              <div className="flex items-start justify-between gap-3">
+            <div className="rounded-[20px] border border-white/70 bg-white/55 p-2.5 shadow-[0_14px_28px_-26px_rgba(15,23,42,0.32)] backdrop-blur-md">
+              <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                    {deskTabMeta[deskTab].eyebrow}
-                  </p>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                      {deskTabMeta[deskTab].eyebrow}
+                    </p>
                     <h2 className="text-sm font-semibold tracking-tight text-slate-900">Ticket Queue</h2>
-                    <span className="hidden text-[11px] text-slate-500 xl:inline">{tabDescription}</span>
+                    <span
+                      className={clsx(
+                        'inline-flex min-w-[74px] items-center justify-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-semibold tabular-nums shadow-[0_10px_22px_-20px_rgba(78,90,122,0.16)]',
+                        deskTabMeta[deskTab].chipTone
+                      )}
+                    >
+                      <span>{tickets.length}</span>
+                      <span>shown</span>
+                    </span>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  <span className="hidden rounded-full border border-white/70 bg-white/70 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)] lg:inline-flex">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="rounded-full border border-white/70 bg-white/70 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)]">
                     {activeRangeLabel}
                   </span>
-                  <span
-                    className={clsx(
-                      'inline-flex min-w-[82px] items-center justify-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-[11px] font-semibold tabular-nums shadow-[0_10px_22px_-20px_rgba(78,90,122,0.16)]',
-                      deskTabMeta[deskTab].chipTone
-                    )}
-                  >
-                    <span className="inline-block w-5 text-right">{tickets.length}</span>
-                    <span>shown</span>
+                  <span className={clsx('text-[11px] font-medium text-slate-400 transition-opacity', refreshing ? 'opacity-100' : 'opacity-0')}>
+                    Updating queue...
                   </span>
                 </div>
-              </div>
-
-              <div className="mt-2 flex min-h-4 items-center justify-between gap-2">
-                <span className="inline-flex rounded-full border border-white/70 bg-white/70 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 shadow-[0_10px_22px_-20px_rgba(15,23,42,0.3)] lg:hidden">
-                  {activeRangeLabel}
-                </span>
-                <span className={clsx('text-[11px] font-medium text-slate-400 transition-opacity', refreshing ? 'opacity-100' : 'opacity-0')}>
-                  Updating queue...
-                </span>
               </div>
 
               <div className="mt-2.5 flex flex-col gap-2 lg:flex-row lg:items-center">
