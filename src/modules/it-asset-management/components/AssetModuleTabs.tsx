@@ -43,21 +43,31 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
               'flex border transition-all',
               compact ? 'items-center gap-2.5 rounded-xl px-3 py-2.5' : 'items-center gap-3 rounded-2xl px-3.5 py-3',
               activeTab === id
-                ? 'border-[#4E5A7A]/25 bg-[#4E5A7A]/10 text-[#4E5A7A] shadow-sm'
+                ? 'border-white/10 bg-[linear-gradient(135deg,#5f6d8c_0%,#45526d_100%)] text-white shadow-[0_20px_30px_-24px_rgba(8,19,31,0.58)]'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
             )}
           >
             <div
               className={clsx(
-                'flex flex-shrink-0 items-center justify-center rounded-xl',
+                'flex flex-shrink-0 items-center justify-center rounded-xl transition-all',
                 compact ? 'h-8 w-8' : 'h-9 w-9',
-                activeTab === id ? 'bg-white/80 text-[#4E5A7A]' : 'bg-slate-100 text-slate-500'
+                activeTab === id
+                  ? 'bg-white/14 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
+                  : 'bg-slate-100 text-slate-500'
               )}
             >
               <Icon className="h-4 w-4" />
             </div>
             <div className="min-w-0 self-center">
-              <p className={clsx('ui-card-title', compact ? 'text-[14px]' : 'text-[15px]')}>{label}</p>
+              <p
+                className={clsx(
+                  'ui-card-title',
+                  compact ? 'text-[14px]' : 'text-[15px]',
+                  activeTab === id ? 'text-white' : 'text-slate-900'
+                )}
+              >
+                {label}
+              </p>
             </div>
           </Link>
         ))}
