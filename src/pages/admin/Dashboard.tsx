@@ -49,6 +49,7 @@ export default function AdminDashboard() {
     shortName: shortenName(row.name),
   }))
   const leadingCompany = topCompanies[0]
+  const openCount = stats.status_breakdown.find((row) => row.label === 'Open')?.value ?? 0
   const assignedPendingCount = stats.status_breakdown.find((row) => row.label === 'Assigned Pending')?.value ?? 0
   const statusRows = stats.status_breakdown.map((row, index) => {
     const palette = statusPalette[index] || statusPalette[0]
@@ -142,7 +143,7 @@ export default function AdminDashboard() {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0f5d91]">Performance Trend</p>
-                  <h2 className="mt-2 text-[1.9rem] font-bold tracking-tight text-slate-950">Inbound Volume</h2>
+                  <h2 className="mt-2 text-[1.9rem] font-bold tracking-tight text-slate-950">Queue Intelligence</h2>
                 </div>
                 <div className="text-left sm:text-right">
                   <p className="text-[2.35rem] font-bold leading-none tracking-tight text-slate-950">{stats.total}</p>
@@ -152,44 +153,94 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {topCompanies.length === 0 ? (
-                <div className="mt-8 rounded-[22px] bg-slate-50 px-5 py-16 text-center text-sm text-slate-400">
-                  No company ticket data yet.
+              <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)]">
+                <div className="rounded-[22px] border border-slate-100 bg-[linear-gradient(180deg,#fbfdff_0%,#f4f8fb_100%)] p-4">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-[18px] bg-white px-4 py-4 shadow-[0_14px_26px_-22px_rgba(15,23,42,0.12)]">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Open</p>
+                      <p className="mt-2 text-[1.8rem] font-bold leading-none tracking-tight text-slate-950">{openCount}</p>
+                      <p className="mt-2 text-[11px] text-slate-500">Fresh demand entering the desk</p>
+                    </div>
+                    <div className="rounded-[18px] bg-white px-4 py-4 shadow-[0_14px_26px_-22px_rgba(15,23,42,0.12)]">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">In Progress</p>
+                      <p className="mt-2 text-[1.8rem] font-bold leading-none tracking-tight text-slate-950">{stats.active}</p>
+                      <p className="mt-2 text-[11px] text-slate-500">Tickets actively moving through delivery</p>
+                    </div>
+                    <div className="rounded-[18px] bg-white px-4 py-4 shadow-[0_14px_26px_-22px_rgba(15,23,42,0.12)]">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Resolved</p>
+                      <p className="mt-2 text-[1.8rem] font-bold leading-none tracking-tight text-slate-950">{stats.resolved}</p>
+                      <p className="mt-2 text-[11px] text-slate-500">Completed work already closed out</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-[20px] bg-[#0f5d91]/6 px-4 py-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f5d91]">Desk balance</p>
+                        <p className="mt-2 text-[15px] font-semibold text-slate-900">
+                          {stats.overdue === 0 ? 'Queue is under control.' : 'A small set of tickets needs intervention.'}
+                        </p>
+                      </div>
+                      <div className="rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-[#0f5d91]">
+                        {stats.overdue} overdue
+                      </div>
+                    </div>
+                    <div className="mt-4 space-y-2.5">
+                      {statusRows.map((row) => (
+                        <div key={row.label}>
+                          <div className="flex items-center justify-between gap-3 text-[12px] font-medium text-slate-600">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.color }} />
+                              <span>{row.label}</span>
+                            </div>
+                            <span>{row.value}</span>
+                          </div>
+                          <div className="mt-1.5 h-2 rounded-full bg-white">
+                            <div
+                              className="h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${row.pct}%`, backgroundColor: row.color }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="mt-4 h-[230px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={topCompanies} margin={{ top: 10, right: 4, left: -8, bottom: 2 }}>
-                      <CartesianGrid vertical={false} stroke="#edf2f7" strokeDasharray="4 4" />
-                      <XAxis
-                        dataKey="shortName"
-                        tick={{ fontSize: 11, fill: '#94a3b8' }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis hide />
-                      <Tooltip
-                        cursor={{ fill: 'rgba(148, 163, 184, 0.08)' }}
-                        contentStyle={{
-                          borderRadius: 16,
-                          borderColor: '#e2e8f0',
-                          boxShadow: '0 14px 30px -18px rgba(15, 23, 42, 0.22)',
-                        }}
-                        formatter={(value) => [`${value ?? 0} tickets`, 'Volume']}
-                        labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
-                      />
-                      <Bar dataKey="total" radius={[12, 12, 0, 0]} barSize={38}>
-                        {topCompanies.map((_, index) => (
-                          <Cell
-                            key={index}
-                            fill={index === 3 ? '#0f69ac' : '#dbe4ee'}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+
+                <div className="space-y-3">
+                  <div className="rounded-[22px] border border-slate-100 bg-white px-4 py-4 shadow-[0_14px_26px_-22px_rgba(15,23,42,0.12)]">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Queue concentration</p>
+                    <p className="mt-2 text-[1.2rem] font-semibold leading-tight tracking-tight text-slate-950">
+                      {leadingCompany ? leadingCompany.shortName : 'No company data yet'}
+                    </p>
+                    <p className="mt-2 text-[12px] leading-5 text-slate-500">
+                      {leadingCompany ? `${leadingCompany.total} tickets currently make this the busiest company queue.` : 'Company workload will appear here once ticket activity is available.'}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[22px] border border-slate-100 bg-white px-4 py-4 shadow-[0_14px_26px_-22px_rgba(15,23,42,0.12)]">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Top companies</p>
+                    <div className="mt-3 space-y-2.5">
+                      {topCompanies.length === 0 ? (
+                        <p className="text-[12px] text-slate-400">No company ticket data yet.</p>
+                      ) : (
+                        topCompanies.slice(0, 3).map((company, index) => (
+                          <div key={company.name} className="flex items-center justify-between gap-3 rounded-[16px] bg-slate-50 px-3 py-2.5">
+                            <div className="min-w-0">
+                              <p className="truncate text-[13px] font-semibold text-slate-900">{company.shortName}</p>
+                              <p className="mt-0.5 text-[11px] text-slate-500">Rank #{index + 1}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[15px] font-bold text-slate-900">{company.total}</p>
+                              <p className="text-[11px] text-slate-400">tickets</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
