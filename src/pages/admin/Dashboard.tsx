@@ -107,88 +107,90 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-4 p-4 md:p-5">
-      <section className="relative overflow-hidden rounded-[24px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_24%),linear-gradient(135deg,#08233a_0%,#0c3f63_55%,#0a2942_100%)] p-4 shadow-[0_18px_50px_-34px_rgba(15,76,119,0.55)] md:p-5">
-        <div className="pointer-events-none absolute -right-8 top-6 h-28 w-28 rounded-full bg-cyan-300/12 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-1/4 h-20 w-20 rounded-full bg-emerald-300/10 blur-3xl" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[34%] bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] xl:block" />
+      <section className="relative overflow-hidden rounded-[24px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_22%),linear-gradient(135deg,#08233a_0%,#0c3f63_55%,#0a2942_100%)] p-4 shadow-[0_18px_50px_-34px_rgba(15,76,119,0.5)]">
+        <div className="pointer-events-none absolute -right-8 top-5 h-24 w-24 rounded-full bg-cyan-300/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/4 h-16 w-16 rounded-full bg-emerald-300/8 blur-3xl" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[30%] bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] xl:block" />
 
-        <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_300px]">
+        <div className="relative grid gap-3 xl:grid-cols-[minmax(0,1.62fr)_280px]">
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-50/90">
               <Sparkles className="h-3.5 w-3.5" />
               Operations Snapshot
             </div>
-            <h1 className="mt-3 max-w-2xl text-[1.75rem] font-bold tracking-tight text-white md:text-[1.95rem]">
-              Team workload, SLA health, and queue movement at a glance.
+            <h1 className="mt-3 max-w-2xl text-[1.45rem] font-bold tracking-tight text-white md:text-[1.65rem]">
+              Workload, SLA health, and queue movement at a glance.
             </h1>
-            <p className="mt-2 max-w-2xl text-[13px] leading-6 text-slate-200/90 md:text-sm">
-              A compact operational read on ticket pace, delivery confidence, and where attention is needed next.
+            <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-slate-200/85 md:text-[13px]">
+              A fast operational read on delivery confidence and what needs attention next.
             </p>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-3 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">Support ETA</p>
-                <p className="mt-1.5 text-[1.35rem] font-bold leading-none text-white">{formatHours(stats.sla_analysis.avg_support_expected_hours)}</p>
-                <p className="mt-1 text-[11px] leading-5 text-slate-200/85">Average requester commitment</p>
+                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{formatHours(stats.sla_analysis.avg_support_expected_hours)}</p>
+                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">Average requester commitment</p>
               </div>
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-3 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">Actual Resolution</p>
-                <p className="mt-1.5 text-[1.35rem] font-bold leading-none text-white">{formatHours(stats.sla_analysis.avg_actual_resolution_hours)}</p>
-                <p className="mt-1 text-[11px] leading-5 text-slate-200/85">
+                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{formatHours(stats.sla_analysis.avg_actual_resolution_hours)}</p>
+                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">
                   {paceDelta ? `${paceDelta}h against support ETA` : 'Waiting for more history'}
                 </p>
               </div>
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-3 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">SLA Met</p>
-                <p className="mt-1.5 text-[1.35rem] font-bold leading-none text-white">{stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%</p>
-                <p className="mt-1 text-[11px] leading-5 text-slate-200/85">Resolved inside support ETA</p>
+                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%</p>
+                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">Resolved inside support ETA</p>
               </div>
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-3 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">Active Queue</p>
-                <p className="mt-1.5 text-[1.35rem] font-bold leading-none text-white">{stats.active}</p>
-                <p className="mt-1 text-[11px] leading-5 text-slate-200/85">{activePct.toFixed(1)}% of current ticket load</p>
+                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{stats.active}</p>
+                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">{activePct.toFixed(1)}% of current ticket load</p>
               </div>
             </div>
           </div>
 
-          <div className="relative z-10 rounded-[22px] border border-white/40 bg-white/72 p-3.5 shadow-xl shadow-slate-900/10 backdrop-blur-xl">
+          <div className="relative z-10 rounded-[22px] border border-white/40 bg-white/72 p-3 shadow-xl shadow-slate-900/10 backdrop-blur-xl">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Executive Pulse</p>
-                <p className="mt-1 text-[2rem] font-bold tracking-tight text-slate-900">{stats.total}</p>
-                <p className="text-[12px] leading-5 text-slate-500">tickets currently tracked in the platform</p>
+                <p className="mt-1 text-[1.75rem] font-bold tracking-tight text-slate-900">{stats.total}</p>
+                <p className="text-[11px] leading-4 text-slate-500">tickets currently tracked</p>
               </div>
-              <div className="rounded-2xl bg-slate-900 px-3 py-2 text-right text-white">
+              <div className="rounded-2xl bg-slate-900 px-3 py-1.5 text-right text-white">
                 <p className="text-[11px] uppercase tracking-[0.16em] text-slate-300">Compliance</p>
-                <p className="mt-1 text-lg font-semibold">{stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%</p>
+                <p className="mt-1 text-base font-semibold">{stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%</p>
               </div>
             </div>
 
-            <div className="mt-3 space-y-2">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
               {statusRows.map((row) => (
-                <div key={row.label} className="rounded-2xl border border-white/60 bg-white/55 p-2.5 backdrop-blur-md">
-                  <div className="flex items-center justify-between gap-3">
+                <div key={row.label} className="rounded-2xl border border-white/60 bg-white/55 p-2 backdrop-blur-md">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.color }} />
-                      <span className="text-[13px] font-semibold text-slate-700">{row.label}</span>
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: row.color }} />
+                      <span className="text-[12px] font-semibold text-slate-700">{row.label}</span>
                     </div>
                     <div className="text-right">
-                      <p className="text-[13px] font-bold text-slate-900">{row.value}</p>
-                      <p className="text-[11px] text-slate-400">{row.pct.toFixed(1)}%</p>
+                      <p className="text-[12px] font-bold text-slate-900">{row.value}</p>
+                      <p className="text-[10px] text-slate-400">{row.pct.toFixed(1)}%</p>
                     </div>
                   </div>
-                  <div className="mt-2.5 h-1.5 rounded-full bg-white">
+                  <div className="mt-2 h-1 rounded-full bg-white">
                     <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${row.pct}%`, backgroundColor: row.color }} />
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-3 rounded-2xl border border-white/55 bg-white/55 p-3 backdrop-blur-md">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Overdue Queue</p>
-              <div className="mt-1.5 flex items-end justify-between gap-3">
-                <p className="text-[1.8rem] font-bold tracking-tight text-slate-900">{stats.overdue}</p>
-                <p className="text-[12px] leading-5 text-slate-500">tickets need immediate attention</p>
+            <div className="mt-2.5 rounded-2xl border border-white/55 bg-white/55 p-2.5 backdrop-blur-md">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Overdue Queue</p>
+                  <p className="mt-1 text-[1.45rem] font-bold tracking-tight text-slate-900">{stats.overdue}</p>
+                </div>
+                <p className="max-w-[140px] text-right text-[10.5px] leading-4 text-slate-500">tickets need immediate attention</p>
               </div>
             </div>
           </div>
