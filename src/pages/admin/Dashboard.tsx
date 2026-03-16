@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts'
-import { Ticket, CheckCircle2, Clock3, AlertTriangle, ArrowUpRight, Building2, Gauge, Sparkles } from 'lucide-react'
-import clsx from 'clsx'
+import { CheckCircle2, Clock3, Building2, Gauge, Sparkles } from 'lucide-react'
 import ticketService, { type TicketStats } from '@/services/ticketService'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
@@ -41,56 +40,16 @@ export default function AdminDashboard() {
 
   const total = Math.max(stats.total, 1)
   const resolvedPct = (stats.resolved / total) * 100
-  const activePct = (stats.active / total) * 100
-  const overduePct = (stats.overdue / total) * 100
   const avgActual = stats.sla_analysis.avg_actual_resolution_hours
   const avgSupport = stats.sla_analysis.avg_support_expected_hours
   const paceDelta = avgActual !== null && avgSupport !== null ? Math.abs(avgActual - avgSupport).toFixed(1) : null
-
-  const kpis = [
-    {
-      label: 'Total Tickets',
-      value: stats.total,
-      helper: 'All tickets in the service desk',
-      icon: Ticket,
-      color: 'text-cyan-700',
-      bg: 'bg-cyan-50',
-      accent: 'from-cyan-500/20 to-sky-500/5',
-    },
-    {
-      label: 'Active Queue',
-      value: stats.active,
-      helper: `${activePct.toFixed(1)}% of total workload`,
-      icon: Clock3,
-      color: 'text-amber-700',
-      bg: 'bg-amber-50',
-      accent: 'from-amber-500/20 to-orange-500/5',
-    },
-    {
-      label: 'Resolved',
-      value: stats.resolved,
-      helper: `${resolvedPct.toFixed(1)}% completion share`,
-      icon: CheckCircle2,
-      color: 'text-emerald-700',
-      bg: 'bg-emerald-50',
-      accent: 'from-emerald-500/20 to-teal-500/5',
-    },
-    {
-      label: 'Overdue Risk',
-      value: `${overduePct.toFixed(1)}%`,
-      helper: 'Tickets already beyond proposed timing',
-      icon: AlertTriangle,
-      color: 'text-rose-700',
-      bg: 'bg-rose-50',
-      accent: 'from-rose-500/20 to-orange-500/5',
-    },
-  ]
 
   const topCompanies: ChartRow[] = stats.company_breakdown.slice(0, 5).map((row) => ({
     ...row,
     shortName: shortenName(row.name),
   }))
   const leadingCompany = topCompanies[0]
+  const assignedPendingCount = stats.status_breakdown.find((row) => row.label === 'Assigned Pending')?.value ?? 0
   const statusRows = stats.status_breakdown.map((row, index) => {
     const palette = statusPalette[index] || statusPalette[0]
     const pct = total ? (row.value / total) * 100 : 0
@@ -104,123 +63,211 @@ export default function AdminDashboard() {
       return `${row.color} ${start}% ${cursor}%`
     })
     .join(', ')})`
+  const stripStats = [
+    { label: 'SLA', value: `${stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%` },
+    { label: 'Support ETA', value: formatHours(stats.sla_analysis.avg_support_expected_hours) },
+    { label: 'Actual Resolution', value: formatHours(stats.sla_analysis.avg_actual_resolution_hours) },
+    { label: 'Active Queue', value: String(stats.active) },
+  ]
+  const summaryCards = [
+    {
+      label: 'Time to Resolution',
+      value: formatHours(stats.sla_analysis.avg_actual_resolution_hours),
+      helper: paceDelta ? `${paceDelta}h away from support ETA` : 'Waiting for more resolved-ticket history',
+      icon: Clock3,
+      tone: 'text-amber-700',
+      bg: 'bg-amber-50',
+      accent: 'Within target range',
+    },
+    {
+      label: 'SLA Confidence',
+      value: `${stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%`,
+      helper: 'Resolved tickets landing inside the support ETA commitment.',
+      icon: CheckCircle2,
+      tone: 'text-sky-700',
+      bg: 'bg-sky-50',
+      accent: 'Live compliance signal',
+    },
+    {
+      label: 'Busiest Company',
+      value: leadingCompany?.shortName ?? 'No data',
+      helper: leadingCompany ? `${leadingCompany.total} tickets currently tracked` : 'No company volume yet',
+      icon: Building2,
+      tone: 'text-indigo-700',
+      bg: 'bg-indigo-50',
+      accent: leadingCompany ? 'Highest current throughput' : 'Awaiting traffic',
+    },
+  ]
 
   return (
     <div className="space-y-4 p-4 md:p-5">
-      <section className="relative overflow-hidden rounded-[24px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_22%),linear-gradient(135deg,#08233a_0%,#0c3f63_55%,#0a2942_100%)] p-4 shadow-[0_18px_50px_-34px_rgba(15,76,119,0.5)]">
-        <div className="pointer-events-none absolute -right-8 top-5 h-24 w-24 rounded-full bg-cyan-300/10 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-1/4 h-16 w-16 rounded-full bg-emerald-300/8 blur-3xl" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[30%] bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] xl:block" />
-
-        <div className="relative grid gap-3 xl:grid-cols-[minmax(0,1.62fr)_280px]">
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-50/90">
-              <Sparkles className="h-3.5 w-3.5" />
-              Operations Snapshot
+      <section className="overflow-hidden rounded-[28px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(247,250,252,0.86)_100%)] shadow-[0_24px_55px_-34px_rgba(15,23,42,0.26)] backdrop-blur-xl">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-slate-200/80 bg-[linear-gradient(90deg,#0a2f45_0%,#103b57_52%,#143956_100%)] px-4 py-3 text-white">
+          <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+            <Sparkles className="h-3.5 w-3.5" />
+            Operations Snapshot
+          </div>
+          {stripStats.map((item) => (
+            <div key={item.label} className="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-100">
+              <span className="uppercase tracking-[0.16em] text-slate-300">{item.label}</span>
+              <span className="text-[1rem] font-bold text-white">{item.value}</span>
             </div>
-            <h1 className="mt-3 max-w-2xl text-[1.45rem] font-bold tracking-tight text-white md:text-[1.65rem]">
-              Workload, SLA health, and queue movement at a glance.
-            </h1>
-            <p className="mt-1.5 max-w-2xl text-[12px] leading-5 text-slate-200/85 md:text-[13px]">
-              A fast operational read on delivery confidence and what needs attention next.
-            </p>
+          ))}
+          <div className="ml-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/90">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            Live Updates
+          </div>
+        </div>
 
-            <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">Support ETA</p>
-                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{formatHours(stats.sla_analysis.avg_support_expected_hours)}</p>
-                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">Average requester commitment</p>
-              </div>
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">Actual Resolution</p>
-                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{formatHours(stats.sla_analysis.avg_actual_resolution_hours)}</p>
-                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">
-                  {paceDelta ? `${paceDelta}h against support ETA` : 'Waiting for more history'}
+        <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1.55fr)_300px]">
+          <div className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h1 className="text-[2rem] font-bold tracking-tight text-slate-950">Ticket Velocity</h1>
+                <p className="mt-1 text-[14px] font-medium leading-6 text-slate-500">
+                  Real-time throughput analysis for the current support cycle.
                 </p>
               </div>
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">SLA Met</p>
-                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%</p>
-                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">Resolved inside support ETA</p>
-              </div>
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-100/80">Active Queue</p>
-                <p className="mt-1 text-[1.18rem] font-bold leading-none text-white">{stats.active}</p>
-                <p className="mt-1 text-[10.5px] leading-4 text-slate-200/80">{activePct.toFixed(1)}% of current ticket load</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative z-10 rounded-[22px] border border-white/40 bg-white/72 p-3 shadow-xl shadow-slate-900/10 backdrop-blur-xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Executive Pulse</p>
-                <p className="mt-1 text-[1.75rem] font-bold tracking-tight text-slate-900">{stats.total}</p>
-                <p className="text-[11px] leading-4 text-slate-500">tickets currently tracked</p>
-              </div>
-              <div className="rounded-2xl bg-slate-900 px-3 py-1.5 text-right text-white">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-300">Compliance</p>
-                <p className="mt-1 text-base font-semibold">{stats.sla_analysis.met_support_proposal_pct.toFixed(1)}%</p>
+              <div className="flex items-center gap-2">
+                <button className="rounded-xl bg-slate-100 px-4 py-2 text-[12px] font-semibold text-slate-700">
+                  Daily
+                </button>
+                <button className="rounded-xl bg-[#0c3551] px-4 py-2 text-[12px] font-semibold text-white shadow-[0_16px_30px_-20px_rgba(12,53,81,0.55)]">
+                  Weekly
+                </button>
               </div>
             </div>
 
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-              {statusRows.map((row) => (
-                <div key={row.label} className="rounded-2xl border border-white/60 bg-white/55 p-2 backdrop-blur-md">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: row.color }} />
-                      <span className="text-[12px] font-semibold text-slate-700">{row.label}</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[12px] font-bold text-slate-900">{row.value}</p>
-                      <p className="text-[10px] text-slate-400">{row.pct.toFixed(1)}%</p>
-                    </div>
+            <div className="rounded-[26px] border border-white/75 bg-white/78 p-5 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.18)]">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0f5d91]">Performance Trend</p>
+                  <h2 className="mt-2 text-[1.9rem] font-bold tracking-tight text-slate-950">Inbound Volume</h2>
+                </div>
+                <div className="text-left sm:text-right">
+                  <p className="text-[2.35rem] font-bold leading-none tracking-tight text-slate-950">{stats.total}</p>
+                  <p className="mt-2 text-[12px] font-semibold text-[#0f5d91]">
+                    {resolvedPct.toFixed(1)}% resolved share
+                  </p>
+                </div>
+              </div>
+
+              {topCompanies.length === 0 ? (
+                <div className="mt-8 rounded-[22px] bg-slate-50 px-5 py-16 text-center text-sm text-slate-400">
+                  No company ticket data yet.
+                </div>
+              ) : (
+                <div className="mt-4 h-[230px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={topCompanies} margin={{ top: 10, right: 4, left: -8, bottom: 2 }}>
+                      <CartesianGrid vertical={false} stroke="#edf2f7" strokeDasharray="4 4" />
+                      <XAxis
+                        dataKey="shortName"
+                        tick={{ fontSize: 11, fill: '#94a3b8' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis hide />
+                      <Tooltip
+                        cursor={{ fill: 'rgba(148, 163, 184, 0.08)' }}
+                        contentStyle={{
+                          borderRadius: 16,
+                          borderColor: '#e2e8f0',
+                          boxShadow: '0 14px 30px -18px rgba(15, 23, 42, 0.22)',
+                        }}
+                        formatter={(value) => [`${value ?? 0} tickets`, 'Volume']}
+                        labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
+                      />
+                      <Bar dataKey="total" radius={[12, 12, 0, 0]} barSize={38}>
+                        {topCompanies.map((_, index) => (
+                          <Cell
+                            key={index}
+                            fill={index === 3 ? '#0f69ac' : '#dbe4ee'}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {summaryCards.map(({ label, value, helper, icon: Icon, tone, bg, accent }) => (
+                <div
+                  key={label}
+                  className="rounded-[24px] border border-white/75 bg-white/78 p-5 shadow-[0_18px_38px_-30px_rgba(15,23,42,0.16)]"
+                >
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${bg}`}>
+                    <Icon className={`h-4.5 w-4.5 ${tone}`} />
                   </div>
-                  <div className="mt-2 h-1 rounded-full bg-white">
-                    <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${row.pct}%`, backgroundColor: row.color }} />
+                  <p className="mt-4 text-[15px] font-semibold tracking-tight text-slate-950">{label}</p>
+                  <div className="mt-4 flex items-end gap-1">
+                    <p className="text-[2rem] font-bold leading-none tracking-tight text-slate-950">{value}</p>
                   </div>
+                  <p className="mt-2 text-[12px] font-semibold text-[#0f5d91]">{accent}</p>
+                  <p className="mt-1.5 text-[12px] leading-5 text-slate-500">{helper}</p>
                 </div>
               ))}
             </div>
+          </div>
 
-            <div className="mt-2.5 rounded-2xl border border-white/55 bg-white/55 p-2.5 backdrop-blur-md">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Overdue Queue</p>
-                  <p className="mt-1 text-[1.45rem] font-bold tracking-tight text-slate-900">{stats.overdue}</p>
+          <div className="rounded-[30px] bg-[linear-gradient(180deg,#072f47_0%,#08283d_100%)] p-5 text-white shadow-[0_24px_55px_-34px_rgba(8,19,31,0.7)]">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Executive Pulse</p>
+                <p className="mt-6 text-[3rem] font-bold leading-none tracking-tight">{stats.sla_analysis.met_support_proposal_pct.toFixed(0)}%</p>
+                <p className="mt-2 text-[14px] font-medium text-slate-300">SLA compliance confidence</p>
+              </div>
+              <button className="text-slate-300">...</button>
+            </div>
+
+            <div className="mt-6 h-2 rounded-full bg-white/10">
+              <div
+                className="h-2 rounded-full bg-[linear-gradient(90deg,#0ea5e9_0%,#38bdf8_100%)]"
+                style={{ width: `${Math.min(100, stats.sla_analysis.met_support_proposal_pct)}%` }}
+              />
+            </div>
+
+            <div className="mt-8 flex items-center justify-between">
+              <p className="text-[15px] font-semibold text-white">Critical Tickets</p>
+              <span className="rounded-full bg-red-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
+                Alert
+              </span>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div className="rounded-[18px] border border-white/8 bg-white/6 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-white">Overdue Queue</p>
+                    <p className="mt-1 text-[11px] text-slate-400">{stats.overdue} tickets need immediate attention</p>
+                  </div>
                 </div>
-                <p className="max-w-[140px] text-right text-[10.5px] leading-4 text-slate-500">tickets need immediate attention</p>
+              </div>
+              <div className="rounded-[18px] border border-white/8 bg-white/6 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-white">Assigned Pending</p>
+                    <p className="mt-1 text-[11px] text-slate-400">{assignedPendingCount} tickets waiting for work to begin</p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-[18px] border border-white/8 bg-white/6 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="h-2.5 w-2.5 rounded-full bg-sky-400" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-white">Active Queue</p>
+                    <p className="mt-1 text-[11px] text-slate-400">{stats.active} live tickets currently moving through the desk</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {kpis.map(({ label, value, helper, icon: Icon, color, bg, accent }) => (
-          <div
-            key={label}
-            className={clsx(
-              'relative overflow-hidden rounded-[20px] border border-white/60 bg-white/70 p-3.5 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.26)] backdrop-blur-xl transition-transform duration-200 hover:-translate-y-0.5',
-              `bg-gradient-to-br ${accent}`
-            )}
-          >
-            <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-white/45 blur-2xl" />
-            <div className="relative flex items-start justify-between gap-3">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-2xl ${bg}`}>
-                <Icon className={`h-4.5 w-4.5 ${color}`} />
-              </div>
-              <ArrowUpRight className="mt-1 h-4 w-4 text-slate-400" />
-            </div>
-            <div className="relative mt-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{label}</p>
-              <p className="mt-2 text-[1.8rem] font-bold leading-none tracking-tight text-slate-900">{value}</p>
-              <p className="mt-2 text-[11px] leading-5 text-slate-500">{helper}</p>
-            </div>
-          </div>
-        ))}
-      </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_340px]">
         <div className="overflow-hidden rounded-[24px] border border-white/60 bg-white/78 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.35)] backdrop-blur-xl">
