@@ -43,7 +43,7 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
               'relative flex overflow-hidden border transition-all',
               compact ? 'items-center gap-2.5 rounded-xl px-3 py-2.5' : 'items-center gap-3 rounded-2xl px-3.5 py-3',
               activeTab === id
-                ? 'border-white/18 bg-[linear-gradient(135deg,rgba(101,116,149,0.7)_0%,rgba(78,92,122,0.56)_55%,rgba(63,74,98,0.68)_100%)] text-white shadow-[0_22px_34px_-24px_rgba(8,19,31,0.62),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-xl before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.2),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.02)_100%)]'
+                ? 'border-[#6c7a98]/24 bg-[linear-gradient(135deg,rgba(84,98,131,0.96)_0%,rgba(67,79,108,0.92)_52%,rgba(55,66,92,0.96)_100%)] text-white shadow-[0_18px_28px_-22px_rgba(15,23,42,0.58),inset_0_1px_0_rgba(255,255,255,0.18)] before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-[55%] before:bg-[linear-gradient(180deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.03)_100%)] after:pointer-events-none after:absolute after:inset-y-0 after:left-0 after:w-[1px] after:bg-white/18'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
             )}
           >
@@ -52,7 +52,7 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
                 'relative z-10 flex flex-shrink-0 items-center justify-center rounded-xl transition-all',
                 compact ? 'h-8 w-8' : 'h-9 w-9',
                 activeTab === id
-                  ? 'border border-white/10 bg-white/12 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_10px_18px_-14px_rgba(15,23,42,0.42)] backdrop-blur-md'
+                  ? 'border border-white/14 bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_8px_16px_-14px_rgba(15,23,42,0.36)]'
                   : 'bg-slate-100 text-slate-500'
               )}
             >
