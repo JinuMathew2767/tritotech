@@ -188,11 +188,11 @@
   }
 
   .sidebar-link {
-    @apply flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.015em] text-slate-600 transition-all hover:bg-white/75 hover:text-slate-900 hover:shadow-[0_10px_20px_-18px_rgba(15,23,42,0.45)];
+    @apply flex items-center gap-3 rounded-2xl px-3.5 py-3 text-[14px] font-semibold leading-none tracking-[-0.015em] text-slate-300 transition-all hover:bg-white/8 hover:text-white hover:shadow-[0_16px_26px_-22px_rgba(15,23,42,0.65)];
   }
 
   .sidebar-link-active {
-    @apply flex items-center gap-3 rounded-2xl border border-[#d5dce7] bg-[linear-gradient(135deg,rgba(78,90,122,0.14)_0%,rgba(78,90,122,0.06)_100%)] px-3 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.015em] text-[#4E5A7A] shadow-[0_14px_28px_-24px_rgba(78,90,122,0.28)];
+    @apply flex items-center gap-3 rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(122,141,184,0.22)_0%,rgba(89,104,138,0.18)_100%)] px-3.5 py-3 text-[14px] font-semibold leading-none tracking-[-0.015em] text-white shadow-[0_20px_30px_-24px_rgba(8,19,31,0.85)];
   }
 
   .glassmorphism {

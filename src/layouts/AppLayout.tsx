@@ -217,14 +217,14 @@ export default function AppLayout() {
 
   const renderSidebarContent = () => (
     <div className="flex h-full flex-col">
-      <div className="border-b border-white/60 px-4 py-5">
-        <div className="flex items-center gap-3 rounded-[22px] border border-white/70 bg-white/52 px-3 py-3 shadow-[0_16px_34px_-28px_rgba(15,23,42,0.35)] backdrop-blur-md">
+      <div className="border-b border-white/8 px-4 py-5">
+        <div className="flex items-center gap-3 rounded-[24px] border border-white/10 bg-white/6 px-3.5 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md">
           <div
             className={clsx(
               'flex flex-shrink-0 items-center justify-center overflow-hidden',
               branding.logoDataUrl
-                ? 'h-12 w-16 rounded-2xl border border-white/70 bg-white p-1.5 shadow-sm'
-                : 'h-10 w-10 rounded-2xl bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] shadow-[0_14px_24px_-18px_rgba(78,90,122,0.45)]'
+                ? 'h-12 w-16 rounded-2xl border border-white/12 bg-white p-1.5 shadow-[0_18px_26px_-20px_rgba(8,19,31,0.7)]'
+                : 'h-10 w-10 rounded-2xl bg-[linear-gradient(135deg,#7784a6_0%,#56627f_100%)] shadow-[0_14px_24px_-18px_rgba(8,19,31,0.85)]'
             )}
           >
             {branding.logoDataUrl ? (
@@ -238,10 +238,10 @@ export default function AppLayout() {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="break-words text-[1.05rem] font-extrabold leading-none tracking-[-0.03em] text-slate-900">
+            <p className="break-words text-[1.08rem] font-extrabold leading-none tracking-[-0.03em] text-white">
               {branding.appName}
             </p>
-            <p className="ui-kicker mt-1 capitalize">
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               {role.replace('_', ' ')} Portal
             </p>
           </div>
@@ -265,33 +265,33 @@ export default function AppLayout() {
         })}
       </nav>
 
-      <div className="border-t border-white/60 px-3 py-3">
+      <div className="border-t border-white/8 px-3 py-3">
         <div
-          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/65 bg-white/55 p-2.5 shadow-[0_14px_28px_-26px_rgba(15,23,42,0.4)] backdrop-blur-md transition-colors hover:bg-white/75"
+          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/6 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md transition-colors hover:bg-white/9"
           onClick={() => setUserMenuOpen((current) => !current)}
         >
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/75 bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-xs font-bold text-white shadow-[0_14px_24px_-18px_rgba(78,90,122,0.45)]">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/12 bg-[linear-gradient(135deg,#7784a6_0%,#56627f_100%)] text-xs font-bold text-white shadow-[0_14px_24px_-18px_rgba(8,19,31,0.85)]">
             {initials(`${user?.first_name ?? ''} ${user?.last_name ?? ''}`)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold leading-none tracking-[-0.015em] text-slate-800">
+            <p className="truncate text-[13px] font-semibold leading-none tracking-[-0.015em] text-white">
               {user?.first_name} {user?.last_name}
             </p>
-            <p className="truncate text-[12px] font-medium text-slate-400">{user?.email}</p>
+            <p className="truncate text-[12px] font-medium text-slate-500">{user?.email}</p>
           </div>
-          <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+          <ChevronDown className="h-3.5 w-3.5 text-slate-500" />
         </div>
         {userMenuOpen && (
-          <div className="mt-2 overflow-hidden rounded-2xl border border-white/70 bg-white/86 text-sm shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] backdrop-blur-xl">
+          <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#132133]/96 text-sm shadow-[0_18px_40px_-28px_rgba(8,19,31,0.85)] backdrop-blur-xl">
             <Link
               to="/profile"
-              className="flex items-center gap-2 px-3 py-2.5 text-slate-700 transition-colors hover:bg-slate-50"
+              className="flex items-center gap-2 px-3 py-2.5 text-slate-200 transition-colors hover:bg-white/8"
             >
               <Users className="h-4 w-4" /> <span className="ui-nav-text text-[14px]">Profile</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-red-600 transition-colors hover:bg-red-50"
+              className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-rose-300 transition-colors hover:bg-rose-400/10"
             >
               <LogOut className="h-4 w-4" /> <span className="ui-nav-text text-[14px]">Sign Out</span>
             </button>
@@ -365,16 +365,16 @@ export default function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(78,90,122,0.14),transparent_24%),linear-gradient(180deg,#f4f8fb_0%,#eef3f7_100%)]">
-      <aside className="hidden w-56 flex-shrink-0 flex-col border-r border-white/60 bg-white/72 backdrop-blur-xl lg:flex">
+      <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-white/8 bg-[linear-gradient(180deg,#0d1726_0%,#111f32_100%)] shadow-[18px_0_55px_-42px_rgba(8,19,31,0.9)] backdrop-blur-xl lg:flex">
         {renderSidebarContent()}
       </aside>
 
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
-          <aside className="relative h-full w-64 border-r border-white/60 bg-white/82 shadow-xl backdrop-blur-xl">
+          <aside className="relative h-full w-72 border-r border-white/8 bg-[linear-gradient(180deg,#0d1726_0%,#111f32_100%)] shadow-[24px_0_60px_-34px_rgba(8,19,31,0.95)] backdrop-blur-xl">
             <button
-              className="absolute right-3 top-3 rounded-xl bg-white/70 p-1.5 text-slate-400 shadow-sm backdrop-blur-md transition-colors hover:text-slate-600"
+              className="absolute right-3 top-3 rounded-xl bg-white/8 p-1.5 text-slate-400 shadow-sm backdrop-blur-md transition-colors hover:bg-white/12 hover:text-white"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-5 w-5" />
