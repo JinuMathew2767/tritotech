@@ -4,11 +4,11 @@ import clsx from 'clsx'
 
 type AssetModuleTabId = 'dashboard' | 'master' | 'transactions' | 'analytics'
 
-const tabs: Array<{ id: AssetModuleTabId; label: string; hint: string; to: string; icon: typeof Boxes }> = [
-  { id: 'dashboard', label: 'Dashboard', hint: 'Overview and quick actions', to: '/it-assets/dashboard', icon: Boxes },
-  { id: 'master', label: 'Asset Master', hint: 'Create and manage records', to: '/it-assets/master', icon: FolderKanban },
-  { id: 'transactions', label: 'Asset Transactions', hint: 'Issue, return, and transfer', to: '/it-assets/transactions', icon: Repeat2 },
-  { id: 'analytics', label: 'Expiry & Warranty Analytics', hint: 'Renewal and coverage watch', to: '/it-assets/analytics', icon: CalendarClock },
+const tabs: Array<{ id: AssetModuleTabId; label: string; to: string; icon: typeof Boxes }> = [
+  { id: 'dashboard', label: 'Dashboard', to: '/it-assets/dashboard', icon: Boxes },
+  { id: 'master', label: 'Asset Master', to: '/it-assets/master', icon: FolderKanban },
+  { id: 'transactions', label: 'Transactions', to: '/it-assets/transactions', icon: Repeat2 },
+  { id: 'analytics', label: 'Renewals', to: '/it-assets/analytics', icon: CalendarClock },
 ]
 
 const getActiveTab = (pathname: string): AssetModuleTabId => {
@@ -34,44 +34,33 @@ export default function AssetModuleTabs({ compact = true }: AssetModuleTabsProps
 
   return (
     <div className={clsx('card', compact ? 'p-2.5' : 'p-3.5')}>
-      <div className={clsx('grid xl:items-center', compact ? 'gap-2.5 xl:grid-cols-[210px_minmax(0,1fr)]' : 'gap-3 xl:grid-cols-[240px_minmax(0,1fr)]')}>
-        <div>
-          <p className="ui-kicker">IT Asset Management</p>
-          <p className={clsx('ui-data-note mt-1 max-w-[20ch]', compact ? 'text-[12px] leading-6' : 'text-[13px] leading-6')}>
-            Manage inventory, transactions, and renewal visibility from one workspace.
-          </p>
-        </div>
-        <div className={clsx('grid gap-2 sm:grid-cols-2 2xl:grid-cols-4', compact && 'xl:gap-1.5')}>
-          {tabs.map(({ id, label, hint, to, icon: Icon }) => (
-            <Link
-              key={id}
-              to={to}
+      <div className={clsx('grid gap-2 sm:grid-cols-2 2xl:grid-cols-4', compact && 'xl:gap-1.5')}>
+        {tabs.map(({ id, label, to, icon: Icon }) => (
+          <Link
+            key={id}
+            to={to}
+            className={clsx(
+              'flex border transition-all',
+              compact ? 'items-center gap-2.5 rounded-xl px-3 py-2.5' : 'items-center gap-3 rounded-2xl px-3.5 py-3',
+              activeTab === id
+                ? 'border-[#4E5A7A]/25 bg-[#4E5A7A]/10 text-[#4E5A7A] shadow-sm'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+            )}
+          >
+            <div
               className={clsx(
-                'flex border transition-all',
-                compact ? 'items-center gap-2.5 rounded-xl px-3 py-2' : 'items-center gap-3 rounded-2xl px-3.5 py-3',
-                activeTab === id
-                  ? 'border-[#4E5A7A]/25 bg-[#4E5A7A]/10 text-[#4E5A7A] shadow-sm'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                'flex flex-shrink-0 items-center justify-center rounded-xl',
+                compact ? 'h-8 w-8' : 'h-9 w-9',
+                activeTab === id ? 'bg-white/80 text-[#4E5A7A]' : 'bg-slate-100 text-slate-500'
               )}
             >
-              <div
-                className={clsx(
-                  'flex flex-shrink-0 items-center justify-center rounded-xl',
-                  compact ? 'h-8 w-8' : 'h-9 w-9',
-                  activeTab === id ? 'bg-white/80 text-[#4E5A7A]' : 'bg-slate-100 text-slate-500'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-              </div>
-              <div className="min-w-0 self-center">
-                <p className={clsx('ui-card-title', compact ? 'text-[14px]' : 'text-[15px]')}>{label}</p>
-                <p className={clsx('ui-data-note mt-1', compact ? 'hidden 2xl:block' : 'block')}>
-                  {hint}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
+              <Icon className="h-4 w-4" />
+            </div>
+            <div className="min-w-0 self-center">
+              <p className={clsx('ui-card-title', compact ? 'text-[14px]' : 'text-[15px]')}>{label}</p>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   )
