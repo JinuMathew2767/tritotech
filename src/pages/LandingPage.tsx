@@ -113,7 +113,10 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden items-center gap-3 sm:flex">
-            <Link to="/login" className="btn-secondary px-4 py-2.5">
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#d7deeb] bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,247,252,0.96)_100%)] px-4 py-2.5 text-[13.5px] font-semibold leading-none tracking-[-0.015em] text-[#4E5A7A] shadow-[0_0_0_1px_rgba(122,141,184,0.08),0_16px_30px_-24px_rgba(78,90,122,0.38)] transition-all hover:-translate-y-0.5 hover:border-[#c5d0e2] hover:shadow-[0_0_0_1px_rgba(122,141,184,0.12),0_18px_34px_-24px_rgba(78,90,122,0.42)]"
+            >
               Sign In
             </Link>
             <Link to="/signup" className="btn-primary px-5 py-2.5">
