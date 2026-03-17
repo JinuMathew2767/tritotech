@@ -343,31 +343,31 @@ export default function TicketDetail() {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[#f6f7f8]">
-      <div className="border-b border-slate-100 bg-white px-4 py-4 flex-shrink-0">
+    <div className="page-shell flex h-full min-h-0 flex-col">
+      <div className="page-header flex-shrink-0">
         <div className="flex items-start gap-3">
           <button
             type="button"
             onClick={handleBack}
-            className="mt-0.5 rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+            className="mt-0.5 rounded-xl border border-slate-300 bg-white p-2 text-slate-500 transition-colors hover:border-slate-400 hover:text-slate-700"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="ui-kicker text-[#4E5A7A]">{ticket.ticket_number}</p>
-            <h1 className="mt-1 text-[1.95rem] font-extrabold leading-[1.01] tracking-[-0.05em] text-slate-900">{ticket.subject}</h1>
+            <p className="page-eyebrow">{ticket.ticket_number}</p>
+            <h1 className="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em] text-slate-950">{ticket.subject}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge status={ticket.status} />
               <PriorityBadge priority={ticket.priority} />
-              <span className="ui-chip-text rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1 text-slate-600">
+              <span className="ui-chip-text rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 text-slate-700">
                 {ticket.category}
               </span>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-slate-500">
-              <span className="ui-chip-text rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
+              <span className="ui-chip-text rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium">
                 {ticket.company}
               </span>
-              <span className="ui-chip-text rounded-full bg-slate-100/80 px-2.5 py-1 font-medium">
+              <span className="ui-chip-text rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 font-medium">
                 {formatDate(ticket.created_at)}
               </span>
             </div>
@@ -375,10 +375,10 @@ export default function TicketDetail() {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 p-2.5 sm:p-4">
+      <div className="flex-1 min-h-0">
         <div className="grid h-full min-h-0 gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1.45fr)_360px] xl:grid-cols-[minmax(0,1.6fr)_380px]">
-          <section className="order-1 flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,252,0.9)_100%)] shadow-[0_20px_44px_-34px_rgba(15,23,42,0.32)] sm:rounded-[28px] sm:shadow-[0_24px_60px_-34px_rgba(15,23,42,0.35)] lg:min-h-0">
-            <div className="border-b border-slate-100 px-3 py-3 sm:px-4 sm:py-4">
+          <section className="glass-table order-1 flex min-h-[420px] min-w-0 flex-col lg:min-h-0">
+            <div className="border-b border-slate-200 px-3 py-3 sm:px-4 sm:py-4">
               <div className="mx-auto flex w-full max-w-[46rem] flex-col gap-2.5 xl:max-w-[48rem] sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="ui-section-title">Conversation</h2>
@@ -387,8 +387,8 @@ export default function TicketDetail() {
                   </p>
                 </div>
                 {ticket.assigned_to && (
-                  <div className="ui-chip-text inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-slate-200/80 bg-white/70 px-2.5 py-1 text-slate-500 sm:gap-2 sm:px-3 sm:py-1.5 sm:self-auto">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#4E5A7A] sm:h-2 sm:w-2" />
+                  <div className="ui-chip-text inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 text-slate-700 sm:gap-2 sm:px-3 sm:py-1.5 sm:self-auto">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#0f7cb8] sm:h-2 sm:w-2" />
                     Assigned to {ticket.assigned_to.name}
                   </div>
                 )}
@@ -397,17 +397,17 @@ export default function TicketDetail() {
 
             <div
               ref={conversationViewportRef}
-              className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(180deg,#eef2f7_0%,#e7edf5_100%)] px-2 py-2.5 [scrollbar-color:rgba(100,116,139,0.42)_transparent] [scrollbar-width:thin] sm:px-4 sm:py-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/45 hover:[&::-webkit-scrollbar-thumb]:bg-slate-500/50"
+              className="flex-1 min-h-0 overflow-y-auto bg-slate-50 px-2 py-2.5 [scrollbar-color:rgba(100,116,139,0.42)_transparent] [scrollbar-width:thin] sm:px-4 sm:py-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/45 hover:[&::-webkit-scrollbar-thumb]:bg-slate-500/50"
             >
               <div className="mx-auto w-full max-w-[46rem] space-y-2 xl:max-w-[48rem] sm:space-y-3">
                 {conversationItems.map((item) => {
                   const isMe = item.author.id === user?.id
                   const isSupportReply = !isMe && item.author.role !== 'employee'
                   const bubbleClassName = isMe
-                    ? 'rounded-[18px] rounded-br-[6px] border border-[#c9ebbc] bg-[#d9fdd3] text-slate-800 shadow-none sm:shadow-[0_12px_28px_-24px_rgba(34,197,94,0.3)]'
+                    ? 'rounded-[16px] rounded-br-[6px] border border-[#0f7cb8]/20 bg-[#e8f3fb] text-slate-800 shadow-none'
                     : isSupportReply
-                      ? 'rounded-[18px] rounded-bl-[6px] border border-[#d7e6ff] bg-[#f2f7ff] text-slate-800 shadow-none sm:shadow-[0_12px_28px_-24px_rgba(59,130,246,0.24)]'
-                      : 'rounded-[18px] rounded-bl-[6px] border border-slate-200 bg-white text-slate-800 shadow-none sm:shadow-[0_12px_24px_-22px_rgba(15,23,42,0.12)]'
+                      ? 'rounded-[16px] rounded-bl-[6px] border border-[#d7e6ff] bg-white text-slate-800 shadow-none'
+                      : 'rounded-[16px] rounded-bl-[6px] border border-slate-200 bg-white text-slate-800 shadow-none'
 
                   return (
                     <div key={item.id} className={clsx('flex items-end gap-1.5 sm:gap-2.5', isMe ? 'justify-end' : 'justify-start')}>
@@ -428,7 +428,7 @@ export default function TicketDetail() {
                         )}
                       >
                         {!isMe && (
-                          <p className={clsx('text-[10px] font-semibold uppercase tracking-[0.1em] sm:text-[11px]', isSupportReply ? 'text-[#4369a7]' : 'text-slate-500')}>
+                          <p className={clsx('text-[10px] font-semibold uppercase tracking-[0.1em] sm:text-[11px]', isSupportReply ? 'text-[#163b63]' : 'text-slate-500')}>
                             {item.author.name}
                           </p>
                         )}
@@ -462,13 +462,13 @@ export default function TicketDetail() {
               </div>
             </div>
 
-            <form onSubmit={sendReply} className="border-t border-slate-100 bg-white px-3 py-3 sm:px-4">
+            <form onSubmit={sendReply} className="border-t border-slate-200 bg-white px-3 py-3 sm:px-4">
               <div className="mx-auto w-full max-w-[46rem] xl:max-w-[48rem]">
-                <div className="flex items-end gap-1.5 rounded-[18px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-1.5 shadow-[0_10px_20px_-24px_rgba(15,23,42,0.18)] sm:gap-2 sm:rounded-[20px] sm:p-1.5">
+                <div className="flex items-end gap-1.5 rounded-[16px] border border-slate-300 bg-white p-1.5 shadow-[0_8px_18px_-18px_rgba(15,23,42,0.18)] sm:gap-2 sm:p-1.5">
                   <button
                     type="button"
                     disabled={isResolved}
-                    className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[#4E5A7A] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent sm:rounded-2xl sm:p-2.5"
+                    className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-[#163b63] disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent sm:p-2.5"
                   >
                     <Paperclip className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
                   </button>
@@ -489,7 +489,7 @@ export default function TicketDetail() {
                   <button
                     type="submit"
                     disabled={isResolved || !reply.trim() || sending}
-                    className="rounded-[16px] bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] p-2 text-white shadow-[0_10px_18px_-18px_rgba(78,90,122,0.48)] transition-all hover:-translate-y-0.5 hover:bg-[#1a95d0] active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45 sm:rounded-[18px] sm:p-2.5"
+                    className="rounded-[14px] border border-[#123251] bg-[linear-gradient(135deg,#163b63_0%,#0f7cb8_100%)] p-2 text-white shadow-[0_12px_22px_-18px_rgba(15,124,184,0.35)] transition-all hover:-translate-y-0.5 active:scale-95 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45 sm:p-2.5"
                   >
                     <Send className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
                   </button>
@@ -499,28 +499,28 @@ export default function TicketDetail() {
           </section>
 
           <aside className="order-2 min-h-0 space-y-4 lg:overflow-y-auto lg:pr-1 lg:[scrollbar-color:rgba(100,116,139,0.5)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-2 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-slate-400/60">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="card p-4">
               <h2 className="ui-section-title">Overview</h2>
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {meta.map(({ label, value }) => (
-                  <div key={label} className="rounded-xl bg-slate-50 p-3">
+                  <div key={label} className="surface-muted p-3">
                     <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">{label}</p>
                     <div className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{value}</div>
                   </div>
                 ))}
               </div>
-              <div className="mt-3 rounded-xl bg-slate-50 p-3">
+              <div className="surface-muted mt-3 p-3">
                 <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">Requester</p>
                 <p className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{ticket.created_by.name}</p>
                 <p className="mt-1 text-[11px] font-medium text-slate-500">{ticket.company} / {ticket.department}</p>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="card p-4">
               <h2 className="ui-section-title">SLA Snapshot</h2>
               <div className="mt-4 space-y-3">
                 {slaCards.map(({ label, value, sub }) => (
-                  <div key={label} className="rounded-xl bg-slate-50 p-3">
+                  <div key={label} className="surface-muted p-3">
                     <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">{label}</p>
                     <div className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">{value}</div>
                     {sub && <p className="mt-1 text-[11px] font-medium text-slate-500">{sub}</p>}
@@ -544,7 +544,7 @@ export default function TicketDetail() {
             </div>
 
             {isSupportUser && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="card p-4">
                 <h2 className="ui-section-title">Actions</h2>
                 <div className="mt-4 space-y-4">
                   <div>
@@ -635,7 +635,7 @@ export default function TicketDetail() {
                   )}
 
                   {!isResolved && (
-                    <div className="rounded-xl bg-slate-50 p-3">
+                    <div className="surface-muted p-3">
                       <p className="ui-kicker mb-1 normal-case tracking-[0.08em]">Assignment</p>
                       <p className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-slate-800">
                         {ticket.assigned_to ? ticket.assigned_to.name : 'Unassigned'}

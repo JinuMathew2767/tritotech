@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Pencil, Plus, Route, Save, ShieldCheck, Trash2, Workflow } from 'lucide-react'
 import toast from 'react-hot-toast'
-import Modal from '@/components/ui/Modal'
 import DropdownSelect from '@/components/ui/DropdownSelect'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
-import ticketService, { type TicketStats } from '@/services/ticketService'
+import Modal from '@/components/ui/Modal'
+import PageHeader from '@/components/ui/PageHeader'
 import routingRuleService, {
   type RoutingRule,
   type RoutingRuleMeta,
   type RoutingRulePayload,
 } from '@/services/routingRuleService'
+import ticketService, { type TicketStats } from '@/services/ticketService'
 
 type RuleFormState = {
   name: string
@@ -54,10 +55,22 @@ const toFormState = (rule?: RoutingRule): RuleFormState =>
       }
     : emptyForm
 
-const scopeParts = (rule: Pick<RoutingRule, 'company' | 'department' | 'category'>) => [
-  rule.company ? `Company: ${rule.company}` : 'Any company',
-  rule.department ? `Department: ${rule.department}` : 'Any department',
-  rule.category ? `Category: ${rule.category}` : 'Any category',
+const getSpecificity = (rule: Pick<RoutingRule, 'company_id' | 'department_id' | 'category_id'>) =>
+  Number(Boolean(rule.company_id)) + Number(Boolean(rule.department_id)) + Number(Boolean(rule.category_id))
+
+const sortRules = (items: RoutingRule[]) =>
+  [...items].sort((left, right) => {
+    const leftSpecificity = getSpecificity(left)
+    const rightSpecificity = getSpecificity(right)
+    if (rightSpecificity !== leftSpecificity) return rightSpecificity - leftSpecificity
+    if (left.priority !== right.priority) return left.priority - right.priority
+    return left.id - right.id
+  })
+
+const scopeBadges = (rule: Pick<RoutingRule, 'company' | 'department' | 'category'>) => [
+  { label: 'Company', value: rule.company || 'Any company' },
+  { label: 'Department', value: rule.department || 'Any department' },
+  { label: 'Category', value: rule.category || 'Any category' },
 ]
 
 export default function RoutingRules() {
@@ -80,7 +93,7 @@ export default function RoutingRules() {
       ])
       setStats(statsData)
       setMeta(metaData)
-      setRules(ruleData)
+      setRules(sortRules(ruleData))
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Failed to load routing rules')
     } finally {
@@ -89,16 +102,18 @@ export default function RoutingRules() {
   }
 
   useEffect(() => {
-    loadData()
+    void loadData()
   }, [])
 
   const summary = useMemo(() => {
     const activeRules = rules.filter((rule) => rule.is_active).length
     const catchAllRules = rules.filter((rule) => !rule.company_id && !rule.department_id && !rule.category_id).length
+    const scopedRules = rules.filter((rule) => getSpecificity(rule) >= 2).length
     return {
       total: rules.length,
       active: activeRules,
       catchAll: catchAllRules,
+      scoped: scopedRules,
       unassigned: stats?.unassigned ?? 0,
     }
   }, [rules, stats])
@@ -123,6 +138,12 @@ export default function RoutingRules() {
   }
 
   const saveRule = async () => {
+    if (!form.name.trim()) return toast.error('Rule name is required')
+    if (!form.assignee_user_id) return toast.error('Please choose an assignee')
+
+    const priority = Number(form.priority)
+    if (!Number.isFinite(priority) || priority < 1) return toast.error('Priority must be 1 or higher')
+
     try {
       setSaving(true)
       const payload = toPayload(form)
@@ -134,14 +155,7 @@ export default function RoutingRules() {
         const next = editingRule
           ? prev.map((rule) => (rule.id === savedRule.id ? savedRule : rule))
           : [...prev, savedRule]
-
-        return [...next].sort((left, right) => {
-          const leftSpecificity = Number(Boolean(left.company_id)) + Number(Boolean(left.department_id)) + Number(Boolean(left.category_id))
-          const rightSpecificity = Number(Boolean(right.company_id)) + Number(Boolean(right.department_id)) + Number(Boolean(right.category_id))
-          if (rightSpecificity !== leftSpecificity) return rightSpecificity - leftSpecificity
-          if (left.priority !== right.priority) return left.priority - right.priority
-          return left.id - right.id
-        })
+        return sortRules(next)
       })
 
       toast.success(editingRule ? 'Routing rule updated' : 'Routing rule created')
@@ -169,131 +183,191 @@ export default function RoutingRules() {
 
   return (
     <div className="page-shell">
-      <div className="card p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#4E5A7A]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#4E5A7A]">
-              <Workflow className="h-3.5 w-3.5" />
-              Routing Studio
+      <PageHeader
+        eyebrow={
+          <>
+            <Workflow className="h-3.5 w-3.5" />
+            Assignment Logic
+          </>
+        }
+        title="Routing Rules"
+        description="Keep auto-assignment precise with compact rule management for company, department, and category coverage."
+        actions={
+          <button onClick={openCreate} className="btn-primary gap-2">
+            <Plus className="h-4 w-4" />
+            New Rule
+          </button>
+        }
+        meta={
+          <>
+            <span className="page-meta-chip">{summary.active} active</span>
+            <span className="page-meta-chip">{summary.catchAll} fallback</span>
+          </>
+        }
+      />
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="metric-tile">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#0f7cb8]/10 text-[#163b63]">
+            <Route className="h-5 w-5" />
+          </div>
+          <p className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">{summary.total}</p>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Total Rules</p>
+        </div>
+
+        <div className="metric-tile">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <p className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">{summary.active}</p>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Active Rules</p>
+        </div>
+
+        <div className="metric-tile">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <Workflow className="h-5 w-5" />
+          </div>
+          <p className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">{summary.scoped}</p>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Targeted Rules</p>
+        </div>
+
+        <div className="metric-tile">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+            <Route className="h-5 w-5" />
+          </div>
+          <p className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">{summary.unassigned}</p>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Unassigned Tickets</p>
+        </div>
+      </section>
+
+      <section className="surface-muted px-4 py-3 text-sm text-slate-600">
+        Specific scope outranks broad scope. If two rules match at the same specificity, the lower priority number wins.
+      </section>
+
+      <section className="glass-table">
+        <div className="border-b border-slate-200 px-5 py-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-950">Rule Directory</h2>
+              <p className="mt-1 text-sm text-slate-500">The most specific rules appear first so precedence stays obvious.</p>
             </div>
-            <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">Routing Rules</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-              Create scoped routing rules by company, department, and category so incoming work reaches the right support owner without manual triage.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-white/82 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-              {summary.active} active
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+              {rules.length} rules
             </span>
-            <button onClick={openCreate} className="btn-primary gap-2 self-start">
-              <Plus className="w-4 h-4" />
-              New Rule
-            </button>
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="card p-5">
-          <div className="w-10 h-10 rounded-xl bg-[#4E5A7A]/10 flex items-center justify-center mb-3">
-            <Route className="w-5 h-5 text-[#4E5A7A]" />
+        {rules.length === 0 ? (
+          <div className="px-5 py-14 text-center text-sm text-slate-500">
+            No routing rules yet. Create the first rule to start auto-assigning tickets.
           </div>
-          <p className="text-2xl font-extrabold text-slate-900">{summary.total}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Total routing rules</p>
-        </div>
-        <div className="card p-5">
-          <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center mb-3">
-            <ShieldCheck className="w-5 h-5 text-green-600" />
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900">{summary.active}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Active rules</p>
-        </div>
-        <div className="card p-5">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
-            <Workflow className="w-5 h-5 text-amber-600" />
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900">{summary.catchAll}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Catch-all rules</p>
-        </div>
-        <div className="card p-5">
-          <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center mb-3">
-            <Route className="w-5 h-5 text-rose-600" />
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900">{summary.unassigned}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Currently unassigned tickets</p>
-        </div>
-      </div>
-
-      <div className="card p-4 text-sm text-slate-600">
-        Wildcards:
-        Leave company, department, or category blank to match any value. A rule with all three blank acts as a global fallback.
-      </div>
-
-      <div className="glass-table">
-        <div className="px-5 py-4 border-b border-slate-100">
-          <h2 className="font-semibold text-slate-900">Rule Directory</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
-              <tr>
-                <th className="text-left px-4 py-3">Rule</th>
-                <th className="text-left px-4 py-3">Scope</th>
-                <th className="text-left px-4 py-3">Assignee</th>
-                <th className="text-left px-4 py-3">Priority</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {rules.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-slate-400">
-                    No routing rules yet. Create your first rule to start auto-assigning tickets.
-                  </td>
-                </tr>
-              ) : rules.map((rule) => (
-                <tr key={rule.id} className="hover:bg-slate-50 align-top">
-                  <td className="px-4 py-3">
-                    <p className="font-semibold text-slate-900">{rule.name}</p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Updated {new Date(rule.updated_at).toLocaleDateString()} by {rule.updated_by_name || rule.created_by_name || 'system'}
-                    </p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-2">
-                      {scopeParts(rule).map((part) => (
-                        <span key={part} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                          {part}
+        ) : (
+          <>
+            <div className="hidden overflow-x-auto lg:block">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Rule</th>
+                    <th className="px-4 py-3 text-left">Coverage</th>
+                    <th className="px-4 py-3 text-left">Assignee</th>
+                    <th className="px-4 py-3 text-left">Priority</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-left">Updated</th>
+                    <th className="px-4 py-3 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {rules.map((rule) => (
+                    <tr key={rule.id} className="transition-colors hover:bg-slate-50">
+                      <td className="px-4 py-4 align-top">
+                        <p className="font-semibold text-slate-900">{rule.name}</p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {getSpecificity(rule)} scope level{getSpecificity(rule) === 1 ? '' : 's'}
+                        </p>
+                      </td>
+                      <td className="px-4 py-4 align-top">
+                        <div className="flex flex-wrap gap-2">
+                          {scopeBadges(rule).map((item) => (
+                            <span key={`${rule.id}-${item.label}`} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                              {item.value}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 align-top text-slate-700">{rule.assignee_name}</td>
+                      <td className="px-4 py-4 align-top">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                          #{rule.priority}
                         </span>
-                      ))}
+                      </td>
+                      <td className="px-4 py-4 align-top">
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${rule.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                          {rule.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 align-top text-xs text-slate-500">
+                        {new Date(rule.updated_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-4 align-top">
+                        <div className="flex flex-wrap gap-2">
+                          <button onClick={() => openEdit(rule)} className="btn-secondary gap-1.5 px-2.5 py-1 text-xs">
+                            <Pencil className="h-3.5 w-3.5" />
+                            Edit
+                          </button>
+                          <button onClick={() => deleteRule(rule)} className="btn-secondary gap-1.5 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50">
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="space-y-3 p-3 lg:hidden">
+              {rules.map((rule) => (
+                <div key={rule.id} className="rounded-[16px] border border-slate-200 bg-white p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-900">{rule.name}</p>
+                      <p className="mt-1 text-sm text-slate-500">{rule.assignee_name}</p>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-700">{rule.assignee_name}</td>
-                  <td className="px-4 py-3 text-slate-700">#{rule.priority}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${rule.is_active ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${rule.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
                       {rule.is_active ? 'Active' : 'Inactive'}
                     </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <button onClick={() => openEdit(rule)} className="btn-secondary py-1.5 px-2.5 text-xs gap-1.5">
-                        <Pencil className="w-3.5 h-3.5" />
-                        Edit
-                      </button>
-                      <button onClick={() => deleteRule(rule)} className="btn-secondary py-1.5 px-2.5 text-xs gap-1.5 text-red-600 hover:bg-red-50">
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {scopeBadges(rule).map((item) => (
+                      <span key={`${rule.id}-${item.label}`} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                        {item.value}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-500">
+                    <span>Priority #{rule.priority}</span>
+                    <span>{new Date(rule.updated_at).toLocaleDateString()}</span>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button onClick={() => openEdit(rule)} className="btn-secondary gap-1.5 px-2.5 py-1 text-xs">
+                      <Pencil className="h-3.5 w-3.5" />
+                      Edit
+                    </button>
+                    <button onClick={() => deleteRule(rule)} className="btn-secondary gap-1.5 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50">
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </div>
+          </>
+        )}
+      </section>
 
       <Modal
         open={modalOpen}
@@ -308,11 +382,11 @@ export default function RoutingRules() {
               className="input"
               value={form.name}
               onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-              placeholder="Example: Accounts hardware tickets"
+              placeholder="Accounts hardware requests"
             />
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="label">Company Scope</label>
               <DropdownSelect
@@ -333,7 +407,7 @@ export default function RoutingRules() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="label">Category Scope</label>
               <DropdownSelect
@@ -358,7 +432,7 @@ export default function RoutingRules() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="label">Priority</label>
               <input
@@ -368,32 +442,31 @@ export default function RoutingRules() {
                 value={form.priority}
                 onChange={(event) => setForm((prev) => ({ ...prev, priority: event.target.value }))}
               />
-              <p className="text-xs text-slate-400 mt-1">Lower numbers win when two rules have the same scope specificity.</p>
             </div>
-            <div className="flex items-end">
-              <label className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 w-full">
-                <input
-                  type="checkbox"
-                  checked={form.is_active}
-                  onChange={(event) => setForm((prev) => ({ ...prev, is_active: event.target.checked }))}
-                  className="h-4 w-4 accent-[#4E5A7A]"
-                />
-                <span className="text-sm font-medium text-slate-700">Rule is active</span>
-              </label>
-            </div>
+            <label className="surface-muted flex items-center gap-3 px-4 py-3">
+              <input
+                type="checkbox"
+                checked={form.is_active}
+                onChange={(event) => setForm((prev) => ({ ...prev, is_active: event.target.checked }))}
+                className="h-4 w-4 accent-[#163b63]"
+              />
+              <span className="text-sm font-medium text-slate-700">Rule is active</span>
+            </label>
           </div>
 
-          <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-            Matching preview:
+          <div className="surface-muted px-4 py-3 text-sm text-slate-600">
+            Match preview:
             {` ${form.company_id ? meta.companies.find((item) => String(item.id) === form.company_id)?.label : 'Any company'}`}
             {` / ${form.department_id ? meta.departments.find((item) => String(item.id) === form.department_id)?.label : 'Any department'}`}
             {` / ${form.category_id ? meta.categories.find((item) => String(item.id) === form.category_id)?.label : 'Any category'}`}
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <button className="btn-secondary" onClick={closeModal} disabled={saving}>Cancel</button>
+            <button className="btn-secondary" onClick={closeModal} disabled={saving}>
+              Cancel
+            </button>
             <button className="btn-primary gap-2" onClick={saveRule} disabled={saving}>
-              <Save className="w-4 h-4" />
+              <Save className="h-4 w-4" />
               {saving ? 'Saving...' : editingRule ? 'Save Changes' : 'Create Rule'}
             </button>
           </div>
@@ -402,4 +475,3 @@ export default function RoutingRules() {
     </div>
   )
 }
-

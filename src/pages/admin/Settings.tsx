@@ -24,6 +24,7 @@ import {
   updateBrandingSettings,
 } from '@/services/brandingService'
 import DropdownSelect from '@/components/ui/DropdownSelect'
+import PageHeader from '@/components/ui/PageHeader'
 import assetService, {
   type AssetCategoryMaster,
   type AssetDepartmentMaster,
@@ -35,6 +36,44 @@ import assetService, {
 const sections = ['General', 'Masters', 'Authentication', 'Notifications', 'Maintenance', 'Security']
 const masterTabs = ['categories', 'subcategories', 'assetCategories', 'assetSubcategories', 'assetVendors', 'departments', 'assetEmployees'] as const
 const MAX_LOGO_SIZE_BYTES = 1024 * 1024
+type MasterTabKey = (typeof masterTabs)[number]
+
+const sectionMeta: Record<string, { title: string; description: string }> = {
+  General: {
+    title: 'Brand & Workspace',
+    description: 'Manage naming, timezone, and identity assets used across the portal experience.',
+  },
+  Masters: {
+    title: 'Operational Masters',
+    description: 'Maintain ticket and asset masters from a single, organized administration workspace.',
+  },
+  Authentication: {
+    title: 'Authentication',
+    description: 'Control supported sign-in methods and how users enter the portal.',
+  },
+  Notifications: {
+    title: 'Notifications',
+    description: 'Configure operational alerts and the basic event communication model.',
+  },
+  Maintenance: {
+    title: 'Maintenance',
+    description: 'Handle controlled service windows without losing visibility over the current state.',
+  },
+  Security: {
+    title: 'Security',
+    description: 'Manage basic access restrictions such as allowed IP ranges.',
+  },
+}
+
+const masterTabLabels: Record<MasterTabKey, string> = {
+  categories: 'Concern Categories',
+  subcategories: 'Subcategories',
+  assetCategories: 'Asset Categories',
+  assetSubcategories: 'Asset Subcategories',
+  assetVendors: 'Asset Vendors',
+  departments: 'Departments',
+  assetEmployees: 'Asset Employees',
+}
 
 const fileToDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -696,108 +735,196 @@ export default function AdminSettings() {
 
   const selectedAssetDepartment = assetDepartments.find((department) => department.id === Number(assetEmployeeDepartmentId))
   const selectableAssetCategories = assetCategories.filter((category) => category.isActive || category.id === Number(assetSubcategoryCategoryId))
+  const activeSectionMeta = sectionMeta[activeSection] || sectionMeta.General
+  const activeMasterLabel = masterTabLabels[activeMasterTab]
 
   return (
     <div className="page-shell">
-      <div className="card p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#4E5A7A]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#4E5A7A]">
-              <FolderTree className="h-3.5 w-3.5" />
-              Platform Control
-            </div>
-            <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">System Settings</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-              Manage branding, masters, and supporting platform options with the same glass-surface theme used across the rest of the admin console.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-white/82 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-              {activeSection}
-            </span>
-            {activeSection === 'General' ? (
-              <button onClick={() => void saveBranding()} disabled={brandingSaving} className="btn-primary gap-2 text-sm">
-                <Save className="h-4 w-4" />
-                {brandingSaving ? 'Saving...' : 'Save Changes'}
-              </button>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow={
+          <>
+            <FolderTree className="h-3.5 w-3.5" />
+            Platform Control
+          </>
+        }
+        title="System Settings"
+        description="Reorganize branding, masters, and platform controls into a cleaner enterprise workspace with clearer hierarchy."
+        actions={
+          activeSection === 'General' ? (
+            <button onClick={() => void saveBranding()} disabled={brandingSaving} className="btn-primary gap-2">
+              <Save className="h-4 w-4" />
+              {brandingSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          ) : undefined
+        }
+        meta={
+          <>
+            <span className="page-meta-chip">{activeSection}</span>
+            {activeSection === 'Masters' ? <span className="page-meta-chip">{activeMasterLabel}</span> : null}
+          </>
+        }
+      />
 
-      <div className="flex h-full gap-4">
-      <div className="hidden w-52 flex-shrink-0 flex-col space-y-0.5 rounded-[22px] border border-white/60 bg-white/72 p-3 backdrop-blur-xl md:flex">
+      <div className="flex flex-wrap gap-2 md:hidden">
         {sections.map((section) => (
           <button
             key={section}
             onClick={() => setActiveSection(section)}
-            className={`rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
-              activeSection === section ? 'bg-[#4E5A7A]/10 text-[#4E5A7A]' : 'text-slate-600 hover:bg-slate-50'
-            }`}
+            className={`filter-pill ${activeSection === section ? 'filter-pill-active' : 'filter-pill-inactive'}`}
           >
             {section}
           </button>
         ))}
       </div>
 
-      <div className="max-w-6xl flex-1 overflow-y-auto rounded-[24px] border border-white/60 bg-white/40 p-4 backdrop-blur-sm md:p-6">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">System Settings</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              {activeSection === 'Masters'
-                ? 'Manage ticket and asset masters including categories, subcategories, vendors, departments, and asset employees.'
-                : 'Configure branding and platform preferences.'}
-            </p>
+      <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">
+        <aside className="glass-table hidden md:block">
+          <div className="border-b border-slate-200 px-4 py-4">
+            <p className="text-sm font-semibold text-slate-950">Sections</p>
+            <p className="mt-1 text-sm text-slate-500">Navigate directly to the control area you want to work on.</p>
           </div>
-          {activeSection !== 'General' && activeSection === 'Masters' ? (
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">Changes save immediately</span>
-          ) : null}
-        </div>
+          <div className="space-y-1 p-2">
+            {sections.map((section) => (
+              <button
+                key={section}
+                onClick={() => setActiveSection(section)}
+                className={`w-full rounded-[14px] px-3 py-3 text-left transition-colors ${
+                  activeSection === section
+                    ? 'bg-[#163b63] text-white shadow-[0_14px_24px_-22px_rgba(22,59,99,0.55)]'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <p className="text-sm font-semibold">{section}</p>
+                <p className={`mt-1 text-xs ${activeSection === section ? 'text-slate-200' : 'text-slate-500'}`}>
+                  {sectionMeta[section]?.title}
+                </p>
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        <div className="space-y-5">
+          <section className="glass-table">
+            <div className="border-b border-slate-200 px-5 py-4">
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-950">{activeSectionMeta.title}</h2>
+                  <p className="mt-1 text-sm text-slate-500">{activeSectionMeta.description}</p>
+                </div>
+                {activeSection === 'Masters' ? (
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+                    Changes save immediately
+                  </span>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="p-4 md:p-5">
 
         {activeSection === 'General' && (
-          <div className="space-y-5">
-            <div>
-              <label className="label">Application Name</label>
-              <input className="input" value={appName} onChange={(e) => setAppName(e.target.value)} />
-            </div>
-            <div>
-              <label className="label">Timezone</label>
-              <DropdownSelect
-                value={timezone}
-                onChange={setTimezone}
-                options={['Asia/Dubai', 'UTC', 'Europe/London', 'America/New_York', 'Asia/Kolkata'].map((tz) => ({
-                  value: tz,
-                  label: tz,
-                }))}
-              />
-            </div>
-            <div className="rounded-xl border-2 border-dashed border-slate-200 p-6 text-center">
-              <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" onChange={handleLogoUpload} />
-              <p className="mb-3 text-sm text-slate-500">Company Logo</p>
-              {logoDataUrl ? (
-                <div className="space-y-3">
-                  <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                    <img src={logoDataUrl} alt="Company logo preview" className="h-full w-full object-contain" />
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="space-y-5">
+              <div className="card p-5">
+                <div className="mb-4">
+                  <h3 className="ui-section-title">Workspace Identity</h3>
+                  <p className="mt-1 text-sm text-slate-500">Set the portal name and timezone used across admin and end-user surfaces.</p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="label">Application Name</label>
+                    <input className="input" value={appName} onChange={(e) => setAppName(e.target.value)} />
                   </div>
-                  <p className="truncate text-xs text-slate-500">{logoFileName || 'Selected logo'}</p>
-                  <div className="flex items-center justify-center gap-2">
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="btn-secondary gap-2 text-xs">
-                      <Upload className="h-3.5 w-3.5" />
-                      Replace Logo
-                    </button>
-                    <button type="button" onClick={() => { setLogoDataUrl(null); setLogoFileName('') }} className="btn-secondary gap-2 text-xs text-red-600 hover:bg-red-50">
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Remove
-                    </button>
+                  <div>
+                    <label className="label">Timezone</label>
+                    <DropdownSelect
+                      value={timezone}
+                      onChange={setTimezone}
+                      options={['Asia/Dubai', 'UTC', 'Europe/London', 'America/New_York', 'Asia/Kolkata'].map((tz) => ({
+                        value: tz,
+                        label: tz,
+                      }))}
+                    />
                   </div>
                 </div>
-              ) : (
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="btn-secondary gap-2 text-xs">
-                  <Upload className="h-3.5 w-3.5" />
-                  Upload Logo
-                </button>
-              )}
+              </div>
+
+              <div className="card p-5">
+                <div className="mb-4">
+                  <h3 className="ui-section-title">Live Preview</h3>
+                  <p className="mt-1 text-sm text-slate-500">A quick reference for how the portal identity reads with the current settings.</p>
+                </div>
+
+                <div className="surface-muted px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                      {logoDataUrl ? (
+                        <img src={logoDataUrl} alt="Company logo preview" className="h-full w-full object-contain" />
+                      ) : (
+                        <FolderTree className="h-5 w-5 text-slate-400" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-base font-semibold text-slate-950">
+                        {appName.trim() || DEFAULT_BRANDING_SETTINGS.appName}
+                      </p>
+                      <p className="truncate text-sm text-slate-500">{timezone}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card p-5">
+              <div className="mb-4">
+                <h3 className="ui-section-title">Brand Assets</h3>
+                <p className="mt-1 text-sm text-slate-500">Upload a compact company mark for header and login surfaces.</p>
+              </div>
+
+              <div className="rounded-[18px] border-2 border-dashed border-slate-200 px-4 py-6 text-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                  className="hidden"
+                  onChange={handleLogoUpload}
+                />
+                {logoDataUrl ? (
+                  <div className="space-y-4">
+                    <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                      <img src={logoDataUrl} alt="Company logo preview" className="h-full w-full object-contain" />
+                    </div>
+                    <p className="truncate text-xs text-slate-500">{logoFileName || 'Selected logo'}</p>
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <button type="button" onClick={() => fileInputRef.current?.click()} className="btn-secondary gap-2 text-xs">
+                        <Upload className="h-3.5 w-3.5" />
+                        Replace Logo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLogoDataUrl(null)
+                          setLogoFileName('')
+                        }}
+                        className="btn-secondary gap-2 text-xs text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
+                      <Upload className="h-6 w-6 text-slate-400" />
+                    </div>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="btn-secondary gap-2 text-xs">
+                      <Upload className="h-3.5 w-3.5" />
+                      Upload Logo
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -810,23 +937,9 @@ export default function AdminSettings() {
                   key={tab}
                   type="button"
                   onClick={() => setActiveMasterTab(tab)}
-                  className={`rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
-                    activeMasterTab === tab ? 'bg-[#4E5A7A] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`filter-pill ${activeMasterTab === tab ? 'filter-pill-active' : 'filter-pill-inactive'}`}
                 >
-                  {tab === 'categories'
-                    ? 'Concern Categories'
-                    : tab === 'subcategories'
-                      ? 'Subcategories'
-                      : tab === 'assetCategories'
-                        ? 'Asset Categories'
-                        : tab === 'assetSubcategories'
-                          ? 'Asset Subcategories'
-                          : tab === 'assetVendors'
-                            ? 'Asset Vendors'
-                      : tab === 'departments'
-                        ? 'Departments'
-                        : 'Asset Employees'}
+                  {masterTabLabels[tab]}
                 </button>
               ))}
             </div>
@@ -1553,61 +1666,107 @@ export default function AdminSettings() {
         )}
 
         {activeSection === 'Authentication' && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-              <span className="text-sm font-medium text-slate-800">Google / Gmail Sign-in</span>
+          <div className="card p-5">
+            <div className="flex items-center justify-between gap-4 rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Google / Gmail Sign-in</p>
+                <p className="mt-1 text-sm text-slate-500">Allow users to authenticate using their Google account.</p>
+              </div>
               <button onClick={() => setGoogleSignIn((current) => !current)}>
-                {googleSignIn ? <ToggleRight className="h-8 w-8 text-[#4E5A7A]" /> : <ToggleLeft className="h-8 w-8 text-slate-300" />}
+                {googleSignIn ? <ToggleRight className="h-8 w-8 text-[#163b63]" /> : <ToggleLeft className="h-8 w-8 text-slate-300" />}
               </button>
             </div>
           </div>
         )}
 
         {activeSection === 'Notifications' && (
-          <div className="rounded-xl bg-slate-50 p-4">
-            <label className="flex items-center gap-3 text-sm font-medium text-slate-800">
-              <input type="checkbox" checked={emailAlerts} onChange={() => setEmailAlerts((current) => !current)} className="h-4 w-4 accent-[#4E5A7A]" />
-              Status Change Alerts
+          <div className="card p-5">
+            <label className="flex items-start gap-3 rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-800">
+              <input
+                type="checkbox"
+                checked={emailAlerts}
+                onChange={() => setEmailAlerts((current) => !current)}
+                className="mt-0.5 h-4 w-4 accent-[#163b63]"
+              />
+              <span>
+                <span className="block font-semibold text-slate-900">Status Change Alerts</span>
+                <span className="mt-1 block text-sm text-slate-500">Notify users when ticket state changes require their attention.</span>
+              </span>
             </label>
           </div>
         )}
 
         {activeSection === 'Maintenance' && (
-          <div className={`rounded-xl p-4 ${maintenanceMode ? 'border border-amber-200 bg-amber-50' : 'bg-slate-50'}`}>
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className={`h-5 w-5 ${maintenanceMode ? 'text-amber-600' : 'text-slate-400'}`} />
-                <div>
-                  <p className="text-sm font-semibold text-slate-800">Maintenance Mode</p>
-                  <p className="text-xs text-slate-500">When active, users see a maintenance page.</p>
+          <div className="card p-5">
+            <div className={`rounded-[16px] border px-4 py-4 ${maintenanceMode ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-slate-50'}`}>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className={`h-5 w-5 ${maintenanceMode ? 'text-amber-600' : 'text-slate-400'}`} />
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">Maintenance Mode</p>
+                    <p className="mt-1 text-sm text-slate-500">When enabled, users are shown a maintenance state instead of the workspace.</p>
+                  </div>
                 </div>
+                <button onClick={() => setMaintenanceMode((current) => !current)}>
+                  {maintenanceMode ? <ToggleRight className="h-8 w-8 text-amber-500" /> : <ToggleLeft className="h-8 w-8 text-slate-300" />}
+                </button>
               </div>
-              <button onClick={() => setMaintenanceMode((current) => !current)}>
-                {maintenanceMode ? <ToggleRight className="h-8 w-8 text-amber-500" /> : <ToggleLeft className="h-8 w-8 text-slate-300" />}
-              </button>
             </div>
           </div>
         )}
 
         {activeSection === 'Security' && (
-          <div className="space-y-3">
-            {ipWhitelist.map((ip, index) => (
-              <div key={index} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
-                <span className="flex-1 font-mono text-sm text-slate-700">{ip}</span>
-                <button onClick={() => setIpWhitelist((prev) => prev.filter((_, itemIndex) => itemIndex !== index))} className="text-slate-400 hover:text-red-500">
-                  <X className="h-4 w-4" />
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="card p-5">
+              <div className="mb-4">
+                <h3 className="ui-section-title">Allowed IP Ranges</h3>
+                <p className="mt-1 text-sm text-slate-500">Restrict administrative access to known networks.</p>
+              </div>
+
+              <div className="space-y-3">
+                {ipWhitelist.map((ip, index) => (
+                  <div key={index} className="surface-muted flex items-center gap-2 px-3 py-3">
+                    <span className="flex-1 font-mono text-sm text-slate-700">{ip}</span>
+                    <button
+                      onClick={() => setIpWhitelist((prev) => prev.filter((_, itemIndex) => itemIndex !== index))}
+                      className="text-slate-400 hover:text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card p-5">
+              <div className="mb-4">
+                <h3 className="ui-section-title">Add Range</h3>
+                <p className="mt-1 text-sm text-slate-500">Enter a CIDR range to permit access.</p>
+              </div>
+
+              <div className="space-y-3">
+                <input className="input" placeholder="192.168.x.x/24" value={newIp} onChange={(e) => setNewIp(e.target.value)} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newIp) {
+                      setIpWhitelist((prev) => [...prev, newIp])
+                      setNewIp('')
+                    }
+                  }}
+                  className="btn-primary w-full justify-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Range
                 </button>
               </div>
-            ))}
-            <div className="flex gap-2">
-              <input className="input flex-1" placeholder="192.168.x.x/24" value={newIp} onChange={(e) => setNewIp(e.target.value)} />
-              <button type="button" onClick={() => { if (newIp) { setIpWhitelist((prev) => [...prev, newIp]); setNewIp('') } }} className="btn-primary py-2">
-                <Plus className="h-4 w-4" />
-              </button>
             </div>
           </div>
         )}
-      </div>
+
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   )

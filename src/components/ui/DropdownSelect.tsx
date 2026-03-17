@@ -215,7 +215,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
             ref={panelRef}
             style={panelStyle}
             className={clsx(
-              'origin-top transform-gpu rounded-[22px] border border-slate-200 bg-white p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.28)] backdrop-blur-md transition duration-150 ease-out',
+              'origin-top transform-gpu rounded-[18px] border border-slate-200 bg-white p-2 shadow-[0_18px_34px_-24px_rgba(15,23,42,0.22)] transition duration-150 ease-out',
               openDirection === 'up' && 'origin-bottom',
               panelVisible
                 ? 'translate-y-0 scale-100 opacity-100'
@@ -243,13 +243,13 @@ export default function DropdownSelect(props: DropdownSelectProps) {
                       className={clsx(
                         'flex w-full items-start gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all',
                         selected
-                          ? 'border-rose-300/65 bg-rose-50/70 shadow-[0_14px_30px_-26px_rgba(251,113,133,0.38)]'
+                          ? 'border-[#0f7cb8]/30 bg-[#0f7cb8]/8 shadow-[0_12px_24px_-22px_rgba(15,124,184,0.25)]'
                           : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50',
                         option.disabled && 'cursor-not-allowed opacity-50',
                         optionClassName
                       )}
-                    >
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#4E5A7A]">
+                      >
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#163b63]">
                         {selected ? <Check className="h-3 w-3" /> : null}
                       </span>
                       <span className="min-w-0">
@@ -276,7 +276,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
         disabled={disabled}
         className={clsx(
           'input flex w-full items-center justify-between gap-3 text-left transition-colors',
-          open && 'border-rose-300 ring-4 ring-rose-200/45',
+          open && 'border-[#0f7cb8] ring-4 ring-[#0f7cb8]/12',
           disabled && 'cursor-not-allowed bg-slate-50 text-slate-400',
           buttonClassName
         )}
@@ -287,7 +287,7 @@ export default function DropdownSelect(props: DropdownSelectProps) {
         <ChevronDown
           className={clsx(
             'h-4 w-4 shrink-0 text-slate-400 transition-transform',
-            open && 'rotate-180 text-[#ef5c7a]'
+            open && 'rotate-180 text-[#163b63]'
           )}
         />
       </button>

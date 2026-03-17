@@ -17,13 +17,13 @@ const sizeMap = {
 }
 
 const imageVariantMap = {
-  default: 'border border-white/80 shadow-[0_10px_22px_-16px_rgba(15,23,42,0.45)]',
-  soft: 'border border-white/90 shadow-[0_8px_18px_-18px_rgba(15,23,42,0.18)]',
+  default: 'border border-slate-200 shadow-[0_8px_18px_-16px_rgba(15,23,42,0.2)]',
+  soft: 'border border-slate-200 shadow-[0_6px_14px_-16px_rgba(15,23,42,0.12)]',
 }
 
 const fallbackVariantMap = {
-  default: 'border border-white/70 bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-white shadow-[0_12px_24px_-16px_rgba(78,90,122,0.42)]',
-  soft: 'border border-white/90 bg-[#dde6f3] text-[#56627f] shadow-[0_8px_18px_-18px_rgba(15,23,42,0.16)]',
+  default: 'border border-[#163b63] bg-[linear-gradient(135deg,#163b63_0%,#0f7cb8_100%)] text-white shadow-[0_10px_20px_-16px_rgba(15,124,184,0.28)]',
+  soft: 'border border-slate-200 bg-[#e8f1f8] text-[#163b63] shadow-[0_6px_14px_-16px_rgba(15,23,42,0.12)]',
 }
 
 export default function Avatar({ name = '', src, size = 'sm', variant = 'default', className }: AvatarProps) {

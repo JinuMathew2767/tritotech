@@ -1,31 +1,29 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
-import { useAuth } from '@/contexts/AuthContext'
+import clsx from 'clsx'
 import {
-  Boxes,
-  LayoutDashboard,
-  Ticket,
   BarChart2,
-  Settings,
-  Users,
   Bell,
-  Search,
+  Boxes,
+  ChevronDown,
+  Clock,
+  FileText,
+  Inbox,
+  LayoutDashboard,
   LogOut,
   Menu,
-  X,
-  Shield,
-  ChevronDown,
-  FileText,
-  Clock,
   Route,
-  Inbox,
+  Settings,
+  Shield,
+  Ticket,
+  Users,
+  X,
 } from 'lucide-react'
-import { initials } from '@/utils/formatters'
-import clsx from 'clsx'
+import { useAuth } from '@/contexts/AuthContext'
+import { initials, timeAgo } from '@/utils/formatters'
 import { fetchBrandingSettings, getBrandingSettings, subscribeToBrandingSettings } from '@/services/brandingService'
 import notificationService, { type Notification } from '@/services/notificationService'
-import { timeAgo } from '@/utils/formatters'
 
 const navByRole = {
   employee: [
@@ -49,6 +47,23 @@ const navByRole = {
     { label: 'Audit Logs', to: '/admin/audit', icon: FileText },
     { label: 'Settings', to: '/admin/settings', icon: Settings },
   ],
+} as const
+
+const roleLabelMap = {
+  employee: 'Employee workspace',
+  it_staff: 'Support workspace',
+  admin: 'Administration workspace',
+}
+
+const inferPageLabel = (pathname: string) => {
+  if (pathname === '/profile') return 'Profile'
+  if (pathname === '/tickets/new') return 'Raise Ticket'
+  if (/^\/tickets\/\d+/.test(pathname)) return 'Ticket Detail'
+  if (pathname.startsWith('/it-assets/transactions/documents/')) return 'Transaction Document'
+  if (/^\/it-assets\/[^/]+\/edit/.test(pathname)) return 'Edit Asset'
+  if (/^\/it-assets\/[^/]+\/transactions/.test(pathname)) return 'Asset Transactions'
+  if (/^\/it-assets\/[^/]+$/.test(pathname)) return 'Asset Detail'
+  return 'Workspace'
 }
 
 export default function AppLayout() {
@@ -68,6 +83,16 @@ export default function AppLayout() {
 
   const role = user?.role ?? 'employee'
   const navItems = navByRole[role] ?? navByRole.employee
+
+  const currentNavItem = useMemo(
+    () =>
+      [...navItems]
+        .sort((left, right) => right.to.length - left.to.length)
+        .find(({ to }) => location.pathname === to || location.pathname.startsWith(`${to}/`)),
+    [location.pathname, navItems]
+  )
+
+  const currentPageLabel = currentNavItem?.label ?? inferPageLabel(location.pathname)
 
   useEffect(() => {
     const unsubscribe = subscribeToBrandingSettings(() => setBranding(getBrandingSettings()))
@@ -92,11 +117,8 @@ export default function AppLayout() {
       const rect = bellButtonRef.current.getBoundingClientRect()
       const viewportWidth = window.innerWidth
       const gutter = 12
-      const panelWidth = Math.min(352, viewportWidth - gutter * 2)
-      const left = Math.min(
-        Math.max(rect.right - panelWidth, gutter),
-        viewportWidth - panelWidth - gutter
-      )
+      const panelWidth = Math.min(360, viewportWidth - gutter * 2)
+      const left = Math.min(Math.max(rect.right - panelWidth, gutter), viewportWidth - panelWidth - gutter)
 
       setNotificationsPanelStyle({
         position: 'fixed',
@@ -138,6 +160,7 @@ export default function AppLayout() {
     if (!user) return
 
     let active = true
+
     const loadNotifications = async (showLoader = false) => {
       if (showLoader) setNotificationsLoading(true)
       try {
@@ -218,13 +241,13 @@ export default function AppLayout() {
   const renderSidebarContent = () => (
     <div className="flex h-full flex-col">
       <div className="border-b border-white/8 px-4 py-5">
-        <div className="flex items-center gap-3 rounded-[24px] border border-white/10 bg-white/6 px-3.5 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md">
+        <div className="flex items-center gap-3 rounded-[18px] border border-white/8 bg-white/5 px-3.5 py-3.5">
           <div
             className={clsx(
               'flex flex-shrink-0 items-center justify-center overflow-hidden',
               branding.logoDataUrl
-                ? 'h-12 w-16 rounded-2xl border border-white/12 bg-white p-1.5 shadow-[0_18px_26px_-20px_rgba(8,19,31,0.7)]'
-                : 'h-10 w-10 rounded-2xl bg-[linear-gradient(135deg,#7784a6_0%,#56627f_100%)] shadow-[0_14px_24px_-18px_rgba(8,19,31,0.85)]'
+                ? 'h-11 w-14 rounded-[14px] border border-white/10 bg-white p-1.5'
+                : 'h-10 w-10 rounded-[14px] bg-[linear-gradient(135deg,#163b63_0%,#0f7cb8_100%)]'
             )}
           >
             {branding.logoDataUrl ? (
@@ -237,18 +260,21 @@ export default function AppLayout() {
               <Shield className="h-4 w-4 text-white" />
             )}
           </div>
+
           <div className="min-w-0 flex-1">
-            <p className="break-words text-[1.08rem] font-extrabold leading-none tracking-[-0.03em] text-white">
-              {branding.appName}
-            </p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-              {role.replace('_', ' ')} Portal
+            <p className="truncate text-[1.02rem] font-bold tracking-[-0.03em] text-white">{branding.appName}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {role.replace('_', ' ')} portal
             </p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      <div className="px-4 pt-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Navigation</p>
+      </div>
+
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
         {navItems.map(({ label, to, icon: Icon }) => {
           const active = location.pathname === to || location.pathname.startsWith(`${to}/`)
           return (
@@ -266,37 +292,41 @@ export default function AppLayout() {
       </nav>
 
       <div className="border-t border-white/8 px-3 py-3">
-        <div
-          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/6 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md transition-colors hover:bg-white/9"
+        <button
+          type="button"
+          className="flex w-full items-center gap-3 rounded-[16px] border border-white/8 bg-white/5 p-3 text-left transition-colors hover:bg-white/8"
           onClick={() => setUserMenuOpen((current) => !current)}
         >
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/12 bg-[linear-gradient(135deg,#7784a6_0%,#56627f_100%)] text-xs font-bold text-white shadow-[0_14px_24px_-18px_rgba(8,19,31,0.85)]">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#163b63_0%,#0f7cb8_100%)] text-xs font-bold text-white">
             {initials(`${user?.first_name ?? ''} ${user?.last_name ?? ''}`)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold leading-none tracking-[-0.015em] text-white">
+            <p className="truncate text-[13px] font-semibold text-white">
               {user?.first_name} {user?.last_name}
             </p>
             <p className="truncate text-[12px] font-medium text-slate-500">{user?.email}</p>
           </div>
           <ChevronDown className="h-3.5 w-3.5 text-slate-500" />
-        </div>
-        {userMenuOpen && (
-          <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#132133]/96 text-sm shadow-[0_18px_40px_-28px_rgba(8,19,31,0.85)] backdrop-blur-xl">
+        </button>
+
+        {userMenuOpen ? (
+          <div className="mt-2 overflow-hidden rounded-[16px] border border-white/8 bg-[#132133] text-sm shadow-[0_18px_36px_-28px_rgba(8,19,31,0.7)]">
             <Link
               to="/profile"
               className="flex items-center gap-2 px-3 py-2.5 text-slate-200 transition-colors hover:bg-white/8"
             >
-              <Users className="h-4 w-4" /> <span className="ui-nav-text text-[14px]">Profile</span>
+              <Users className="h-4 w-4" />
+              <span className="ui-nav-text">Profile</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-rose-300 transition-colors hover:bg-rose-400/10"
+              className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-rose-300 transition-colors hover:bg-rose-500/10"
             >
-              <LogOut className="h-4 w-4" /> <span className="ui-nav-text text-[14px]">Sign Out</span>
+              <LogOut className="h-4 w-4" />
+              <span className="ui-nav-text">Sign Out</span>
             </button>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   )
@@ -306,16 +336,16 @@ export default function AppLayout() {
         <div
           ref={notificationsPanelRef}
           style={notificationsPanelStyle}
-          className="overflow-hidden rounded-[24px] border border-white/70 bg-white/92 shadow-[0_24px_70px_-34px_rgba(15,23,42,0.45)] backdrop-blur-xl"
+          className="overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-[0_22px_50px_-34px_rgba(15,23,42,0.32)]"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
             <div>
               <p className="ui-card-title">Notifications</p>
               <p className="ui-kicker mt-1 normal-case tracking-[0.08em]">{unreadCount} unread</p>
             </div>
             <button
               onClick={() => void handleMarkAllRead()}
-              className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4E5A7A] disabled:text-slate-300"
+              className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#163b63] disabled:text-slate-300"
               disabled={unreadCount === 0}
             >
               Mark all read
@@ -324,9 +354,9 @@ export default function AppLayout() {
 
           <div className="max-h-[26rem] overflow-y-auto">
             {notificationsLoading ? (
-              <div className="px-4 py-8 text-center text-sm text-slate-400">Loading notifications...</div>
+              <div className="px-4 py-8 text-center text-sm text-slate-500">Loading notifications...</div>
             ) : notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-slate-400">No notifications yet</div>
+              <div className="px-4 py-8 text-center text-sm text-slate-500">No notifications yet</div>
             ) : (
               notifications.map((notification) => (
                 <button
@@ -334,19 +364,21 @@ export default function AppLayout() {
                   onClick={() => void handleNotificationClick(notification)}
                   className={clsx(
                     'w-full border-b border-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-50',
-                    !notification.read && 'bg-rose-50/40'
+                    !notification.read && 'bg-[#0f7cb8]/[0.05]'
                   )}
                 >
                   <div className="flex items-start gap-3">
                     <span
                       className={clsx(
                         'mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full',
-                        notification.read ? 'bg-slate-200' : 'bg-rose-400'
+                        notification.read ? 'bg-slate-200' : 'bg-[#0f7cb8]'
                       )}
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="text-[14px] font-semibold leading-5 tracking-[-0.015em] text-slate-900">{notification.title}</p>
+                        <p className="text-[14px] font-semibold leading-5 tracking-[-0.015em] text-slate-900">
+                          {notification.title}
+                        </p>
                         <span className="whitespace-nowrap text-[11px] font-medium text-slate-400">
                           {timeAgo(notification.created_at)}
                         </span>
@@ -364,17 +396,17 @@ export default function AppLayout() {
     : null
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(78,90,122,0.14),transparent_24%),linear-gradient(180deg,#f4f8fb_0%,#eef3f7_100%)]">
-      <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-white/8 bg-[linear-gradient(180deg,#0d1726_0%,#111f32_100%)] shadow-[18px_0_55px_-42px_rgba(8,19,31,0.9)] backdrop-blur-xl lg:flex">
+    <div className="flex h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(15,124,184,0.08),transparent_26%),linear-gradient(180deg,#f6f9fc_0%,#eef3f9_100%)]">
+      <aside className="hidden w-72 flex-shrink-0 flex-col border-r border-[#0f2133] bg-[linear-gradient(180deg,#091523_0%,#102034_100%)] shadow-[18px_0_50px_-42px_rgba(2,6,23,0.95)] lg:flex">
         {renderSidebarContent()}
       </aside>
 
-      {sidebarOpen && (
+      {sidebarOpen ? (
         <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
-          <aside className="relative h-full w-72 border-r border-white/8 bg-[linear-gradient(180deg,#0d1726_0%,#111f32_100%)] shadow-[24px_0_60px_-34px_rgba(8,19,31,0.95)] backdrop-blur-xl">
+          <div className="absolute inset-0 bg-slate-950/45" onClick={() => setSidebarOpen(false)} />
+          <aside className="relative h-full w-72 border-r border-[#0f2133] bg-[linear-gradient(180deg,#091523_0%,#102034_100%)] shadow-[24px_0_60px_-34px_rgba(2,6,23,0.95)]">
             <button
-              className="absolute right-3 top-3 rounded-xl bg-white/8 p-1.5 text-slate-400 shadow-sm backdrop-blur-md transition-colors hover:bg-white/12 hover:text-white"
+              className="absolute right-3 top-3 rounded-xl border border-white/10 bg-white/8 p-1.5 text-slate-400 transition-colors hover:bg-white/12 hover:text-white"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-5 w-5" />
@@ -382,26 +414,24 @@ export default function AppLayout() {
             {renderSidebarContent()}
           </aside>
         </div>
-      )}
+      ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex flex-shrink-0 items-center gap-3 border-b border-white/60 bg-white/70 px-4 py-3 backdrop-blur-xl">
+        <header className="flex flex-shrink-0 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 py-3.5">
           <button
-            className="rounded-2xl border border-white/70 bg-white/70 p-2 text-slate-500 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-white lg:hidden"
+            className="rounded-xl border border-slate-300 bg-white p-2 text-slate-500 shadow-sm transition-all hover:border-slate-400 hover:text-slate-700 lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-5 w-5" />
           </button>
 
-          <div className="hidden max-w-md flex-1 sm:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search tickets..."
-                className="w-full rounded-xl border border-white/75 bg-white/82 py-2 pl-9 pr-4 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-md focus:border-[#4E5A7A] focus:outline-none focus:ring-2 focus:ring-[#4E5A7A]/20"
-              />
-            </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              {roleLabelMap[role]}
+            </p>
+            <p className="truncate text-[1rem] font-semibold tracking-[-0.03em] text-slate-950">
+              {currentPageLabel}
+            </p>
           </div>
 
           <div className="ml-auto flex items-center gap-2">
@@ -409,24 +439,28 @@ export default function AppLayout() {
               <button
                 ref={bellButtonRef}
                 onClick={() => void handleBellToggle()}
-                className="relative rounded-2xl border border-white/70 bg-white/70 p-2.5 text-slate-500 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-white"
+                className="relative rounded-xl border border-slate-300 bg-white p-2.5 text-slate-500 shadow-sm transition-all hover:border-slate-400 hover:text-slate-700"
               >
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 ? (
-                <>
-                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-                  <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-sm">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                </>
-              ) : null}
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 ? (
+                  <>
+                    <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#0f7cb8]" />
+                    <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#163b63] px-1 text-[10px] font-bold text-white shadow-sm">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  </>
+                ) : null}
               </button>
             </div>
+
             <Link
               to="/profile"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/75 bg-[linear-gradient(135deg,#5b6785_0%,#434e69_100%)] text-xs font-bold text-white shadow-[0_14px_24px_-18px_rgba(78,90,122,0.45)]"
+              className="flex h-10 items-center gap-2 rounded-full border border-slate-300 bg-white pl-1.5 pr-3 text-sm font-semibold text-slate-800 shadow-sm transition-all hover:border-slate-400"
             >
-              {initials(`${user?.first_name ?? ''} ${user?.last_name ?? ''}`)}
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[linear-gradient(135deg,#163b63_0%,#0f7cb8_100%)] text-[11px] font-bold text-white">
+                {initials(`${user?.first_name ?? ''} ${user?.last_name ?? ''}`)}
+              </span>
+              <span className="hidden sm:inline">{user?.first_name}</span>
             </Link>
           </div>
         </header>
@@ -435,8 +469,8 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </div>
+
       {notificationsPanel}
     </div>
   )
 }
-
